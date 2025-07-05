@@ -72,7 +72,7 @@ public class SimpleEVM {
         context.getStorage().printStorage();
     }
 
-    Stack<Integer> getStack() {
+    public Stack<Integer> getStack() {
         return context.getStack();
     }
 
