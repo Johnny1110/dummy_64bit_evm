@@ -33,6 +33,19 @@ public class CallStack implements Stack<CallFrame> {
     }
 
     @Override
+    public List<CallFrame> safePop(int count) {
+        if (frames.size() < count) {
+            throw new EVMException.CallStackUnderFlowException();
+        }
+        List<CallFrame> poppedFrames = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            poppedFrames.add(frames.pop());
+        }
+        log.info("[CallStack] Popped {} frames, depth: {}", count, frames.size());
+        return poppedFrames;
+    }
+
+    @Override
     public void safePush(CallFrame frame) {
         if (frames.size() >= maxDepth) {
             throw new EVMException.CallStackOverFlowException();

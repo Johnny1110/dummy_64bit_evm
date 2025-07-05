@@ -1,10 +1,14 @@
 package com.frizo.lab.sevm.stack;
 
+import com.frizo.lab.sevm.exception.EVMException;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+@Slf4j
 public class Stack32Bit implements Stack<Integer> {
 
     private final int STACK_LIMIT;
@@ -20,6 +24,19 @@ public class Stack32Bit implements Stack<Integer> {
             throw new RuntimeException("Stack underflow");
         }
         return stack.pop();
+    }
+
+    @Override
+    public List<Integer> safePop(int count) {
+        if (stack.size() < count) {
+            log.error("[Stack32Bit] Not enough elements in stack to pop {} items. Current size: {}", count, stack.size());
+            throw new EVMException.StackUnderflowException("Not enough elements in stack to pop " + count + " items. Current size: " + stack.size());
+        }
+        List<Integer> poppedValues = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            poppedValues.add(stack.pop());
+        }
+        return poppedValues;
     }
 
     @Override
