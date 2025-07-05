@@ -3,21 +3,28 @@ package com.frizo.lab.sevm.context.call;
 import com.frizo.lab.sevm.common.Constant;
 import com.frizo.lab.sevm.context.EVMComponentFactory;
 import com.frizo.lab.sevm.context.EVMContext;
+import com.frizo.lab.sevm.exception.EVMException;
 import com.frizo.lab.sevm.memory.Memory;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
 import com.frizo.lab.sevm.storage.Storage;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.Set;
+import java.util.UUID;
 
+@Slf4j
 @Getter
 public class CallFrame {
 
+    private final String frameId = UUID.randomUUID().toString(); // Unique identifier for the frame, can be used for debugging
+
     private final Stack<Integer> stack;
-    private final Memory<Integer, byte[]> memory;
-    private final Storage<Integer, byte[]> storage;
+    @Setter
+    private Memory<Integer, byte[]> memory;
+    @Setter
+    private Storage<Integer, byte[]> storage;
     private final byte[] code;
     private int pc;
     private int gasRemaining;
@@ -48,6 +55,12 @@ public class CallFrame {
 
     // Static Call (read-only)
     private final boolean isStatic;
+
+    @Override
+    public String toString() {
+        return String.format("CallFrame{id='%s', contract='%s', caller='%s', pc=%d, gasRemaining=%d, running=%b, success=%b, reverted=%b}",
+                frameId, contractAddress, caller, pc, gasRemaining, running, success, reverted);
+    }
 
     public CallFrame(byte[] bytecode, int initialGas, CallData callData) {
         this.contractAddress = callData.getContractAddress();
@@ -87,7 +100,7 @@ public class CallFrame {
         this.callType = CallType.INTERNAL;
         this.isStatic = false;
 
-        // 共享父上下文的狀態
+        // share components with parent context
         this.stack = parentContext.getStack();
         this.memory = parentContext.getMemory();
         this.storage = parentContext.getStorage();
@@ -101,7 +114,7 @@ public class CallFrame {
 
     public void consumeGas(int amount) {
         if (gasRemaining < amount) {
-            throw new RuntimeException("Out of gas");
+            throw new EVMException.OutOfGasException();
         }
         gasRemaining -= amount;
         gasUsed += amount;

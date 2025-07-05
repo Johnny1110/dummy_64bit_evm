@@ -51,4 +51,12 @@ public class NumUtils {
         }
         return sb.toString();
     }
+
+    public static String intToHex(int contractAddress) {
+        String hex = Integer.toHexString(contractAddress);
+        if (hex.length() % 2 != 0) {
+            hex = "0" + hex; // Ensure even length
+        }
+        return hex;
+    }
 }

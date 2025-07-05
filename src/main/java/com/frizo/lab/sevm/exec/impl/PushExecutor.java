@@ -15,10 +15,11 @@ public class PushExecutor implements InstructionExecutor {
         int pushSize = opcode.getCode() - Opcode.PUSH1.getCode() + 1;
         byte[] data = context.getNextBytes(pushSize);
 
-        log.info("Executing PUSH operation: {}, size: {}", opcode, pushSize);
+
         int value = NumUtils.bytesToInt(data);
         context.getStack().safePush(value);
         context.advancePC(pushSize);
+        log.info("[PushExecutor] Executing: {}, size: {}, value: {}", opcode, pushSize, value);
     }
 
     @Override

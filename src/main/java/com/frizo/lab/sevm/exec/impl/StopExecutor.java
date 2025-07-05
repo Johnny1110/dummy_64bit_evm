@@ -8,7 +8,10 @@ public class StopExecutor implements InstructionExecutor {
 
     @Override
     public void execute(EVMContext context, Opcode opcode) {
-        context.stop();
+        if (context.isRunning()) {
+            context.getCurrentFrame().setSuccess(true);
+            context.stop();
+        }
     }
 
     @Override

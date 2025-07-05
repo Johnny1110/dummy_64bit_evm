@@ -20,7 +20,9 @@ public class InstructionDispatcher {
                 DupExecutor.class, new DupExecutor(),
                 PushExecutor.class, new PushExecutor(),
                 StorageExecutor.class, new StorageExecutor(),
-                SwapExecutor.class, new SwapExecutor()
+                SwapExecutor.class, new SwapExecutor(),
+                CallExecutor.class, new CallExecutor(),
+                ReturnExecutor.class, new ReturnExecutor()
         );
     }
 

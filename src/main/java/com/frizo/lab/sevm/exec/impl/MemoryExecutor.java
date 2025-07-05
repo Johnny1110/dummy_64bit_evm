@@ -17,12 +17,14 @@ public class MemoryExecutor implements InstructionExecutor {
                 int offset = context.getStack().safePop();
                 int value = context.getStack().safePop();
                 context.getMemory().put(offset, NumUtils.intTo4Bytes(value));
+                log.debug("[MemoryExecutor] MSTORE: offset={}, value={}", offset, value);
             }
             case MLOAD -> {
                 int offset = context.getStack().safePop();
                 byte[] data = context.getMemory().get(offset);
                 int value = NumUtils.bytes4ToInt(data);
                 context.getStack().safePush(value);
+                log.debug("[MemoryExecutor] MLOAD: offset={}, value={}", offset, value);
             }
             default -> throw new EVMException.UnknownOpcodeException(opcode);
         }

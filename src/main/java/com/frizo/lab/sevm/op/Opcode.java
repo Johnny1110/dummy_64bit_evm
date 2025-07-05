@@ -81,8 +81,8 @@ public enum Opcode {
 
     // Internal func call (Custom opcode)
     ICALL((byte) 0xFC, 10, CallExecutor.class),          // 內部調用
-    RETURN((byte) 0xF3, 0, ReturnExecutor.class),        // 返回
-    REVERT((byte) 0xFD, 0, ReturnExecutor.class),        // 回滾
+    RETURN((byte) 0xF3, 0, ReturnExecutor.class),        // Return from a function call
+    REVERT((byte) 0xFD, 0, ReturnExecutor.class),        // Revert a function call, used for error handling
 
     UNKNOWN((byte) 0xFF, 0, null)
     ;

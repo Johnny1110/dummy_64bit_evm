@@ -11,6 +11,9 @@ public class EVMException extends RuntimeException {
         public StackUnderflowException() {
             super("Stack underflow: not enough items on the stack");
         }
+        public StackUnderflowException(String message) {
+            super(message);
+        }
     }
     public static class StackOverflowException extends EVMException {
         public StackOverflowException() {
@@ -49,6 +52,12 @@ public class EVMException extends RuntimeException {
     public static class CallStackUnderFlowException extends EVMException {
         public CallStackUnderFlowException() {
             super("Call stack underflow: no frames to pop from the call stack");
+        }
+    }
+
+    public static class CallInternalException extends EVMException {
+        public CallInternalException(String errorMessage) {
+            super(errorMessage);
         }
     }
 }
