@@ -10,9 +10,9 @@
 
 ✅ 支援跳轉指令（JUMP, JUMPI）
 
-🔜 PUSHx 系列自動化
+✅ PUSHx 系列自動化
 
-🔜 支援 DUP/SWAP
+✅ 支援 DUP/SWAP
 
 ✅ 支援 Storage 模擬
 
@@ -94,4 +94,46 @@ SWAP2 → stack = [15, 10, 5]
 ✅ 子合約執行成功則回傳值到 stack
 
 ✅ 子合約失敗（OOG, exception）→ stack 推 0 表示失敗
+
+### CALL/RETURN
+
+EVM 是基於 "message call" 模型：每個 CALL 都是一個新的上下文（stack, memory, storage...）
+
+實作 CALL/RETURN 之後，你就能模擬：
+
+函式呼叫（例如 Solidity 的 function）
+
+合約間互動（可模擬內部呼叫，未來支援多合約）
+
+這是一個進入 合約架構與 ABI 模擬 的關鍵橋梁
+
+在設計 bytecode 編譯器前，有 CALL/RETURN 才能產生 可重用邏輯與函式結構
+
+✅ 設計重點
+
+📦 CALL	呼叫一段「bytecode offset」開始的邏輯區塊（模擬 function 呼叫）
+
+🔁 RETURN	將控制權返回到 CALL 的下一行，並還原 stack/memory
+
+🧱 CallFrame	保存 returnPC、stack snapshot、memory snapshot、gas
+
+💾 單一 code 區	同一份 bytecode 中跳到某段邏輯區塊執行（無多合約）
+
+🧠 CALL 操作語意
+```
+Stack: [call_offset, return_offset]
+CALL
+
+→ push current context (stack, memory, pc, gas) into callStack
+→ set pc = call_offset
+```
+
+🧠 RETURN 操作語意
+
+```
+RETURN
+
+→ pop context from callStack
+→ restore stack, memory, gas, pc = return_offset
+```
 

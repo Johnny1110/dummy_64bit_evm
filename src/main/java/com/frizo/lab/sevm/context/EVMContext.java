@@ -2,7 +2,7 @@ package com.frizo.lab.sevm.context;
 
 import com.frizo.lab.sevm.exception.EVMException;
 import com.frizo.lab.sevm.memory.Memory;
-import com.frizo.lab.sevm.nums.Opcode;
+import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
 import com.frizo.lab.sevm.storage.Storage;
 import lombok.Getter;
@@ -13,16 +13,16 @@ import java.util.Set;
 @Getter
 public class EVMContext {
 
-    private final Stack<Integer> stack;
-    private final Memory<Integer, byte[]> memory;
-    private final Storage<Integer, byte[]> storage;
+    protected final Stack<Integer> stack;
+    protected final Memory<Integer, byte[]> memory;
+    protected final Storage<Integer, byte[]> storage;
 
-    private final byte[] code;
-    private int pc;
-    private int gasRemaining;
-    private int gasUsed;
-    private boolean running;
-    private final Set<Integer> validJumpDestIdx;
+    protected final byte[] code;
+    protected int pc;
+    protected int gasRemaining;
+    protected int gasUsed;
+    protected boolean running;
+    protected final Set<Integer> validJumpDestIdx;
 
     public EVMContext(byte[] bytecode, int initialGas) {
         this.stack = EVMComponentFactory.createStack(1024);

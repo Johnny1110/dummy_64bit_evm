@@ -4,15 +4,15 @@ import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.exec.InstructionExecutor;
 import com.frizo.lab.sevm.op.Opcode;
 
-public class StopExecutor implements InstructionExecutor {
-
+public class ReturnExecutor implements InstructionExecutor {
     @Override
     public void execute(EVMContext context, Opcode opcode) {
-        context.stop();
+        // TODO: Implement the RETURN instruction execution logic
     }
 
     @Override
     public boolean canHandle(Opcode opcode) {
-       return opcode.equals(Opcode.STOP);
+        return opcode == Opcode.RETURN ||
+               opcode == Opcode.REVERT;
     }
 }

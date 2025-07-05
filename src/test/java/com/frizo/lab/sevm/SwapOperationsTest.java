@@ -1,7 +1,8 @@
 package com.frizo.lab.sevm;
 
-import com.frizo.lab.sevm.nums.Opcode;
+import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
+import com.frizo.lab.sevm.vm.SimpleEVM;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;

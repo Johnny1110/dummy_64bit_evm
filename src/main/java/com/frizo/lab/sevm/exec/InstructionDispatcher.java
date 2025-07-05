@@ -2,7 +2,7 @@ package com.frizo.lab.sevm.exec;
 
 import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.exec.impl.*;
-import com.frizo.lab.sevm.nums.Opcode;
+import com.frizo.lab.sevm.op.Opcode;
 
 import java.util.Map;
 

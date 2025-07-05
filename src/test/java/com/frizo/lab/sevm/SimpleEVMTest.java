@@ -1,6 +1,7 @@
 package com.frizo.lab.sevm;
 
-import com.frizo.lab.sevm.nums.Opcode;
+import com.frizo.lab.sevm.op.Opcode;
+import com.frizo.lab.sevm.vm.SimpleEVM;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

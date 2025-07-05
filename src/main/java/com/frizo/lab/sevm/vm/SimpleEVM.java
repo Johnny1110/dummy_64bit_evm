@@ -1,8 +1,8 @@
-package com.frizo.lab.sevm;
+package com.frizo.lab.sevm.vm;
 
 import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.exec.InstructionDispatcher;
-import com.frizo.lab.sevm.nums.Opcode;
+import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
 import lombok.extern.slf4j.Slf4j;
 

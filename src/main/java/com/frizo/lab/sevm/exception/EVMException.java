@@ -1,6 +1,6 @@
 package com.frizo.lab.sevm.exception;
 
-import com.frizo.lab.sevm.nums.Opcode;
+import com.frizo.lab.sevm.op.Opcode;
 
 public class EVMException extends RuntimeException {
     public EVMException(String message) {
@@ -37,6 +37,18 @@ public class EVMException extends RuntimeException {
     public static class NoMoreCodeException extends EVMException {
         public NoMoreCodeException() {
             super("No more code to execute: reached the end of the code");
+        }
+    }
+
+    public static class CallStackOverFlowException extends EVMException {
+        public CallStackOverFlowException() {
+            super("Call stack overflow: too many nested calls");
+        }
+    }
+
+    public static class CallStackUnderFlowException extends EVMException {
+        public CallStackUnderFlowException() {
+            super("Call stack underflow: no frames to pop from the call stack");
         }
     }
 }

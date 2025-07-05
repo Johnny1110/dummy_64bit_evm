@@ -1,4 +1,4 @@
-package com.frizo.lab.sevm.nums;
+package com.frizo.lab.sevm.op;
 
 import com.frizo.lab.sevm.exec.InstructionExecutor;
 import com.frizo.lab.sevm.exec.impl.*;
@@ -73,6 +73,17 @@ public enum Opcode {
     SWAP15((byte) 0x9E, 3, SwapExecutor.class),
     SWAP16((byte) 0x9F, 3, SwapExecutor.class),
 
+    // CALL
+    CALL((byte) 0xF1, 40, CallExecutor.class),           // 外部合約調用 external contract call
+    CALLCODE((byte) 0xF2, 40, CallExecutor.class),       // 調用代碼但在當前上下文執行
+    DELEGATECALL((byte) 0xF4, 40, CallExecutor.class),   // 委託調用
+    STATICCALL((byte) 0xFA, 40, CallExecutor.class),     // 靜態調用
+
+    // Internal func call (Custom opcode)
+    ICALL((byte) 0xFC, 10, CallExecutor.class),          // 內部調用
+    RETURN((byte) 0xF3, 0, ReturnExecutor.class),        // 返回
+    REVERT((byte) 0xFD, 0, ReturnExecutor.class),        // 回滾
+
     UNKNOWN((byte) 0xFF, 0, null)
     ;
 
@@ -111,5 +122,14 @@ public enum Opcode {
     public boolean isSwap() {
         // SWAP1~SWAP16 are from 0x90 to 0x9F
         return this.code >= SWAP1.code && this.code <= SWAP16.code;
+    }
+
+    public boolean isCall() {
+        return this == CALL || this == CALLCODE || this == DELEGATECALL ||
+                this == STATICCALL || this == ICALL;
+    }
+
+    public boolean isReturn() {
+        return this == RETURN || this == REVERT;
     }
 }

@@ -3,7 +3,7 @@ package com.frizo.lab.sevm.exec.impl;
 import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.exception.EVMException;
 import com.frizo.lab.sevm.exec.InstructionExecutor;
-import com.frizo.lab.sevm.nums.Opcode;
+import com.frizo.lab.sevm.op.Opcode;
 
 import java.util.function.BinaryOperator;
 
