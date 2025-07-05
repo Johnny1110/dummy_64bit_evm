@@ -75,7 +75,7 @@ public class NumUtils {
         if (hex.length() % 2 != 0) {
             hex = "0" + hex; // Ensure even length
         }
-        return hex;
+        return "0x" + hex;
     }
 
 

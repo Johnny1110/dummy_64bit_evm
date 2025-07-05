@@ -13,6 +13,9 @@ import com.frizo.lab.sevm.utils.NumUtils;
 import com.frizo.lab.sevm.vm.SimpleEVM;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 public class CallExecutor implements InstructionExecutor {
     @Override
@@ -56,26 +59,28 @@ public class CallExecutor implements InstructionExecutor {
         int retOffset = stack.safePop();
         int retSize = stack.safePop();
 
-        log.info("[CallExecutor] CALL - gas: {}, contractAddress: {}, value: {}", gas, contractAddress, value);
+        log.info("[CallExecutor] CALL - gas: {}, contractAddress: {}, value: {}", gas, NumUtils.intToHex(contractAddress), value);
 
         // read the call data from memory.
         byte[] callData = readMemoryData(context, argsOffset, argsSize);
+        log.info("[CallExecutor] CALL - load callData from memory: {}", callData);
         // load the contract code for the given contractAddress.
         byte[] contractCode = loadContractCode(contractAddress);
 
         // Create a new call frame for the called contract
         CallFrame newFrame = new CallFrame(
-                contractCode, gas, CallData.builder()
-                        .contractAddress(NumUtils.intToHex(contractAddress))
-                        .caller(currentFrame.getContractAddress())
-                        .origin(currentFrame.getOrigin())
-                        .value(value)
-                        .inputData(callData)
-                        .inputOffset(argsOffset)
-                        .inputSize(argsSize)
-                        .callType(CallType.CALL)
-                        .isStatic(false)
-                        .build()
+                contractCode, gas,
+                CallData.builder()
+                    .contractAddress(NumUtils.intToHex(contractAddress))
+                    .caller(currentFrame.getContractAddress())
+                    .origin(currentFrame.getOrigin())
+                    .value(value)
+                    .inputData(callData)
+                    .inputOffset(argsOffset)
+                    .inputSize(argsSize)
+                    .callType(CallType.CALL)
+                    .isStatic(false)
+                    .build()
         );
 
         boolean success = executeCallFrame(context, newFrame);
@@ -266,51 +271,81 @@ public class CallExecutor implements InstructionExecutor {
 
     /**
      * Reads a range of data from the memory.
+     *
      * @param context EVMContext
-     * @param offset offset in memory to start reading from
-     * @param size size of the data to read
-     * @return  the data read from memory as a byte array
+     * @param offset  offset in memory to start reading from
+     * @param size    size of the data to read
+     * @return the data read from memory as a byte array
      */
     private byte[] readMemoryData(EVMContext context, int offset, int size) {
-        byte[] data = new byte[size];
+        log.info("[CallExecutor] Reading memory data from offset: {}, size: {}", offset, size);
+
+        List<Byte> dataList = new ArrayList<>();
+
         for (int i = 0; i < size; i++) {
             byte[] memData = context.getMemory().get(offset + i);
-            data[i] = (memData != null && memData.length > 0) ? memData[0] : 0;
+            if (memData != null) {
+                // Add all bytes from this memory location
+                for (byte b : memData) {
+                    dataList.add(b);
+                }
+            }
         }
+
+        // Convert List<Byte> to byte[]
+        byte[] data = new byte[dataList.size()];
+        for (int i = 0; i < dataList.size(); i++) {
+            data[i] = dataList.get(i);
+        }
+
         return data;
     }
 
     /**
      * Writes a range of data to the memory.
+     *
      * @param context EVMContext
-     * @param offset offset in memory to start writing to
-     * @param data the data to write to memory
+     * @param offset  offset in memory to start writing to
+     * @param data    the data to write to memory
      * @param maxSize maximum size to write to memory
      */
     private void writeMemoryData(EVMContext context, int offset, byte[] data, int maxSize) {
-        int writeSize = Math.min(data.length, maxSize);
-        for (int i = 0; i < writeSize; i++) {
-            context.getMemory().put(offset + i, new byte[]{data[i]});
+        log.info("[CallExecutor] Writing memory data to offset: {}, size: {}", offset, data.length);
+
+        if (data == null || data.length == 0) {
+            log.warn("[CallExecutor] No data to write");
+            return;
         }
+
+        // Write each byte to consecutive memory locations
+        for (int i = 0; i < data.length; i++) {
+            // Create a single-byte array for this memory location
+            byte[] singleByte = new byte[]{data[i]};
+            context.getMemory().put(offset + i, singleByte);
+        }
+
+        log.info("[CallExecutor] Successfully wrote {} bytes to memory starting at offset {}", data.length, offset);
+        context.getMemory().printMemory();
     }
 
     /**
      * Loads the contract code for the given address.
+     *
      * @param contractAddress contract address
      * @return the contract code as a byte array
      */
     private byte[] loadContractCode(int contractAddress) {
-        log.info("[CallExecutor] Loading contract code for contractAddress: {}", contractAddress);
+        log.info("[CallExecutor] Loading contract code for contractAddress: {}", NumUtils.intToHex(contractAddress));
 
         // TODO: Mock a simple contract code for demonstration purposes,
         // TODO: Real implementation should fetch from a blockchain.
         // TODO: This is a simple contract that returns the value 42 when called.
         return new byte[]{
-                Opcode.PUSH1.getCode(), 0x2A,  // PUSH1 42
-                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (memory offset)
+                Opcode.PUSH1.getCode(), (byte)0xAA,  // PUSH1 170
+                Opcode.PUSH1.getCode(), 0x10,  // PUSH1 16 (memory offset)
                 Opcode.MSTORE.getCode(),        // MSTORE
                 Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1 (return size)
-                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (return offset)
+                Opcode.PUSH1.getCode(), 0x10,  // PUSH1 10 (return offset)
                 Opcode.RETURN.getCode()         // RETURN
         };
     }
@@ -318,6 +353,7 @@ public class CallExecutor implements InstructionExecutor {
     /**
      * Executes a call frame in the EVM context.
      * This method simulates the execution of a call frame, pushing it onto the call stack
+     *
      * @param context
      * @param frame
      * @return
@@ -355,9 +391,15 @@ public class CallExecutor implements InstructionExecutor {
     }
 
     private boolean executeFrameCode(EVMContext context, CallFrame frame) {
-        log.info("[CallExecutor] Executing bytecode for frame: {}", frame.getContractAddress());
+        log.info("[CallExecutor] Executing contract - {} bytecode for frame: {}", frame.getContractAddress(), frame.getFrameId());
 
         try {
+
+            log.info("<executeFrameCode> --------------- Context Content Check before run ---------------");
+            context.getStack().printStack();
+            context.getMemory().printMemory();
+            context.getStorage().printStorage();
+            log.info("<executeFrameCode> --------------- Context Content Check before run ---------------");
 
             SimpleEVM evm = new SimpleEVM(context);
             evm.run();
