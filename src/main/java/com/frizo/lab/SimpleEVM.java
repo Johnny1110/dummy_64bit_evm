@@ -1,14 +1,23 @@
 package com.frizo.lab;
 
 import com.frizo.lab.nums.Opcode;
+import com.frizo.lab.stack.Stack;
+import com.frizo.lab.stack.Stack32Bit;
 import com.frizo.lab.utils.NumUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.function.BinaryOperator;
 
+@Slf4j
 public class SimpleEVM {
-    private Deque<Integer> stack = new ArrayDeque<Integer>();
-    private byte[] code;
+
+    // Stack limit for the EVM, to prevent stack overflow
+    private static final int STACK_LIMIT = 1024;
+
+
+    private final Stack<Integer> stack;
+    private final byte[] code;
     private int pc = 0; // program counter
     private boolean running = true;
 
@@ -20,6 +29,7 @@ public class SimpleEVM {
     private final Set<Integer> validJumpDestIdx = new HashSet<>();
 
     public SimpleEVM(byte[] bytecode, int initialGas) {
+        this.stack = new Stack32Bit();
         this.code = bytecode;
         scanJumpDestinations();
         this.gasRemaining = initialGas;
@@ -47,7 +57,14 @@ public class SimpleEVM {
             consumeGas(op.getGasCost());
 
             if (op.isPush()) {
-
+                int pushSize = op.getCode() - Opcode.PUSH1.getCode() + 1; // PUSH1 is 0x60, PUSH2 is 0x61, etc.
+                log.info("Executing PUSH operation: {}, size: {}", op, pushSize);
+                byte[] pushData = new byte[pushSize];
+                System.arraycopy(code, pc, pushData, 0, pushSize);
+                pc += pushSize; // move pc forward by the size of the push data
+                int value = NumUtils.bytesToInt(pushData);
+                stack.safePush(value);
+                continue; // skip further processing for PUSH opcodes
             }
 
             switch (op) {
@@ -56,20 +73,17 @@ public class SimpleEVM {
                 case MUL -> binaryOp((a, b) -> a * b);
                 case SUB -> binaryOp((a, b) -> a - b);
                 case DIV -> binaryOp((a, b) -> a / b);
-                case PUSH1 -> {
-                    byte value = code[pc++]; // get next input byte as value
-                    stack.push((int) value); // push value onto the stack
-                }
+
                 case MSTORE -> {
-                    int offset = stack.pop();
-                    int value = stack.pop();
-                    memory.put(offset, NumUtils.intTo32Bytes(value));
+                    int offset = stack.safePop();
+                    int value = stack.safePop();
+                    memory.put(offset, NumUtils.intTo4Bytes(value));
                 }
                 case MLOAD -> {
-                    int offset = stack.pop();
-                    byte[] data = memory.getOrDefault(offset, new byte[32]); // read data from memory
-                    int value = NumUtils.bytes32ToInt(data);
-                    stack.push(value);
+                    int offset = stack.safePop();
+                    byte[] data = memory.getOrDefault(offset, new byte[4]); // read data from memory
+                    int value = NumUtils.bytes4ToInt(data);
+                    stack.safePush(value);
                 }
 
                 case JUMPDEST -> {
@@ -78,13 +92,13 @@ public class SimpleEVM {
                 }
 
                 case JUMP -> {
-                    int destIdx = stack.pop();
+                    int destIdx = stack.safePop();
                     requiredValidJump(destIdx);
                     pc = destIdx; // set pc to the destination index
                 }
                 case JUMPI -> {
-                    int dest = stack.pop();
-                    int condition = stack.pop();
+                    int dest = stack.safePop();
+                    int condition = stack.safePop();
                     if (condition != 0) {
                         requiredValidJump(dest);
                         pc = dest; // set pc to the destination index if condition is true
@@ -92,15 +106,15 @@ public class SimpleEVM {
                 }
 
                 case SSTORE -> {
-                    int key = stack.pop();
-                    int value = stack.pop();
-                    storage.put(key, NumUtils.intTo32Bytes(value)); // store value in storage
+                    int key = stack.safePop();
+                    int value = stack.safePop();
+                    storage.put(key, NumUtils.intTo4Bytes(value)); // store value in storage
                 }
 
                 case SLOAD -> {
-                    int key = stack.pop();
-                    int value = NumUtils.bytes32ToInt(storage.getOrDefault(key, new byte[32])); // load value from storage
-                    stack.push(value);
+                    int key = stack.safePop();
+                    int value = NumUtils.bytes4ToInt(storage.getOrDefault(key, new byte[4])); // load value from storage
+                    stack.safePush(value);
                 }
 
                 default -> throw new RuntimeException("Unknown opcode " + op);
@@ -122,9 +136,9 @@ public class SimpleEVM {
     }
 
     private void binaryOp(BinaryOperator<Integer> op) {
-        int b = stack.pop();
-        int a = stack.pop();
-        stack.push(op.apply(a, b));
+        int b = stack.safePop();
+        int a = stack.safePop();
+        stack.safePush(op.apply(a, b));
     }
 
     public int peek() {

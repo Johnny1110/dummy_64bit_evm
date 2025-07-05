@@ -2,7 +2,7 @@
 
 <br>
 
-✅ Stack + Arithmetic Opcode 模擬
+✅ Stack(32 bit) + Arithmetic Opcode 模擬
 
 ✅ 支援 Memory 操作（MLOAD, MSTORE）
 
@@ -50,6 +50,35 @@ JUMPI: 條件跳轉，當條件不為 0 時才跳轉
 * 實作 Gas 計數器：初始化 → 每執行一條指令扣除對應 Gas
 * 加入 Gas 不足時拋出錯誤（模擬 out of gas）
 * Revert 時恢復 Gas 狀態 暫時未實現 （太複雜了）
+
+<br>
+
+### DUPx / SWAPx
+
+🔁 DUPx / SWAPx 概念簡介
+✅ DUPx (0x80 ~ 0x8f)
+DUP1 把 stack 的頂部複製一份，推到上面
+
+DUP2 複製的是第 2 個（從頂部數下來）…
+
+DUP16 是複製第 16 個元素
+
+範例：
+```text
+stack = [5, 10, 15]
+DUP2 → 複製 10，stack = [5, 10, 15, 10]
+```
+
+🔄 SWAPx (0x90 ~ 0x9f)
+SWAP1 把 top 與第 2 個交換
+
+SWAP16 把 top 與第 17 個交換
+
+範例：
+```text
+stack = [5, 10, 15]
+SWAP2 → stack = [15, 10, 5]
+```
 
 <br>
 

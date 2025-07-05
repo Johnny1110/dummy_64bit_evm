@@ -23,6 +23,21 @@ class SimpleEVMTest {
     }
 
     @Test
+    void testPush2() {
+        // Example bytecode: PUSH2 0x1234 (4660), STOP
+        byte[] bytecode = new byte[] {0x61, 0x12, 0x34, 0x00};
+
+        SimpleEVM evm = new SimpleEVM(bytecode, 10000);
+        evm.run();
+
+        // The result of PUSH2 should be on the stack
+        assertEquals(0x1234, evm.peek());
+
+        // Print the stack for verification
+        evm.printStack();
+    }
+
+    @Test
     void testMemoryOperations() {
         byte[] bytecode = {
                 0x60, 0x2A,       // PUSH1 42
