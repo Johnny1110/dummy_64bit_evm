@@ -1,4 +1,4 @@
-package com.frizo.lab.utils;
+package com.frizo.lab.sevm.utils;
 
 public class NumUtils {
 
@@ -42,5 +42,13 @@ public class NumUtils {
         byte[] padded = new byte[i];
         System.arraycopy(bytes, 0, padded, i - bytes.length, bytes.length);
         return padded;
+    }
+
+    public static String bytesToHex(byte[] value) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : value) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
     }
 }

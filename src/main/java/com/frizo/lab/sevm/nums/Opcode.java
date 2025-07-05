@@ -1,0 +1,115 @@
+package com.frizo.lab.sevm.nums;
+
+import com.frizo.lab.sevm.exec.InstructionExecutor;
+import com.frizo.lab.sevm.exec.impl.*;
+import lombok.Getter;
+
+public enum Opcode {
+
+    STOP((byte) 0x00, 0, StopExecutor.class),
+
+    // Arithmetic operations (0x01 ~ 0x04)
+    ADD((byte) 0x01, 3, ArithmeticExecutor.class),
+    MUL((byte) 0x02, 5, ArithmeticExecutor.class),
+    SUB((byte) 0x03, 5, ArithmeticExecutor.class),
+    DIV((byte) 0x04, 5, ArithmeticExecutor.class),
+
+    // PUSH1 ~ PUSH4 (32bit stack push opcodes)
+
+    // 0x60 represents PUSH1, which pushes 1 byte onto the stack
+    PUSH1((byte) 0x60, 3, PushExecutor.class),
+    PUSH2((byte) 0x61, 3, PushExecutor.class),
+    PUSH3((byte) 0x62, 3, PushExecutor.class),
+    PUSH4((byte) 0x63, 3, PushExecutor.class),
+
+
+    // 0x52 0x21 memory
+    MSTORE((byte) 0x52, 12, MemoryExecutor.class),
+    MLOAD((byte) 0x51, 3, MemoryExecutor.class),
+
+    // Storage operations (0x54, 0x55)
+    SLOAD((byte) 0x54, 20, StorageExecutor.class), // Load a value from memory onto the stack
+    SSTORE((byte) 0x55, 50, StorageExecutor.class), // Store a value from the stack into memory
+
+    // JUMP
+    JUMP((byte) 0x56, 8, JumpExecutor.class), // Stack: [dest] → JUMP → pc = dest
+    JUMPI((byte) 0x57, 10, JumpExecutor.class), // Stack: [dest, condition] → JUMPI → if condition != 0 then pc = dest
+    JUMPDEST((byte) 0x5B, 1, JumpExecutor.class), // mark a valid jump destination, no effect on stack or pc
+
+
+    // DUP1~DUP16 (0x80 ~ 0x8f)
+    DUP1((byte) 0x80, 3, DupExecutor.class),
+    DUP2((byte) 0x81, 3, DupExecutor.class),
+    DUP3((byte) 0x82, 3, DupExecutor.class),
+    DUP4((byte) 0x83, 3, DupExecutor.class),
+    DUP5((byte) 0x84, 3, DupExecutor.class),
+    DUP6((byte) 0x85, 3, DupExecutor.class),
+    DUP7((byte) 0x86, 3, DupExecutor.class),
+    DUP8((byte) 0x87, 3, DupExecutor.class),
+    DUP9((byte) 0x88, 3, DupExecutor.class),
+    DUP10((byte) 0x89, 3, DupExecutor.class),
+    DUP11((byte) 0x8A, 3, DupExecutor.class),
+    DUP12((byte) 0x8B, 3, DupExecutor.class),
+    DUP13((byte) 0x8C, 3, DupExecutor.class),
+    DUP14((byte) 0x8D, 3, DupExecutor.class),
+    DUP15((byte) 0x8E, 3, DupExecutor.class),
+    DUP16((byte) 0x8F, 3, DupExecutor.class),
+
+    // SWAPx (0x90 ~ 0x9f)
+    SWAP1((byte) 0x90, 3, SwapExecutor.class),
+    SWAP2((byte) 0x91, 3, SwapExecutor.class),
+    SWAP3((byte) 0x92, 3, SwapExecutor.class),
+    SWAP4((byte) 0x93, 3, SwapExecutor.class),
+    SWAP5((byte) 0x94, 3, SwapExecutor.class),
+    SWAP6((byte) 0x95, 3, SwapExecutor.class),
+    SWAP7((byte) 0x96, 3, SwapExecutor.class),
+    SWAP8((byte) 0x97, 3, SwapExecutor.class),
+    SWAP9((byte) 0x98, 3, SwapExecutor.class),
+    SWAP10((byte) 0x99, 3, SwapExecutor.class),
+    SWAP11((byte) 0x9A, 3, SwapExecutor.class),
+    SWAP12((byte) 0x9B, 3, SwapExecutor.class),
+    SWAP13((byte) 0x9C, 3, SwapExecutor.class),
+    SWAP14((byte) 0x9D, 3, SwapExecutor.class),
+    SWAP15((byte) 0x9E, 3, SwapExecutor.class),
+    SWAP16((byte) 0x9F, 3, SwapExecutor.class),
+
+    UNKNOWN((byte) 0xFF, 0, null)
+    ;
+
+    Opcode(byte code, int gasCost, Class<? extends InstructionExecutor> executorClass) {
+        this.code = code;
+        this.gasCost = gasCost;
+        this.executorClass = executorClass;
+    }
+
+    @Getter
+    private final byte code;
+    @Getter
+    private final int gasCost;
+    @Getter
+    private final Class<? extends InstructionExecutor> executorClass;
+
+    public static Opcode fromByte(byte b) {
+        for (Opcode op : values()) {
+            if (op.code == b) {
+                return op;
+            }
+        }
+        throw new IllegalArgumentException("Unknown opcode: " + String.format("0x%02X", b));
+    }
+
+    public boolean isPush() {
+        // 32 bit stack push opcodes are from 0x60 (PUSH1) to 0x63 (PUSH4)
+        return this.code >= PUSH1.code && this.code <= PUSH4.code;
+    }
+
+    public boolean isDup() {
+        // DUP1~DUP16 are from 0x80 to 0x8F
+        return this.code >= DUP1.code && this.code <= DUP16.code;
+    }
+
+    public boolean isSwap() {
+        // SWAP1~SWAP16 are from 0x90 to 0x9F
+        return this.code >= SWAP1.code && this.code <= SWAP16.code;
+    }
+}

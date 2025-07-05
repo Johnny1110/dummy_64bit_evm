@@ -1,4 +1,4 @@
-package com.frizo.lab.nums;
+package com.frizo.lab.sevm.nums;
 
 
 import org.junit.jupiter.api.Assertions;
