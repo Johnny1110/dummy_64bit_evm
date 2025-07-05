@@ -82,4 +82,14 @@ public class Stack32Bit implements Stack<Integer> {
             stack.push(temp.get(j));
         }
     }
+
+    @Override
+    public boolean isEmpty() {
+        return stack.isEmpty();
+    }
+
+    @Override
+    public void clear() {
+        stack.clear();
+    }
 }

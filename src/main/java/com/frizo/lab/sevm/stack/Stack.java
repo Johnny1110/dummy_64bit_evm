@@ -9,4 +9,6 @@ public interface Stack<T> {
     int size();
     T get(int index);
     void swap(int indexA, int indexB);
+    boolean isEmpty();
+    void clear();
 }

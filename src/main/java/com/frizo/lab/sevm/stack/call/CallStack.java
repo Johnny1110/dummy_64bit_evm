@@ -1,7 +1,8 @@
-package com.frizo.lab.sevm.stack;
+package com.frizo.lab.sevm.stack.call;
 
-import com.frizo.lab.sevm.context.CallFrame;
+import com.frizo.lab.sevm.context.call.CallFrame;
 import com.frizo.lab.sevm.exception.EVMException;
+import com.frizo.lab.sevm.stack.Stack;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayDeque;
@@ -87,5 +88,15 @@ public class CallStack implements Stack<CallFrame> {
         for (int j = temp.size() - 1; j >= 0; j--) {
             frames.push(temp.get(j));
         }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return frames.isEmpty();
+    }
+
+    @Override
+    public void clear() {
+        frames.clear();
     }
 }
