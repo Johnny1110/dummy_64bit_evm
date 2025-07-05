@@ -92,11 +92,10 @@ public class CallExecutor implements InstructionExecutor {
     private void executeInternalCall(EVMContext context) {
         Stack<Integer> stack = context.getStack();
 
+        // ICALL [address, gas]
         if (stack.size() < 2) {
             throw new EVMException.StackUnderflowException("Not enough items on stack for ICALL");
         }
-
-        // ICALL [address, gas]
         int jumpPC = stack.safePop();
         int gas = stack.safePop();
 
@@ -310,7 +309,7 @@ public class CallExecutor implements InstructionExecutor {
                 Opcode.PUSH1.getCode(), 0x2A,  // PUSH1 42
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (memory offset)
                 Opcode.MSTORE.getCode(),        // MSTORE
-                Opcode.PUSH1.getCode(), 0x20,  // PUSH1 32 (return size)
+                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1 (return size)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (return offset)
                 Opcode.RETURN.getCode()         // RETURN
         };
@@ -366,7 +365,7 @@ public class CallExecutor implements InstructionExecutor {
             log.info("[CallExecutor] Frame execution finished. Gas used: {}, PC: {}",
                     frame.getGasUsed(), frame.getFrameId());
 
-            // 如果正常結束但沒有明確的 RETURN 或 REVERT，設置成功
+            // if the frame is still running and has no more code to execute,
             if (frame.isRunning() && !frame.hasMoreCode()) {
                 frame.setSuccess(true);
                 frame.halt();

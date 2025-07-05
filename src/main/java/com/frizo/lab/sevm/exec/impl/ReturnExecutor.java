@@ -5,6 +5,7 @@ import com.frizo.lab.sevm.context.call.CallFrame;
 import com.frizo.lab.sevm.exec.InstructionExecutor;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
+import com.frizo.lab.sevm.utils.NumUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

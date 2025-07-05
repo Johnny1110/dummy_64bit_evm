@@ -39,16 +39,16 @@ public class CallReturnTest {
         // RETURN
 
         byte[] bytecode = {
-                Opcode.PUSH1.getCode(), (byte) 0xFF,  // PUSH1 255 (gas)
-                Opcode.PUSH1.getCode(), 0x06,  // PUSH1 6 (address)
+                Opcode.PUSH4.getCode(), (byte) 0x00,(byte) 0x00,(byte) 0x00,(byte) 0xFF,  // PUSH1 255 (gas)
+                Opcode.PUSH4.getCode(), 0x00,  0x00,  0x00,  0x0C,  // PUSH1 12 (address)
                 Opcode.ICALL.getCode(),         // ICALL
                 Opcode.STOP.getCode(),          // STOP
-                Opcode.JUMPDEST.getCode(),      // JUMPDEST (address 6)
+                Opcode.JUMPDEST.getCode(),      // JUMPDEST (address 12)
                 Opcode.PUSH1.getCode(), 0x2A,  // PUSH1 42
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0
                 Opcode.MSTORE.getCode(),        // MSTORE
-                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1
-                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0
+                Opcode.PUSH4.getCode(), 0x00, 0x00, 0x00, 0x01,  // PUSH1 1
+                Opcode.PUSH4.getCode(), 0x00, 0x00, 0x00, 0x00,  // PUSH1 0
                 Opcode.RETURN.getCode()         // RETURN
         };
 
@@ -112,7 +112,7 @@ public class CallReturnTest {
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (value)
                 Opcode.PUSH1.getCode(), (byte)0x1111, // PUSH1 0x1111 (address)
-                Opcode.PUSH1.getCode(), (byte)0x01F4, // PUSH1 500 (gas)
+                Opcode.PUSH1.getCode(), (byte)0xFF, // PUSH1 500 (gas)
                 Opcode.CALL.getCode(),          // CALL
                 Opcode.STOP.getCode()           // STOP
         };

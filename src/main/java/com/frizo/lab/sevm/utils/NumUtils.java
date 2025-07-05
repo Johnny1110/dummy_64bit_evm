@@ -1,5 +1,7 @@
 package com.frizo.lab.sevm.utils;
 
+import java.util.List;
+
 public class NumUtils {
 
     /**
@@ -27,20 +29,36 @@ public class NumUtils {
                 |  (bytes[3] & 0xFF);
     }
 
+    /**
+     * Alternative implementation using your existing padLeft approach
+     * This matches your current code style better
+     */
     public static int bytesToInt(byte[] bytes) {
-        if (bytes.length > 4) {
-            throw new IllegalArgumentException("Input must lower than 4 bytes");
+        if (bytes == null || bytes.length == 0) {
+            return 0;
         }
-        bytes = padLeft(bytes, 4);
+
+        if (bytes.length > 4) {
+            throw new IllegalArgumentException("Input must be 4 bytes or less, got " + bytes.length + " bytes");
+        }
+
+        // Pad left to 4 bytes if needed
+        if (bytes.length < 4) {
+            bytes = padLeft(bytes, 4);
+        }
+
         return bytes4ToInt(bytes);
     }
 
-    private static byte[] padLeft(byte[] bytes, int i) {
-        if (bytes.length >= i) {
+    private static byte[] padLeft(byte[] bytes, int targetLength) {
+        if (bytes.length >= targetLength) {
             return bytes;
         }
-        byte[] padded = new byte[i];
-        System.arraycopy(bytes, 0, padded, i - bytes.length, bytes.length);
+
+        byte[] padded = new byte[targetLength];
+        // Copy original bytes to the right side (big-endian padding)
+        System.arraycopy(bytes, 0, padded, targetLength - bytes.length, bytes.length);
+        // Left side automatically filled with zeros
         return padded;
     }
 
@@ -58,5 +76,40 @@ public class NumUtils {
             hex = "0" + hex; // Ensure even length
         }
         return hex;
+    }
+
+
+    /**
+     * Convert stack byte array back to original integer
+     * Stack stores bytes in reverse order (little-endian style)
+     *
+     * @param ints List of integers representing bytes from stack (in reverse order)
+     * @return Original integer value
+     */
+    public static int stackIntArrayToInt(List<Integer> ints) {
+        if (ints == null || ints.isEmpty()) {
+            return 0;
+        }
+
+        if (ints.size() > 4) {
+            throw new IllegalArgumentException("Cannot convert more than 4 bytes to int");
+        }
+
+        int result = 0;
+        int size = ints.size();
+
+        // Process bytes in reverse order since stack stores them reversed
+        for (int i = 0; i < size; i++) {
+            int byteValue = ints.get(i) & 0xFF; // Ensure it's treated as unsigned byte
+            result |= (byteValue << (i * 8));   // Shift left by i*8 bits
+        }
+
+        return result;
+    }
+
+    public static void main(String[] args) {
+        List<Integer> stackInts = List.of(120, 86, 52, 18);
+        int stackIntValue = stackIntArrayToInt(stackInts);
+        System.out.println("Stack int array to int: " + stackIntValue);
     }
 }

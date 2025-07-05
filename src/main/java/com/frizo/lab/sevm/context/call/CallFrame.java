@@ -96,7 +96,10 @@ public class CallFrame {
         this.inputData = new byte[0];
         this.inputOffset = 0;
         this.inputSize = 0;
+
+        parentContext.consumeGas(gasLimit);
         this.gasRemaining = gasLimit;
+
         this.callType = CallType.INTERNAL;
         this.isStatic = false;
 
