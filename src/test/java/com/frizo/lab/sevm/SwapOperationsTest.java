@@ -32,7 +32,7 @@ public class SwapOperationsTest {
                     Opcode.PUSH1.getCode(), 20,    // PUSH1 20
                     Opcode.SWAP1.getCode()         // SWAP1
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act: Execute the bytecode
             evm.run();
@@ -52,7 +52,7 @@ public class SwapOperationsTest {
                     Opcode.PUSH1.getCode(), (byte) 200,   // PUSH1 200
                     Opcode.SWAP1.getCode()         // SWAP1
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -72,7 +72,7 @@ public class SwapOperationsTest {
                     Opcode.PUSH1.getCode(), 4,     // PUSH1 4
                     Opcode.SWAP1.getCode()         // SWAP1
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -100,7 +100,7 @@ public class SwapOperationsTest {
                     Opcode.PUSH1.getCode(), 30,    // PUSH1 30
                     Opcode.SWAP2.getCode()         // SWAP2
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -123,7 +123,7 @@ public class SwapOperationsTest {
                     Opcode.PUSH1.getCode(), 4,     // PUSH1 4
                     Opcode.SWAP2.getCode()         // SWAP2
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -152,7 +152,7 @@ public class SwapOperationsTest {
                     Opcode.PUSH1.getCode(), 40,    // PUSH1 40
                     Opcode.SWAP3.getCode()         // SWAP3
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -182,7 +182,7 @@ public class SwapOperationsTest {
                     Opcode.PUSH1.getCode(), 5,     // PUSH1 5
                     Opcode.SWAP4.getCode()         // SWAP4
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -220,7 +220,7 @@ public class SwapOperationsTest {
             bytecodeList.add(getSwapOpcode(swapIndex).getCode());
 
             byte[] bytecode = toByteArray(bytecodeList);
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -251,7 +251,7 @@ public class SwapOperationsTest {
                     Opcode.PUSH1.getCode(), 0,     // PUSH1 0
                     Opcode.SWAP1.getCode()         // SWAP1
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -272,7 +272,7 @@ public class SwapOperationsTest {
                     Opcode.PUSH1.getCode(), 42,    // PUSH1 42
                     Opcode.SWAP2.getCode()         // SWAP2
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -300,7 +300,7 @@ public class SwapOperationsTest {
                     Opcode.SWAP1.getCode(),        // SWAP1: [20, 30, 10]
                     Opcode.SWAP2.getCode()         // SWAP2: [10, 30, 20]
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -322,7 +322,7 @@ public class SwapOperationsTest {
                     Opcode.DUP1.getCode(),         // DUP1: [20, 20, 10]
                     Opcode.SWAP1.getCode()         // SWAP1: [20, 20, 10]
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -348,7 +348,7 @@ public class SwapOperationsTest {
                     Opcode.SWAP3.getCode(),        // SWAP3: [2, 4, 5, 3, 1]
                     Opcode.SWAP1.getCode()         // SWAP1: [4, 2, 5, 3, 1]
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -377,7 +377,7 @@ public class SwapOperationsTest {
                     Opcode.PUSH2.getCode(), 0x02, 0x00,  // PUSH2 512
                     Opcode.SWAP1.getCode()               // SWAP1
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();
@@ -397,7 +397,7 @@ public class SwapOperationsTest {
                     Opcode.PUSH3.getCode(), 0x02, 0x00, 0x00,  // PUSH3 131072
                     Opcode.SWAP1.getCode()                      // SWAP1
             };
-            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS);
+            SimpleEVM evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
             // Act
             evm.run();

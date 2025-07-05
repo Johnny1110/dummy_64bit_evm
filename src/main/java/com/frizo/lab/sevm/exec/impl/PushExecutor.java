@@ -11,9 +11,6 @@ public class PushExecutor implements InstructionExecutor {
 
     @Override
     public void execute(EVMContext context, Opcode opcode) {
-        byte[] code = context.getCode();
-        int pc = context.getPc();
-
         // PUSH1 is 0x60, PUSH2 is 0x61, etc.
         int pushSize = opcode.getCode() - Opcode.PUSH1.getCode() + 1;
         byte[] data = context.getNextBytes(pushSize);

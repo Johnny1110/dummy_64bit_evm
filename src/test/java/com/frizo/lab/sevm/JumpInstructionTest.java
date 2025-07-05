@@ -39,7 +39,7 @@ public class JumpInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證跳轉成功，堆疊頂部應該是 0x42，而不是 0x99
@@ -72,7 +72,7 @@ public class JumpInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證條件跳轉成功
@@ -104,7 +104,7 @@ public class JumpInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證沒有跳轉，執行了 PUSH1 0x99
@@ -128,7 +128,7 @@ public class JumpInstructionTest {
                 0x60, 0x42        // PUSH1 0x42 (invalid jump destination)
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
         // 驗證跳轉到無效目標會拋出異常
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -153,7 +153,7 @@ public class JumpInstructionTest {
                 0x00               // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
         // 驗證跳轉到超出範圍的地址會拋出異常
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -190,7 +190,7 @@ public class JumpInstructionTest {
                 0x60, (byte) 0x88        // PUSH1 0x88 (shouldn't execute)
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證執行路徑：跳轉到地址7，然後跳轉到地址5並停止
@@ -211,7 +211,7 @@ public class JumpInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
         // 驗證堆疊不足時會拋出異常
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -236,7 +236,7 @@ public class JumpInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
         // 驗證堆疊不足時會拋出異常
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -263,7 +263,7 @@ public class JumpInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證 JUMPDEST 不影響堆疊狀態
@@ -306,7 +306,7 @@ public class JumpInstructionTest {
                 Opcode.STOP.getCode()               // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證循環執行後計數器的值

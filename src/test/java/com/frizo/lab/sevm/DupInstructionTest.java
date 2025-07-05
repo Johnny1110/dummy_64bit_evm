@@ -32,7 +32,7 @@ public class DupInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證 DUP1 後堆疊應該有兩個相同的元素
@@ -58,7 +58,7 @@ public class DupInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證 DUP2 後堆疊狀態
@@ -87,7 +87,7 @@ public class DupInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證 DUP3 後堆疊狀態
@@ -111,7 +111,7 @@ public class DupInstructionTest {
         fullBytecode[bytecode.length] = (byte) 0x8F;     // DUP16
         fullBytecode[bytecode.length + 1] = 0x00;        // STOP
 
-        evm = new SimpleEVM(fullBytecode, INITIAL_GAS);
+        evm = new SimpleEVM(fullBytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證 DUP16 後堆疊狀態
@@ -132,7 +132,7 @@ public class DupInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
         // 驗證堆疊不足時會拋出異常
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -157,7 +157,7 @@ public class DupInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
 
         // 驗證堆疊不足時會拋出異常
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -180,7 +180,7 @@ public class DupInstructionTest {
         fullBytecode[bytecode.length] = (byte) 0x8F;     // DUP16
         fullBytecode[bytecode.length + 1] = 0x00;        // STOP
 
-        evm = new SimpleEVM(fullBytecode, INITIAL_GAS);
+        evm = new SimpleEVM(fullBytecode, INITIAL_GAS, "OriginAddress");
 
         // 驗證堆疊不足時會拋出異常
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -211,7 +211,7 @@ public class DupInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證計算結果
@@ -239,7 +239,7 @@ public class DupInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證堆疊狀態
@@ -266,7 +266,7 @@ public class DupInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         int gasBeforeRun = evm.getGasRemaining();
         evm.run();
         int gasAfterRun = evm.getGasRemaining();
@@ -297,7 +297,7 @@ public class DupInstructionTest {
         fullBytecode[bytecode.length] = (byte) 0x80;     // DUP1
         fullBytecode[bytecode.length + 1] = 0x00;        // STOP
 
-        evm = new SimpleEVM(fullBytecode, INITIAL_GAS);
+        evm = new SimpleEVM(fullBytecode, INITIAL_GAS, "OriginAddress");
 
         // 驗證堆疊溢出時會拋出異常
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -326,7 +326,7 @@ public class DupInstructionTest {
                 0x00              // STOP
         };
 
-        evm = new SimpleEVM(bytecode, INITIAL_GAS);
+        evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
         evm.run();
 
         // 驗證最終堆疊狀態

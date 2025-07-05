@@ -18,44 +18,18 @@ import java.util.Set;
 @Getter
 public class EVMContext {
 
-    protected final Stack<Integer> stack;
-    protected final Memory<Integer, byte[]> memory;
-    protected final Storage<Integer, byte[]> storage;
-
     // call
-    protected final CallStack callStack;
+    private final CallStack callStack;
+    private final Set<Integer> validJumpDestIdx;
 
     // Global context
     protected final String txOrigin;
     protected final long blockNumber;
     protected final long timestamp;
 
-    protected final byte[] code;
-    protected int pc;
-    protected int gasRemaining;
-    protected int gasUsed;
-    protected boolean running;
-    protected final Set<Integer> validJumpDestIdx;
-
-    protected byte[] returnData;
-    protected int returnOffset;
-    protected int returnSize;
-    protected boolean reverted;
-    protected String revertReason;
-
     public EVMContext(byte[] bytecode, int initialGas, String txOrigin) {
-        this.stack = EVMComponentFactory.createStack(Constant.MAX_STACK_DEPTH);
-        this.memory = EVMComponentFactory.createMemory();
-        this.storage = EVMComponentFactory.createStorage();
-        this.code = bytecode;
-        this.pc = 0;
-        this.gasRemaining = initialGas;
-        this.running = true;
-        this.validJumpDestIdx = new HashSet<>();
-        this.returnData = new byte[0];
-        this.reverted = false;
-
         this.callStack = new CallStack(Constant.MAX_STACK_DEPTH);
+        this.validJumpDestIdx = new HashSet<>();
 
         this.txOrigin = txOrigin;
         this.blockNumber = System.currentTimeMillis() / 1000; // Simulating block number as seconds since epoch
@@ -81,81 +55,90 @@ public class EVMContext {
         callStack.safePush(initialFrame);
     }
 
+
+    public CallFrame getCurrentFrame() {
+        return callStack.peek();
+    }
+
+    public Stack<Integer> getStack() {
+        return getCurrentFrame().getStack();
+    }
+
+    public Memory<Integer, byte[]> getMemory() {
+        return getCurrentFrame().getMemory();
+    }
+
+    public Storage<Integer, byte[]> getStorage() {
+        return getCurrentFrame().getStorage();
+    }
+
+    public byte[] getCode() {
+        return getCurrentFrame().getCode();
+    }
+
+
+    public int getPc() {
+        return getCurrentFrame().getPc();
+    }
+
+    public int getGasRemaining() {
+        return getCurrentFrame().getGasRemaining();
+    }
+
+    public int getGasUsed() {
+        return getCurrentFrame().getGasUsed();
+    }
+
+    public boolean isRunning() {
+        return getCurrentFrame().isRunning();
+    }
+
     public void consumeGas(int amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("Gas amount must be non-negative");
-        }
-        if (gasRemaining < amount) {
-            throw new EVMException.OutOfGasException();
-        }
-        gasRemaining -= amount;
-        gasUsed += amount;
-    }
-
-    public void stop() {
-        running = false;
-    }
-
-    public void updatePC(int idx) {
-        pc = idx;
-    }
-
-    public boolean hasMoreCode() {
-        return pc < code.length;
-    }
-
-    public Opcode getCurrentOpcode() {
-        if (!hasMoreCode()) {
-            throw new EVMException.NoMoreCodeException();
-        }
-        return Opcode.fromByte(code[pc]);
-    }
-
-    public void advancePC() {
-        if (pc >= code.length) {
-            throw new EVMException.NoMoreCodeException();
-        }
-        pc++;
-    }
-
-    public void advancePC(int steps) {
-        if (steps < 0) {
-            throw new IllegalArgumentException("Steps must be non-negative");
-        }
-        if (pc + steps >= code.length) {
-            throw new EVMException.NoMoreCodeException();
-        }
-        pc += steps;
+        getCurrentFrame().consumeGas(amount);
     }
 
     public void halt() {
-        running = false;
+        getCurrentFrame().halt();
     }
 
-
-    public void setReturnData(byte[] data, int offset, int size) {
-        this.returnOffset = offset;
-        this.returnSize = size;
-        this.returnData = data;
+    public void stop() {
+        getCurrentFrame().halt();
     }
 
-    public void setReverted(boolean reverted, String reason) {
-        this.reverted = reverted;
-        this.revertReason = reason;
+    public void updatePC(int idx) {
+        getCurrentFrame().updatePC(idx);
+    }
+
+    public boolean hasMoreCode() {
+        return getCurrentFrame().hasMoreCode();
+    }
+
+    public Opcode getCurrentOpcode() {
+        return getCurrentFrame().getCurrentOp();
+    }
+
+    public void advancePC() {
+        getCurrentFrame().advancePC();
+    }
+
+    public void advancePC(int count) {
+        getCurrentFrame().advancePC(count);
     }
 
     public byte getNextByte() {
-        if (pc >= code.length) {
+        CallFrame frame = getCurrentFrame();
+        if (frame.getPc() >= frame.getCode().length) {
             return 0;
         }
-        return code[pc];
+        return frame.getCode()[frame.getPc()];
     }
 
     public byte[] getNextBytes(int count) {
+        CallFrame frame = getCurrentFrame();
         byte[] result = new byte[count];
         for (int i = 0; i < count; i++) {
-            if (pc + i < code.length) {
-                result[i] = code[pc + i];
+            if (frame.getPc() + i < frame.getCode().length) {
+                result[i] = frame.getCode()[frame.getPc() + i];
             } else {
                 result[i] = 0;
             }

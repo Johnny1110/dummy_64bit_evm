@@ -1,11 +1,28 @@
 package com.frizo.lab.sevm.context.call;
 
+import com.frizo.lab.sevm.common.Constant;
+import com.frizo.lab.sevm.context.EVMComponentFactory;
 import com.frizo.lab.sevm.context.EVMContext;
+import com.frizo.lab.sevm.memory.Memory;
+import com.frizo.lab.sevm.op.Opcode;
+import com.frizo.lab.sevm.stack.Stack;
+import com.frizo.lab.sevm.storage.Storage;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
-public class CallFrame extends EVMContext {
+public class CallFrame {
+
+    private final Stack<Integer> stack;
+    private final Memory<Integer, byte[]> memory;
+    private final Storage<Integer, byte[]> storage;
+    private final byte[] code;
+    private int pc;
+    private int gasRemaining;
+    private int gasUsed;
+    private boolean running;
 
     // Call Data
     private final String contractAddress;    // contract Address
@@ -17,6 +34,12 @@ public class CallFrame extends EVMContext {
     private final int inputSize;           // input data size
 
     // Call Result
+    private byte[] returnData;
+    private int returnOffset;
+    private int returnSize;
+    private boolean reverted;
+    private String revertReason;
+
     @Setter
     private boolean success;
 
@@ -27,18 +50,99 @@ public class CallFrame extends EVMContext {
     private final boolean isStatic;
 
     public CallFrame(byte[] bytecode, int initialGas, CallData callData) {
-        super(bytecode, initialGas);
-
         this.contractAddress = callData.getContractAddress();
         this.caller = callData.getCaller();
         this.origin = callData.getOrigin();
         this.value = callData.getValue();
+        this.code = bytecode;
+
         this.inputData = callData.getInputData();
         this.inputOffset = callData.getInputOffset();
         this.inputSize = callData.getInputSize();
+        this.gasRemaining = initialGas;
         this.callType = callData.getCallType();
         this.isStatic = callData.isStatic();
+
+        this.stack = EVMComponentFactory.createStack(Constant.MAX_STACK_DEPTH);
+        this.memory = EVMComponentFactory.createMemory();
+        this.storage = EVMComponentFactory.createStorage();
+        this.pc = 0;
+        this.gasUsed = 0;
+        this.running = true;
+        this.success = false;
+        this.reverted = false;
+        this.returnData = new byte[0];
     }
 
+    public CallFrame(EVMContext parentContext, int jumpAddress, int gasLimit) {
+        this.contractAddress = "INTERNAL";
+        this.caller = "INTERNAL";
+        this.origin = "INTERNAL";
+        this.value = 0;
+        this.code = parentContext.getCode();
+        this.inputData = new byte[0];
+        this.inputOffset = 0;
+        this.inputSize = 0;
+        this.gasRemaining = gasLimit;
+        this.callType = CallType.INTERNAL;
+        this.isStatic = false;
+
+        // 共享父上下文的狀態
+        this.stack = parentContext.getStack();
+        this.memory = parentContext.getMemory();
+        this.storage = parentContext.getStorage();
+        this.pc = jumpAddress;
+        this.gasUsed = 0;
+        this.running = true;
+        this.success = false;
+        this.reverted = false;
+        this.returnData = new byte[0];
+    }
+
+    public void consumeGas(int amount) {
+        if (gasRemaining < amount) {
+            throw new RuntimeException("Out of gas");
+        }
+        gasRemaining -= amount;
+        gasUsed += amount;
+    }
+
+    public void halt() {
+        running = false;
+    }
+
+    public void setReturnData(byte[] data, int offset, int size) {
+        this.returnOffset = offset;
+        this.returnSize = size;
+        this.returnData = data;
+    }
+
+    public void setReverted(boolean reverted, String reason) {
+        this.reverted = reverted;
+        this.revertReason = reason;
+    }
+
+    public boolean hasMoreCode() {
+        return pc < code.length;
+    }
+
+    public Opcode getCurrentOp() {
+        if (!hasMoreCode()) {
+            return Opcode.UNKNOWN;
+        }
+        return Opcode.fromByte(code[pc]);
+    }
+
+    public void advancePC() {
+        pc++;
+    }
+
+    public void advancePC(int count) {
+        pc += count;
+    }
+
+    public void updatePC(int newPC) {
+        pc = newPC;
+    }
 
 }

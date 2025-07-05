@@ -36,10 +36,24 @@ public class CallExecutor implements InstructionExecutor {
         }
     }
 
+    private void executeInternalCall(EVMContext context) {
+    }
+
+    private void executeStaticCall(EVMContext context) {
+
+    }
+
+    private void executeDelegateCall(EVMContext context) {
+
+    }
+
+    private void executeCallCode(EVMContext context) {
+
+    }
+
     private void executeCall(EVMContext context) {
         Stack<Integer> stack = context.getStack();
         CallStack callStack = context.getCallStack();
-        CallFrame currentFrame = callStack.();
     }
 
     @Override
