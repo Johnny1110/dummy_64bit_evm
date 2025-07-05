@@ -16,15 +16,12 @@ public class PushExecutor implements InstructionExecutor {
 
         // PUSH1 is 0x60, PUSH2 is 0x61, etc.
         int pushSize = opcode.getCode() - Opcode.PUSH1.getCode() + 1;
+        byte[] data = context.getNextBytes(pushSize);
 
         log.info("Executing PUSH operation: {}, size: {}", opcode, pushSize);
-        byte[] pushData = new byte[pushSize];
-        System.arraycopy(code, pc, pushData, 0, pushSize);
-        // update the program counter in the context
-        context.updatePC(pc + pushSize);
-
-        int value = NumUtils.bytesToInt(pushData);
+        int value = NumUtils.bytesToInt(data);
         context.getStack().safePush(value);
+        context.advancePC(pushSize);
     }
 
     @Override

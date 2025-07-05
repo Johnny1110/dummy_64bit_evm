@@ -24,6 +24,10 @@ public class EVMContext {
     protected boolean running;
     protected final Set<Integer> validJumpDestIdx;
 
+    protected byte[] returnData;
+    protected boolean reverted;
+    protected String revertReason;
+
     public EVMContext(byte[] bytecode, int initialGas) {
         this.stack = EVMComponentFactory.createStack(1024);
         this.memory = EVMComponentFactory.createMemory();
@@ -33,9 +37,10 @@ public class EVMContext {
         this.gasRemaining = initialGas;
         this.running = true;
         this.validJumpDestIdx = new HashSet<>();
+        this.returnData = new byte[0];
+        this.reverted = false;
     }
 
-    // 統一的狀態操作方法
     public void consumeGas(int amount) {
         if (amount < 0) {
             throw new IllegalArgumentException("Gas amount must be non-negative");
@@ -67,10 +72,52 @@ public class EVMContext {
     }
 
     public void advancePC() {
+        if (pc >= code.length) {
+            throw new EVMException.NoMoreCodeException();
+        }
         pc++;
+    }
+
+    public void advancePC(int steps) {
+        if (steps < 0) {
+            throw new IllegalArgumentException("Steps must be non-negative");
+        }
+        if (pc + steps >= code.length) {
+            throw new EVMException.NoMoreCodeException();
+        }
+        pc += steps;
     }
 
     public void halt() {
         running = false;
+    }
+
+
+    public void setReturnData(byte[] data) {
+        this.returnData = data != null ? data : new byte[0];
+    }
+
+    public void setReverted(boolean reverted, String reason) {
+        this.reverted = reverted;
+        this.revertReason = reason;
+    }
+
+    public byte getNextByte() {
+        if (pc >= code.length) {
+            return 0;
+        }
+        return code[pc];
+    }
+
+    public byte[] getNextBytes(int count) {
+        byte[] result = new byte[count];
+        for (int i = 0; i < count; i++) {
+            if (pc + i < code.length) {
+                result[i] = code[pc + i];
+            } else {
+                result[i] = 0;
+            }
+        }
+        return result;
     }
 }
