@@ -16,9 +16,7 @@
 
 ✅ 支援 Storage 模擬
 
-🔜 支援 Function Call（CALL）簡化合約模型
-
-🔜  CALL / RETURN 模型：支援呼叫內部 function / 合約
+✅  CALL / RETURN 模型：支援呼叫內部 function / 合約
 
 🔜  LOG 模擬：支援類似 Solidity 的 event 紀錄
 
@@ -87,9 +85,9 @@ SWAP2 → stack = [15, 10, 5]
 🎯 功能設計目標：
 支援使用 CALL opcode 呼叫「另一段 bytecode」作為目標函式執行
 
-✅ 每個 CALL 執行都使用新的 SimpleEVM 執行子程式
+✅ 每個 CALL 執行都使用新的 SimpleEVM 執行子程式 (獨立的 stack, memory, storage, storage is unique by contract address)
 
-✅ 模擬 CALL 的 Gas forwarding
+✅ 模擬 CALL 的 Gas forwarding (目前沒想到怎麼做沒用完的 Gas 歸還，暫時就吃掉吧... XD)
 
 ✅ 子合約執行成功則回傳值到 stack
 
@@ -137,3 +135,21 @@ RETURN
 → restore stack, memory, gas, pc = return_offset
 ```
 
+
+### 與 Stack/Memory 的對比
+
+數據位置隔離級別生命週期Stack每個 CallFrame調用結束即銷毀Memory
+每個 CallFrame調用結束即銷毀Storage每個合約地址永久存儲（直到合約被銷毀）CallData每個 CallFrame調用期間只讀
+
+實際應用場景:
+
+```
+當合約 A 調用合約 B 時：
+
+A 和 B 各自有獨立的 Storage 空間
+A 無法直接讀取或修改 B 的 Storage
+B 也無法直接讀取或修改 A 的 Storage
+如果需要數據交換，必須通過函數調用和返回值
+```
+
+TODO: Call - DelegationCall StaticCall Unit Test

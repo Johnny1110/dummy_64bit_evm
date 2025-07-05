@@ -2,6 +2,7 @@ package com.frizo.lab.sevm.memory;
 
 import com.frizo.lab.sevm.common.Constant;
 import com.frizo.lab.sevm.utils.NumUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.Objects;
  * It is not persistent and is cleared after the execution of a transaction.
  * This DummyMemory class is a simplified version and does not implement all EVM memory features.
  */
+@Slf4j
 public class DummyMemory implements Memory<Integer, byte[]> {
 
     private final Map<Integer, byte[]> M = new HashMap<>();
@@ -38,6 +40,7 @@ public class DummyMemory implements Memory<Integer, byte[]> {
             M.put(key, new byte[Constant.MAX_BYTES]);
         }
         else if (value.length > Constant.MAX_BYTES) {
+            log.error("[DummyMemory] Value exceeds maximum size of {} bytes: {}", Constant.MAX_BYTES, value.length);
             throw new IllegalArgumentException("Value exceeds maximum size of " + Constant.MAX_BYTES + " bytes");
         } else {
             M.put(key, value);

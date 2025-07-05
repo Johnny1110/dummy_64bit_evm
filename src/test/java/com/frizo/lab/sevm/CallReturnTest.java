@@ -109,8 +109,8 @@ public class CallReturnTest {
                 Opcode.PUSH1.getCode(), 0x65,  // PUSH1 101 (MSTORE value)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (MSTORE offset)
                 Opcode.MSTORE.getCode(),        // MSTORE
-                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1 (retSize)
-                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (retOffset)
+                Opcode.PUSH1.getCode(), 0x04,  // PUSH1 4 (retSize)
+                Opcode.PUSH1.getCode(), (byte) 0x01,  // PUSH1 1 (retOffset)
                 Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1 (argsSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (value)
@@ -148,7 +148,7 @@ public class CallReturnTest {
         // STOP
 
         byte[] bytecode = {
-                Opcode.PUSH1.getCode(), 0x20,  // PUSH1 32 (retSize)
+                Opcode.PUSH1.getCode(), 0x04,  // PUSH1 4 (retSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (retOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
@@ -182,7 +182,7 @@ public class CallReturnTest {
         // STOP
 
         byte[] bytecode = {
-                Opcode.PUSH1.getCode(), 0x20,  // PUSH1 32 (retSize)
+                Opcode.PUSH1.getCode(), 0x04,  // PUSH1 4 (retSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (retOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)

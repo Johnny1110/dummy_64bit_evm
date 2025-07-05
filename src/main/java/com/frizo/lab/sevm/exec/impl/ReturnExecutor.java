@@ -123,24 +123,51 @@ public class ReturnExecutor implements InstructionExecutor {
      * @param context EVMContext
      * @param offset  offset in memory to start writing to
      * @param data    the data to write to memory
-     * @param maxSize maximum size to write to memory
+     * @param size maximum size to write to memory
      */
-    private void writeMemoryData(EVMContext context, int offset, byte[] data, int maxSize) {
-        log.info("[CallExecutor] Writing memory data to offset: {}, size: {}", offset, data.length);
+    private void writeMemoryData(EVMContext context, int offset, byte[] data, int size) {
+        log.info("[CallExecutor] Writing memory data to offset: {}, dataSize: {}, fixedSizePerAddress: {}",
+                offset, data.length, size);
 
         if (data == null || data.length == 0) {
             log.warn("[CallExecutor] No data to write");
             return;
         }
 
-        // Write each byte to consecutive memory locations
-        for (int i = 0; i < data.length; i++) {
-            // Create a single-byte array for this memory location
-            byte[] singleByte = new byte[]{data[i]};
-            context.getMemory().put(offset + i, singleByte);
+        if (size <= 0) {
+            log.warn("[CallExecutor] Invalid size parameter: {}", size);
+            return;
         }
 
-        log.info("[CallExecutor] Successfully wrote {} bytes to memory starting at offset {}", data.length, offset);
+        int dataIndex = 0;
+        int currentOffset = offset;
+
+        // Write data in fixed chunks of 'size' bytes per memory address
+        while (dataIndex < data.length) {
+            // Create fixed-size chunk (pad with zeros if needed)
+            byte[] chunk = new byte[size];
+
+            // Copy available data
+            int remainingBytes = data.length - dataIndex;
+            int bytesToCopy = Math.min(size, remainingBytes);
+            System.arraycopy(data, dataIndex, chunk, 0, bytesToCopy);
+
+            // Remaining bytes in chunk are already zero (default value)
+
+            // Write chunk to memory address
+            context.getMemory().put(currentOffset, chunk);
+
+            log.debug("[CallExecutor] Wrote {} bytes (padded to {}) to memory address {}",
+                    bytesToCopy, size, currentOffset);
+
+            // Move to next memory address and data position
+            currentOffset++;
+            dataIndex += bytesToCopy;
+        }
+
+        int addressesUsed = currentOffset - offset;
+        log.info("[CallExecutor] Successfully wrote {} bytes to {} memory addresses starting at offset {}",
+                data.length, addressesUsed, offset);
         context.getMemory().printMemory();
     }
 }
