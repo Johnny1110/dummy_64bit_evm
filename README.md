@@ -2,7 +2,7 @@
 
 <br>
 
-✅（已完成）Stack + Arithmetic Opcode 模擬
+✅ Stack + Arithmetic Opcode 模擬
 
 ✅ 支援 Memory 操作（MLOAD, MSTORE）
 
@@ -10,15 +10,22 @@
 
 ✅ 支援跳轉指令（JUMP, JUMPI）
 
+🔜 PUSHx 系列自動化
+
+🔜 支援 DUP/SWAP
+
 ✅ 支援 Storage 模擬
 
-🔜 支援 Function Call（CALL）或簡化合約模型
+🔜 支援 Function Call（CALL）簡化合約模型
 
 🔜  CALL / RETURN 模型：支援呼叫內部 function / 合約
 
 🔜  LOG 模擬：支援類似 Solidity 的 event 紀錄
 
-🔜  寫 parser：把人類可讀 op 編譯成 bytecode
+🔜  寫 bytecode 編譯器（高階語言轉 bytecode）
+
+
+
 
 <br>
 

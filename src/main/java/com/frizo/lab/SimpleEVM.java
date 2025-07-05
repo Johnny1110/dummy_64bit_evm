@@ -46,6 +46,10 @@ public class SimpleEVM {
 
             consumeGas(op.getGasCost());
 
+            if (op.isPush()) {
+
+            }
+
             switch (op) {
                 case STOP -> running = false;
                 case ADD -> binaryOp((a, b) -> a + b);
