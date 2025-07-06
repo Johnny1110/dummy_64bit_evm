@@ -104,6 +104,8 @@ public enum Opcode {
     LOG3((byte) 0xA3, 1500, LogExecutor.class),
     LOG4((byte) 0xA4, 1875, LogExecutor.class),
 
+    // System operations
+    PRINT((byte) 0xF0, 0, PrintExecutor.class), // Custom opcode for printing stack values
     UNKNOWN((byte) 0xFF, 0, null),
     ;
 

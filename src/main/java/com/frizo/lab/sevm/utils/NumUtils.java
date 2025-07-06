@@ -111,6 +111,18 @@ public class NumUtils {
         List<Integer> stackInts = List.of(120, 86, 52, 18);
         int stackIntValue = stackIntArrayToInt(stackInts);
         System.out.println("Stack int array to int: " + stackIntValue);
+
+        int val = 0x61626364; // 'a', 'b', 'c', 'd'
+        System.out.println(intToString(val)); // Output: abcd
+
+        val = 0x00000061;
+        System.out.println(intToString(val)); // Output: ���a (前三個是 0x00)
+
+        val = 0x61626364; // 'a', 'b', 'c', 'd'
+        System.out.println(intToTrimmedString(val)); // Output: abcd
+
+        val = 0x00000061;
+        System.out.println(intToTrimmedString(val)); // Output: a
     }
 
 
@@ -164,5 +176,25 @@ public class NumUtils {
             result[i * 4 + 3] = (byte) c;
         }
         return result;
+    }
+
+    public static String intToString(int value) {
+        byte[] bytes = intTo4Bytes(value);
+        return new String(bytes);
+    }
+
+    public static String intToTrimmedString(int value) {
+        byte[] bytes = intTo4Bytes(value);
+
+        int start = 0;
+        while (start < bytes.length && bytes[start] == 0) {
+            start++;
+        }
+
+        if (start == bytes.length) {
+            return "";
+        }
+
+        return new String(bytes, start, bytes.length - start);
     }
 }

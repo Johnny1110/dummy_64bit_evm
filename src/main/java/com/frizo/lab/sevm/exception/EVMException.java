@@ -64,4 +64,10 @@ public class EVMException extends RuntimeException {
             super(errorMessage);
         }
     }
+
+    public static class InvalidStackOperationException extends EVMException {
+        public InvalidStackOperationException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
 }
