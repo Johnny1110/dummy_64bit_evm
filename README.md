@@ -153,7 +153,62 @@ B 也無法直接讀取或修改 A 的 Storage
 如果需要數據交換，必須通過函數調用和返回值
 ```
 
-以實現的 OPCODE:
+<br>
+
+## LOG - Solitidy Event 模擬
+
+在 EVM（Ethereum Virtual Machine）中，LOG 指令是用來實作 Solidity 中的 event，
+而這些 event 並不會影響 EVM 的 狀態（state），但在 Ethereum 的執行架構中扮演了非常重要的「鏈上鏈下溝通橋樑」角色。
+
+* LOGn opcode:	實作 event 的基礎，最多支援 4 個 topic (LOG0~LOG4)
+* 對狀態影響:	不會改變狀態（state），只是寫入 logs
+* 儲存位置:	儲存在交易 receipt 裡，不存在合約 storage 或 memory 中
+* 應用場景:	提供 DApp 監聽事件、查帳、索引搜尋、前端反應狀態等功能
+
+### LOG 在 Frame Stack 中的角色與流程
+
+在一筆交易被執行時，會建立一個 call stack frame。這個 frame 裡包含：
+
+* Stack
+* PC (program counter)
+* Memory
+* Storage
+* gasRemaining
+* return data buffer
+* logs（event）
+
+當 Solidity 執行 emit Event(...) 時，EVM 會將這個資訊從 stack/memory 中取出並執行 LOGn 指令，
+將該事件資訊加到 logs list 中。這個 list 是交易 receipt 的一部分。
+
+舉例:
+
+1. emit Event：Solidity 轉成 LOG opcode，例如：
+
+    ```solidity
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    emit Transfer(msg.sender, receiver, amount);
+    ```
+    
+    對應的 opcode 會是 LOG3（兩個 indexed topic + data）
+
+2. LOG opcode 執行：EVM 從 memory 中取出資料（data offset 和 size），
+     從 stack 取出 topic（indexed 參數），並寫入當前 call frame 的 logs 區域。
+
+3. 結束 call frame 時：這個 frame 的 logs 被上層聚合，或作為 transaction receipt 的 logs 輸出。
+
+### LOG 儲存位置與存取
+
+這些 logs 不在 storage 中，不能從合約內讀取。
+
+它們被 Ethereum client（如 Geth）記錄在交易 receipt 裡，可以透過 RPC 或 Web3 API 查詢
+
+
+---
+
+
+<br>
+
+已經實現的 OPCODE:
 
 ```
     STOP((byte) 0x00, 0, StopExecutor.class),

@@ -89,6 +89,13 @@ public enum Opcode {
     RETURN((byte) 0xF3, 0, ReturnExecutor.class),        // Return from a function call
     REVERT((byte) 0xFD, 0, ReturnExecutor.class),        // Revert a function call, used for error handling
 
+    // LOGn (0xA0 ~ 0xA4)
+    LOG0((byte) 0xA0, 375, LogExecutor.class),
+    LOG1((byte) 0xA1, 750, LogExecutor.class),
+    LOG2((byte) 0xA2, 1125, LogExecutor.class),
+    LOG3((byte) 0xA3, 1500, LogExecutor.class),
+    LOG4((byte) 0xA4, 1875, LogExecutor.class),
+
     UNKNOWN((byte) 0xFF, 0, null),
     ;
 
@@ -135,5 +142,10 @@ public enum Opcode {
 
     public boolean isReturn() {
         return this == RETURN || this == REVERT;
+    }
+
+    public boolean isLog() {
+        // LOG0~LOG4 are from 0xA0 to 0xA4
+        return this.code >= LOG0.code && this.code <= LOG4.code;
     }
 }
