@@ -293,8 +293,11 @@ B 也無法直接讀取或修改 A 的 Storage
     ICALL((byte) 0xFC, 10, CallExecutor.class),          // INTernal function call, NOT EVM standard, used for internal logic calls (implemneted by JUMP)
     RETURN((byte) 0xF3, 0, ReturnExecutor.class),        // Return from a function call
     REVERT((byte) 0xFD, 0, ReturnExecutor.class),        // Revert a function call, used for error handling
+```
 
+<br>
 
+---
 
 <br>
 
@@ -338,18 +341,22 @@ Bytecode 分解:
 */
 ```
 
+
 <br>
 
 ### 資料可視化
 
-![1](docs/imgs/1.jpg)
+![1](docs/imgs/1.png)
 
-<br>
 
 * 右對齊: "hello" 存在 memory 的位置 0x1B-0x1F (27-31)
+
 * 左邊補零: 位置 0x00-0x1A (0-26) 都是 0x00
+
 * 總長度: 32 bytes (0x20) 的 memory 被分配
+
 * 橘色格子: 實際的 "hello" 數據
+
 * 灰色格子: 補零的部分
     UNKNOWN((byte) 0xFF, 0, null),
-```
+
