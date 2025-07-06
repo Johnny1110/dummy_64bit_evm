@@ -11,10 +11,12 @@ import com.frizo.lab.sevm.stack.Stack;
 import com.frizo.lab.sevm.stack.call.CallStack;
 import com.frizo.lab.sevm.storage.Storage;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @Getter
 public class EVMContext {
 
@@ -97,6 +99,10 @@ public class EVMContext {
         getCurrentFrame().consumeGas(amount);
     }
 
+    public void refundGas(int gasRemaining) {
+        getCurrentFrame().refundGas(gasRemaining);
+    }
+
     public void halt() {
         getCurrentFrame().halt();
     }
@@ -144,5 +150,11 @@ public class EVMContext {
             }
         }
         return result;
+    }
+
+    public void revert(String revertReason) {
+        log.warn("[EVMContext] Reverting frame: {}, reason: {}", getCurrentFrame().getFrameId(), revertReason);
+        // TODO recover state with snapshot.
+        //getStorage().revert(snapshot);
     }
 }

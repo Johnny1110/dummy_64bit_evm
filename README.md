@@ -14,15 +14,13 @@
 
 ✅ 支援 DUP/SWAP
 
-✅ 支援 Storage 模擬
+✅ 支援 Storage 模擬 (實際版本需要依賴區塊鏈，暫時 SKIP 用 HashMap 模擬)
 
-✅  CALL / RETURN 模型：支援呼叫內部 function / 合約
+✅  CALL / RETURN 模型，支援呼叫內部 function / 合約
 
 🔜  LOG 模擬：支援類似 Solidity 的 event 紀錄
 
 🔜  寫 bytecode 編譯器（高階語言轉 bytecode）
-
-
 
 
 <br>
@@ -47,7 +45,7 @@ JUMPI: 條件跳轉，當條件不為 0 時才跳轉
 * 每條指令設定基本的固定 Gas 消耗
 * 實作 Gas 計數器：初始化 → 每執行一條指令扣除對應 Gas
 * 加入 Gas 不足時拋出錯誤（模擬 out of gas）
-* Revert 時恢復 Gas 狀態 暫時未實現 （太複雜了）
+* Revert 時恢復 Gas 狀態
 
 <br>
 
@@ -152,4 +150,91 @@ B 也無法直接讀取或修改 A 的 Storage
 如果需要數據交換，必須通過函數調用和返回值
 ```
 
-TODO: Call - DelegationCall StaticCall Unit Test
+以實現的 OPCODE:
+
+```
+    STOP((byte) 0x00, 0, StopExecutor.class),
+
+    // Arithmetic operations (0x01 ~ 0x04)
+    ADD((byte) 0x01, 3, ArithmeticExecutor.class),
+    MUL((byte) 0x02, 5, ArithmeticExecutor.class),
+    SUB((byte) 0x03, 5, ArithmeticExecutor.class),
+    DIV((byte) 0x04, 5, ArithmeticExecutor.class),
+
+    ISZERO((byte) 0x15, 3, ArithmeticExecutor.class),
+
+    // PUSH1 ~ PUSH4 (32bit stack push opcodes)
+
+    // 0x60 represents PUSH1, which pushes 1 byte onto the stack
+    PUSH1((byte) 0x60, 3, PushExecutor.class),
+    PUSH2((byte) 0x61, 3, PushExecutor.class),
+    PUSH3((byte) 0x62, 3, PushExecutor.class),
+    PUSH4((byte) 0x63, 3, PushExecutor.class),
+
+    POP((byte) 0x50,2, PopExecutor.class), // Pop the top value from the stack
+
+
+    // 0x51 0x52 memory
+    MLOAD((byte) 0x51, 3, MemoryExecutor.class),
+    MSTORE((byte) 0x52, 12, MemoryExecutor.class),
+
+
+    // Storage operations (0x54, 0x55)
+    SLOAD((byte) 0x54, 20, StorageExecutor.class), // Load a value from memory onto the stack
+    SSTORE((byte) 0x55, 50, StorageExecutor.class), // Store a value from the stack into memory
+
+    // JUMP
+    JUMP((byte) 0x56, 8, JumpExecutor.class), // Stack: [dest] → JUMP → pc = dest
+    JUMPI((byte) 0x57, 10, JumpExecutor.class), // Stack: [dest, condition] → JUMPI → if condition != 0 then pc = dest
+    JUMPDEST((byte) 0x5B, 1, JumpExecutor.class), // mark a valid jump destination, no effect on stack or pc
+
+
+    // DUP1~DUP16 (0x80 ~ 0x8f)
+    DUP1((byte) 0x80, 3, DupExecutor.class),
+    DUP2((byte) 0x81, 3, DupExecutor.class),
+    DUP3((byte) 0x82, 3, DupExecutor.class),
+    DUP4((byte) 0x83, 3, DupExecutor.class),
+    DUP5((byte) 0x84, 3, DupExecutor.class),
+    DUP6((byte) 0x85, 3, DupExecutor.class),
+    DUP7((byte) 0x86, 3, DupExecutor.class),
+    DUP8((byte) 0x87, 3, DupExecutor.class),
+    DUP9((byte) 0x88, 3, DupExecutor.class),
+    DUP10((byte) 0x89, 3, DupExecutor.class),
+    DUP11((byte) 0x8A, 3, DupExecutor.class),
+    DUP12((byte) 0x8B, 3, DupExecutor.class),
+    DUP13((byte) 0x8C, 3, DupExecutor.class),
+    DUP14((byte) 0x8D, 3, DupExecutor.class),
+    DUP15((byte) 0x8E, 3, DupExecutor.class),
+    DUP16((byte) 0x8F, 3, DupExecutor.class),
+
+    // SWAPx (0x90 ~ 0x9f)
+    SWAP1((byte) 0x90, 3, SwapExecutor.class),
+    SWAP2((byte) 0x91, 3, SwapExecutor.class),
+    SWAP3((byte) 0x92, 3, SwapExecutor.class),
+    SWAP4((byte) 0x93, 3, SwapExecutor.class),
+    SWAP5((byte) 0x94, 3, SwapExecutor.class),
+    SWAP6((byte) 0x95, 3, SwapExecutor.class),
+    SWAP7((byte) 0x96, 3, SwapExecutor.class),
+    SWAP8((byte) 0x97, 3, SwapExecutor.class),
+    SWAP9((byte) 0x98, 3, SwapExecutor.class),
+    SWAP10((byte) 0x99, 3, SwapExecutor.class),
+    SWAP11((byte) 0x9A, 3, SwapExecutor.class),
+    SWAP12((byte) 0x9B, 3, SwapExecutor.class),
+    SWAP13((byte) 0x9C, 3, SwapExecutor.class),
+    SWAP14((byte) 0x9D, 3, SwapExecutor.class),
+    SWAP15((byte) 0x9E, 3, SwapExecutor.class),
+    SWAP16((byte) 0x9F, 3, SwapExecutor.class),
+
+    // CALL
+    CALL((byte) 0xF1, 40, CallExecutor.class),           // External contract call
+    CALLCODE((byte) 0xF2, 40, CallExecutor.class),       // Deprecated, use DELEGATECALL instead
+    DELEGATECALL((byte) 0xF4, 40, CallExecutor.class),   // Delegate call to another contract, preserving the caller's context
+    STATICCALL((byte) 0xFA, 40, CallExecutor.class),     // Static call to another contract, no state changes allowed
+
+    // Internal func call (Custom opcode)
+    ICALL((byte) 0xFC, 10, CallExecutor.class),          // INTernal function call, NOT EVM standard, used for internal logic calls (implemneted by JUMP)
+    RETURN((byte) 0xF3, 0, ReturnExecutor.class),        // Return from a function call
+    REVERT((byte) 0xFD, 0, ReturnExecutor.class),        // Revert a function call, used for error handling
+
+    UNKNOWN((byte) 0xFF, 0, null),
+```

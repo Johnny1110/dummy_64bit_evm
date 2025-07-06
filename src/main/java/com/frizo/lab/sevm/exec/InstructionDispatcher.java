@@ -4,6 +4,7 @@ import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.exec.impl.*;
 import com.frizo.lab.sevm.op.Opcode;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class InstructionDispatcher {
@@ -12,18 +13,19 @@ public class InstructionDispatcher {
 
 
     public InstructionDispatcher() {
-        this.executors = Map.of(
-                StopExecutor.class, new StopExecutor(),
-                ArithmeticExecutor.class, new ArithmeticExecutor(),
-                MemoryExecutor.class, new MemoryExecutor(),
-                JumpExecutor.class, new JumpExecutor(),
-                DupExecutor.class, new DupExecutor(),
-                PushExecutor.class, new PushExecutor(),
-                StorageExecutor.class, new StorageExecutor(),
-                SwapExecutor.class, new SwapExecutor(),
-                CallExecutor.class, new CallExecutor(),
-                ReturnExecutor.class, new ReturnExecutor()
-        );
+        this.executors = new HashMap<>();
+        // Register all instruction executors
+        this.executors.put(StopExecutor.class, new StopExecutor());
+        this.executors.put(ArithmeticExecutor.class, new ArithmeticExecutor());
+        this.executors.put(MemoryExecutor.class, new MemoryExecutor());
+        this.executors.put(JumpExecutor.class, new JumpExecutor());
+        this.executors.put(DupExecutor.class, new DupExecutor());
+        this.executors.put(PushExecutor.class, new PushExecutor());
+        this.executors.put(StorageExecutor.class, new StorageExecutor());
+        this.executors.put(SwapExecutor.class, new SwapExecutor());
+        this.executors.put(CallExecutor.class, new CallExecutor());
+        this.executors.put(PopExecutor.class, new PopExecutor());
+        this.executors.put(ReturnExecutor.class, new ReturnExecutor());
     }
 
     public void dispatch(EVMContext context, Opcode opcode) {

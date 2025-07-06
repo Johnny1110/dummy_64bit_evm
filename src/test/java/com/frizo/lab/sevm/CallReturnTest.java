@@ -69,29 +69,6 @@ public class CallReturnTest {
     }
 
     @Test
-    @DisplayName("Test code")
-    void testCode() {
-        int pc = 0;
-        int codeCount = 1;
-        byte[] bytecode = {
-                (byte) 0x1111, //4369
-        };
-
-
-        byte[] result = new byte[codeCount];
-
-        for (int i = 0; i < codeCount; i++) {
-            if (pc + i < codeCount) {
-                result[i] = bytecode[pc + i];
-            } else {
-                result[i] = 0;
-            }
-        }
-
-        System.out.println("Result: " + NumUtils.bytesToInt(result));
-    }
-
-    @Test
     @DisplayName("測試外部呼叫 (CALL)")
     public void testExternalCall() {
         // 測試程式碼：
@@ -152,7 +129,7 @@ public class CallReturnTest {
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (retOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
-                Opcode.PUSH2.getCode(), 0x22, 0x22, // PUSH2 0x2222 (address)
+                Opcode.PUSH4.getCode(), 0x22, 0x22, 0x22, 0x22, // PUSH2 0x2222 (address)
                 Opcode.PUSH2.getCode(), 0x01, 0x2C, // PUSH2 300 (gas)
                 Opcode.STATICCALL.getCode(),    // STATICCALL
                 Opcode.STOP.getCode()           // STOP
@@ -163,6 +140,8 @@ public class CallReturnTest {
 
         System.out.println("Static call test completed");
         evm.printStack();
+
+        evm.getContext().getMemory().printMemory();
 
         // 驗證靜態呼叫成功
         assertEquals(1, evm.getContext().getStack().peek().intValue());
@@ -241,207 +220,209 @@ public class CallReturnTest {
 
     }
 
-//    @Test
-//    @DisplayName("測試回滾 (REVERT)")
-//    public void testRevert() {
-//        // 測試程式碼：
-//        // PUSH1 69  (字元 'E')
-//        // PUSH1 0   (memory offset)
-//        // MSTORE8   (存入記憶體)
-//        // PUSH1 114 (字元 'r')
-//        // PUSH1 1   (memory offset)
-//        // MSTORE8
-//        // PUSH1 114 (字元 'r')
-//        // PUSH1 2   (memory offset)
-//        // MSTORE8
-//        // PUSH1 111 (字元 'o')
-//        // PUSH1 3   (memory offset)
-//        // MSTORE8
-//        // PUSH1 114 (字元 'r')
-//        // PUSH1 4   (memory offset)
-//        // MSTORE8
-//        // PUSH1 5   (revert size)
-//        // PUSH1 0   (revert offset)
-//        // REVERT
-//
-//        byte[] bytecode = {
-//                Opcode.PUSH1.getCode(), 0x45,  // PUSH1 69 ('E')
-//                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0
-//                Opcode.MSTORE8.getCode(),       // MSTORE8
-//                Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
-//                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1
-//                Opcode.MSTORE8.getCode(),       // MSTORE8
-//                Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
-//                Opcode.PUSH1.getCode(), 0x02,  // PUSH1 2
-//                Opcode.MSTORE8.getCode(),       // MSTORE8
-//                Opcode.PUSH1.getCode(), 0x6F,  // PUSH1 111 ('o')
-//                Opcode.PUSH1.getCode(), 0x03,  // PUSH1 3
-//                Opcode.MSTORE8.getCode(),       // MSTORE8
-//                Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
-//                Opcode.PUSH1.getCode(), 0x04,  // PUSH1 4
-//                Opcode.MSTORE8.getCode(),       // MSTORE8
-//                Opcode.PUSH1.getCode(), 0x05,  // PUSH1 5 (size)
-//                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (offset)
-//                Opcode.REVERT.getCode()         // REVERT
-//        };
-//
-//        evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
-//        evm.run();
-//
-//        System.out.println("Revert test completed");
-//        evm.printMemory();
-//
-//        // 驗證執行已停止且回滾
-//        assertFalse(evm.getContext().isRunning());
-//
-//        CallFrame frame = evm.getContext().getCurrentFrame();
-//        assertFalse(frame.isSuccess());
-//        assertTrue(frame.isReverted());
-//        assertNotNull(frame.getRevertReason());
-//
-//        System.out.println("Revert reason: " + frame.getRevertReason());
-//    }
-//
-//    @Test
-//    @DisplayName("測試呼叫棧深度限制")
-//    public void testCallStackDepthLimit() {
-//        // 創建一個會導致深度呼叫的程式碼
-//        byte[] bytecode = new byte[100];
-//        int pos = 0;
-//
-//        // 創建一個遞歸呼叫的程式碼
-//        for (int i = 0; i < 10; i++) {
-//            bytecode[pos++] = Opcode.PUSH1.getCode();
-//            bytecode[pos++] = 0x0A; // gas
-//            bytecode[pos++] = Opcode.PUSH1.getCode();
-//            bytecode[pos++] = 0x00; // address (自己)
-//            bytecode[pos++] = Opcode.PUSH1.getCode();
-//            bytecode[pos++] = 0x00; // value
-//            bytecode[pos++] = Opcode.PUSH1.getCode();
-//            bytecode[pos++] = 0x00; // argsOffset
-//            bytecode[pos++] = Opcode.PUSH1.getCode();
-//            bytecode[pos++] = 0x00; // argsSize
-//            bytecode[pos++] = Opcode.PUSH1.getCode();
-//            bytecode[pos++] = 0x00; // retOffset
-//            bytecode[pos++] = Opcode.PUSH1.getCode();
-//            bytecode[pos++] = 0x00; // retSize
-//            bytecode[pos++] = Opcode.CALL.getCode();
-//            bytecode[pos++] = Opcode.POP.getCode(); // 移除返回值
-//        }
-//
-//        bytecode[pos++] = Opcode.STOP.getCode();
-//
-//        evm = new SimpleEVM(bytecode, 10000, TEST_ORIGIN);
-//
-//        // 這應該會因為呼叫棧過深而失敗
-//        assertThrows(RuntimeException.class, () -> evm.run());
-//    }
-//
-//    @Test
-//    @DisplayName("測試 Gas 不足的呼叫")
-//    public void testOutOfGasCall() {
-//        // 測試程式碼：用很少的 gas 進行呼叫
-//        byte[] bytecode = {
-//                Opcode.PUSH1.getCode(), 0x20,  // PUSH1 32 (retSize)
-//                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (retOffset)
-//                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsSize)
-//                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
-//                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (value)
-//                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1 (address)
-//                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1 (very low gas)
-//                Opcode.CALL.getCode(),          // CALL
-//                Opcode.STOP.getCode()           // STOP
-//        };
-//
-//        evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
-//        evm.run();
-//
-//        System.out.println("Out of gas call test completed");
-//        evm.printStack();
-//
-//        // 驗證呼叫失敗（堆疊頂部應該是 0）
-//        assertEquals(0, evm.getContext().getStack().peek().intValue());
-//    }
-//
-//    @Test
-//    @DisplayName("測試多層呼叫")
-//    public void testNestedCalls() {
-//        // 測試多層呼叫的情況
-//        byte[] bytecode = {
-//                // 第一層呼叫
-//                Opcode.PUSH1.getCode(), 0x20,  // retSize
-//                Opcode.PUSH1.getCode(), 0x00,  // retOffset
-//                Opcode.PUSH1.getCode(), 0x00,  // argsSize
-//                Opcode.PUSH1.getCode(), 0x00,  // argsOffset
-//                Opcode.PUSH1.getCode(), 0x00,  // value
-//                Opcode.PUSH1.getCode(), 0x01,  // address
-//                Opcode.PUSH1.getCode(), 0x64,  // gas (100)
-//                Opcode.CALL.getCode(),          // CALL
-//
-//                // 檢查第一層呼叫結果
-//                Opcode.ISZERO.getCode(),        // 檢查是否為 0
-//                Opcode.PUSH1.getCode(), 0x20,  // 如果失敗跳轉到位置 32
-//                Opcode.JUMPI.getCode(),         // 條件跳轉
-//
-//                // 第二層呼叫
-//                Opcode.PUSH1.getCode(), 0x20,  // retSize
-//                Opcode.PUSH1.getCode(), 0x00,  // retOffset
-//                Opcode.PUSH1.getCode(), 0x00,  // argsSize
-//                Opcode.PUSH1.getCode(), 0x00,  // argsOffset
-//                Opcode.PUSH1.getCode(), 0x00,  // value
-//                Opcode.PUSH1.getCode(), 0x02,  // address
-//                Opcode.PUSH1.getCode(), 0x64,  // gas (100)
-//                Opcode.CALL.getCode(),          // CALL
-//
-//                Opcode.JUMPDEST.getCode(),      // 目標位置 (32)
-//                Opcode.STOP.getCode()           // STOP
-//        };
-//
-//        evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
-//        evm.run();
-//
-//        System.out.println("Nested calls test completed");
-//        evm.printStack();
-//
-//        // 驗證執行完成
-//        assertFalse(evm.getContext().isRunning());
-//    }
-//
-//    @Test
-//    @DisplayName("測試呼叫上下文保存")
-//    public void testCallContextPreservation() {
-//        // 測試呼叫前後上下文是否正確保存和恢復
-//        byte[] bytecode = {
-//                // 在堆疊放入一些測試值
-//                Opcode.PUSH1.getCode(), 0x11,  // 測試值 1
-//                Opcode.PUSH1.getCode(), 0x22,  // 測試值 2
-//                Opcode.PUSH1.getCode(), 0x33,  // 測試值 3
-//
-//                // 進行呼叫
-//                Opcode.PUSH1.getCode(), 0x00,  // retSize
-//                Opcode.PUSH1.getCode(), 0x00,  // retOffset
-//                Opcode.PUSH1.getCode(), 0x00,  // argsSize
-//                Opcode.PUSH1.getCode(), 0x00,  // argsOffset
-//                Opcode.PUSH1.getCode(), 0x00,  // value
-//                Opcode.PUSH1.getCode(), 0x01,  // address
-//                Opcode.PUSH1.getCode(), 0x64,  // gas
-//                Opcode.CALL.getCode(),          // CALL
-//
-//                // 呼叫後驗證堆疊
-//                Opcode.POP.getCode(),           // 移除呼叫結果
-//                Opcode.STOP.getCode()           // STOP
-//        };
-//
-//        evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
-//        evm.run();
-//
-//        System.out.println("Call context preservation test completed");
-//        evm.printStack();
-//
-//        // 驗證原始值仍在堆疊中
-//        assertEquals(3, evm.getContext().getStack().size());
-//        assertEquals(0x33, evm.getContext().getStack().get(2).intValue());
-//        assertEquals(0x22, evm.getContext().getStack().get(1).intValue());
-//        assertEquals(0x11, evm.getContext().getStack().get(0).intValue());
-//    }
+    @Test
+    @DisplayName("測試回滾 (REVERT)")
+    public void testRevert() {
+        // 測試程式碼：
+        // PUSH1 69  (字元 'E')
+        // PUSH1 0   (memory offset)
+        // MSTORE8   (存入記憶體)
+        // PUSH1 114 (字元 'r')
+        // PUSH1 1   (memory offset)
+        // MSTORE8
+        // PUSH1 114 (字元 'r')
+        // PUSH1 2   (memory offset)
+        // MSTORE8
+        // PUSH1 111 (字元 'o')
+        // PUSH1 3   (memory offset)
+        // MSTORE8
+        // PUSH1 114 (字元 'r')
+        // PUSH1 4   (memory offset)
+        // MSTORE8
+        // PUSH1 5   (revert size)
+        // PUSH1 0   (revert offset)
+        // REVERT
+
+        byte[] bytecode = {
+                Opcode.PUSH1.getCode(), 0x45,  // PUSH1 69 ('E')
+                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0
+                Opcode.MSTORE.getCode(),       // MSTORE8
+                Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
+                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1
+                Opcode.MSTORE.getCode(),       // MSTORE8
+                Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
+                Opcode.PUSH1.getCode(), 0x02,  // PUSH1 2
+                Opcode.MSTORE.getCode(),       // MSTORE8
+                Opcode.PUSH1.getCode(), 0x6F,  // PUSH1 111 ('o')
+                Opcode.PUSH1.getCode(), 0x03,  // PUSH1 3
+                Opcode.MSTORE.getCode(),       // MSTORE8
+                Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
+                Opcode.PUSH1.getCode(), 0x04,  // PUSH1 4
+                Opcode.MSTORE.getCode(),       // MSTORE8
+                Opcode.PUSH1.getCode(), 0x05,  // PUSH1 5 (size)
+                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (offset)
+                Opcode.REVERT.getCode()         // REVERT
+        };
+
+        evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
+        evm.run();
+
+        System.out.println("Revert test completed");
+        evm.printMemory();
+
+        // 驗證執行已停止且回滾
+        assertFalse(evm.getContext().isRunning());
+
+        CallFrame frame = evm.getContext().getCurrentFrame();
+        assertFalse(frame.isSuccess());
+        assertTrue(frame.isReverted());
+        assertNotNull(frame.getRevertReason());
+
+        System.out.println("Revert reason: " + frame.getRevertReason());
+    }
+
+    @Test
+    @DisplayName("長執行測試")
+    public void testCallStackDepthLimit() {
+        // 創建一個會導致深度呼叫的程式碼
+        byte[] bytecode = new byte[1000];
+        int pos = 0;
+
+        // 創建一個遞歸呼叫的程式碼
+        for (int i = 0; i < 10; i++) {
+            bytecode[pos++] = Opcode.PUSH1.getCode();
+            bytecode[pos++] = 0x01; // retSize
+            bytecode[pos++] = Opcode.PUSH1.getCode();
+            bytecode[pos++] = 0x00; // retOffset
+            bytecode[pos++] = Opcode.PUSH1.getCode();
+            bytecode[pos++] = 0x00; // argsSize
+            bytecode[pos++] = Opcode.PUSH1.getCode();
+            bytecode[pos++] = 0x00; // argsOffset
+            bytecode[pos++] = Opcode.PUSH1.getCode();
+            bytecode[pos++] = 0x00; // value
+            bytecode[pos++] = Opcode.PUSH1.getCode();
+            bytecode[pos++] = 0x00; // contract address
+            bytecode[pos++] = Opcode.PUSH1.getCode();
+            bytecode[pos++] = (byte)0xFF; // gas
+            bytecode[pos++] = Opcode.CALL.getCode();
+            bytecode[pos++] = Opcode.POP.getCode();
+        }
+
+        bytecode[pos++] = Opcode.STOP.getCode();
+
+        evm = new SimpleEVM(bytecode, 10000, TEST_ORIGIN);
+        evm.run();
+
+        evm.getStack().printStack();
+        evm.printMemory();
+
+        assertFalse(evm.isRunning());
+    }
+
+    @Test
+    @DisplayName("測試 Gas 不足的呼叫")
+    public void testOutOfGasCall() {
+        // 測試程式碼：用很少的 gas 進行呼叫
+        byte[] bytecode = {
+                Opcode.PUSH1.getCode(), 0x04,  // PUSH1 4 (retSize)
+                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (retOffset)
+                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsSize)
+                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
+                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (value)
+                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1 (address)
+                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1 (very low gas)
+                Opcode.CALL.getCode(),          // CALL
+                Opcode.STOP.getCode()           // STOP
+        };
+
+        evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
+        evm.run();
+
+        System.out.println("Out of gas call test completed");
+        evm.printStack();
+
+        //assertTrue(evm.getContext().getCurrentFrame().isReverted());
+        System.out.println("Revert reason: " + evm.getContext().getCurrentFrame().getRevertReason());
+        // 驗證呼叫失敗（堆疊頂部應該是 0）
+        assertEquals(0, evm.getContext().getStack().peek().intValue());
+    }
+
+    @Test
+    @DisplayName("測試多層呼叫")
+    public void testNestedCalls() {
+        // Mock func1 failed then JUMP to STOP:
+        byte[] bytecode = {
+                // first func call
+                Opcode.PUSH1.getCode(), 0x04,  // retSize
+                Opcode.PUSH1.getCode(), 0x00,  // retOffset
+                Opcode.PUSH1.getCode(), 0x00,  // argsSize
+                Opcode.PUSH1.getCode(), 0x00,  // argsOffset
+                Opcode.PUSH1.getCode(), 0x00,  // value
+                Opcode.PUSH1.getCode(), 0x01,  // address
+                Opcode.PUSH1.getCode(), 0x01,  // gas (1)
+                Opcode.CALL.getCode(),          // CALL
+
+                // IF Check (check stack pop is 1 <SUCCESS>)
+                Opcode.ISZERO.getCode(),        // 0 -> 1, 1 -> 0
+                Opcode.PUSH1.getCode(), 0x22,  // if func1 failed, jump to 34
+                Opcode.JUMPI.getCode(),         // JUMP on condition (int dest, bool isStackTopZero)
+
+                // second func call
+                Opcode.PUSH1.getCode(), 0x04,  // retSize
+                Opcode.PUSH1.getCode(), 0x00,  // retOffset
+                Opcode.PUSH1.getCode(), 0x00,  // argsSize
+                Opcode.PUSH1.getCode(), 0x00,  // argsOffset
+                Opcode.PUSH1.getCode(), 0x00,  // value
+                Opcode.PUSH1.getCode(), 0x02,  // address
+                Opcode.PUSH1.getCode(), 0x64,  // gas (100)
+                Opcode.CALL.getCode(),          // CALL
+
+                Opcode.JUMPDEST.getCode(),      // index (34)
+                Opcode.STOP.getCode()           // STOP
+        };
+
+        evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
+        evm.run();
+
+        System.out.println("Nested calls test completed");
+        evm.printStack();
+
+        assertFalse(evm.getContext().isRunning());
+    }
+
+    @Test
+    @DisplayName("測試呼叫上下文保存")
+    public void testCallContextPreservation() {
+        // test bytecode to check if call context is preserved after a call
+        byte[] bytecode = {
+                // put some test data
+                Opcode.PUSH1.getCode(), 0x11,  // data 1
+                Opcode.PUSH1.getCode(), 0x22,  // data 2
+                Opcode.PUSH1.getCode(), 0x33,  // data 3
+
+                // call func
+                Opcode.PUSH1.getCode(), 0x00,  // retSize
+                Opcode.PUSH1.getCode(), 0x00,  // retOffset
+                Opcode.PUSH1.getCode(), 0x00,  // argsSize
+                Opcode.PUSH1.getCode(), 0x00,  // argsOffset
+                Opcode.PUSH1.getCode(), 0x00,  // value
+                Opcode.PUSH4.getCode(), 0x01, (byte) 0xC1, (byte) 0xA1, (byte) 0x8C,  // address
+                Opcode.PUSH1.getCode(), 0x64,  // gas
+                Opcode.CALL.getCode(),         // CALL
+
+                Opcode.POP.getCode(),           // remove func call result
+                Opcode.STOP.getCode()           // STOP
+        };
+
+        evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
+        evm.run();
+
+        System.out.println("Call context preservation test completed");
+        evm.printStack();
+
+        assertEquals(3, evm.getContext().getStack().size());
+        assertEquals(0x33, evm.getContext().getStack().safePop());
+        assertEquals(0x22, evm.getContext().getStack().safePop());
+        assertEquals(0x11, evm.getContext().getStack().safePop());
+    }
 }

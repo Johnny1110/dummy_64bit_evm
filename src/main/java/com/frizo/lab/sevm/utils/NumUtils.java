@@ -112,4 +112,34 @@ public class NumUtils {
         int stackIntValue = stackIntArrayToInt(stackInts);
         System.out.println("Stack int array to int: " + stackIntValue);
     }
+
+
+    // assumes input is a byte array each 4 bytes as a unit
+    // example [0x00, 0x00, 0x00, 0x45, 0x00, 0x00, 0x00, 0x72] represents "er"
+    public static String bytes4ToString(byte[] bytesWithPadding) {
+        if (bytesWithPadding == null || bytesWithPadding.length == 0) {
+            return "";
+        }
+
+        // Ensure the array length is divisible by 4
+        if (bytesWithPadding.length % 4 != 0) {
+            throw new IllegalArgumentException("Byte array length must be divisible by 4");
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        // Process every 4 bytes
+        for (int i = 0; i < bytesWithPadding.length; i += 4) {
+            // Convert 4 bytes to int (big-endian)
+            int value = ((bytesWithPadding[i] & 0xFF) << 24) |
+                    ((bytesWithPadding[i + 1] & 0xFF) << 16) |
+                    ((bytesWithPadding[i + 2] & 0xFF) << 8) |
+                    (bytesWithPadding[i + 3] & 0xFF);
+
+            // Convert to character and append
+            result.append((char) value);
+        }
+
+        return result.toString();
+    }
 }

@@ -68,4 +68,10 @@ public class DummyMemory implements Memory<Integer, byte[]> {
             System.out.printf("Address: %d, Value: %s%n", entry.getKey(), NumUtils.bytesToHex(entry.getValue()));
         }
     }
+
+    @Override
+    public void cleanUp() {
+        M.clear();
+        log.info("DummyMemory cleaned up.");
+    }
 }

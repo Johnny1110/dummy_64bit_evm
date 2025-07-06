@@ -91,14 +91,14 @@ public class CallFrame {
         this.contractAddress = "INTERNAL";
         this.caller = "INTERNAL";
         this.origin = "INTERNAL";
-        this.value = 0;
+        this.value = parentContext.getCurrentFrame().value;
         this.code = parentContext.getCode();
         this.inputData = new byte[0];
         this.inputOffset = 0;
         this.inputSize = 0;
 
-        parentContext.consumeGas(gasLimit);
         this.gasRemaining = gasLimit;
+        this.gasUsed = 0;
 
         this.callType = CallType.INTERNAL;
         this.isStatic = false;
@@ -108,7 +108,7 @@ public class CallFrame {
         this.memory = parentContext.getMemory();
         this.storage = parentContext.getStorage();
         this.pc = jumpAddress;
-        this.gasUsed = 0;
+
         this.running = true;
         this.success = false;
         this.reverted = false;
@@ -123,8 +123,16 @@ public class CallFrame {
         gasUsed += amount;
     }
 
+    public void refundGas(int gasRemaining) {
+        this.gasRemaining += gasRemaining;
+        this.gasUsed -= gasRemaining;
+        log.info("Refunded {} gas to frame:{}, new gas remaining: {}",
+                gasRemaining, this.frameId, this.gasRemaining);
+    }
+
     public void halt() {
         running = false;
+        this.memory.cleanUp();
     }
 
     public void setReturnData(byte[] data, int offset, int size) {
@@ -160,5 +168,4 @@ public class CallFrame {
     public void updatePC(int newPC) {
         pc = newPC;
     }
-
 }

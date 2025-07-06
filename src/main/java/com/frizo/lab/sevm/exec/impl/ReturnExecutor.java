@@ -74,7 +74,7 @@ public class ReturnExecutor implements InstructionExecutor {
 
         // read memory data based on offset and size
         byte[] revertData = readMemoryData(context, offset, size);
-        String revertReason = new String(revertData);
+        String revertReason = NumUtils.bytes4ToString(revertData);
 
         // set revert reason in the current frame
         currentFrame.setReverted(true, revertReason);

@@ -43,6 +43,15 @@ public class CallExecutor implements InstructionExecutor {
         }
     }
 
+    /**
+     * CALL (0xF1)
+     * External call to another contract.
+     * New Frame (Context) is created for the called contract.
+     * New Memory and isolation of Storage.
+     * Able to transfer value and execute code.
+     * Target contract state can be changed.
+     * @param context EVMContext
+     */
     private void executeCall(EVMContext context) {
         Stack<Integer> stack = context.getStack();
         CallFrame currentFrame = context.getCurrentFrame();
@@ -83,7 +92,7 @@ public class CallExecutor implements InstructionExecutor {
                     .build()
         );
 
-        boolean success = executeCallFrame(context, newFrame);
+        boolean success = executeCallFrame(context, newFrame, gas);
 
         if (success && newFrame.getReturnData().length > 0) {
             writeMemoryData(context, retOffset, newFrame.getReturnData(), retSize);
@@ -94,6 +103,12 @@ public class CallExecutor implements InstructionExecutor {
 
     }
 
+    /**
+     * EVM not define ICALL (0xF8) instruction.
+     * ICALL is a custom instruction for internal calls.
+     * Internal calls are used to jump to another function within the same contract.
+     * @param context
+     */
     private void executeInternalCall(EVMContext context) {
         Stack<Integer> stack = context.getStack();
 
@@ -110,7 +125,7 @@ public class CallExecutor implements InstructionExecutor {
         // stack, memory, storage, and other context remain the same.
         CallFrame newFrame = new CallFrame(context, jumpPC, gas);
 
-        boolean success = executeCallFrame(context, newFrame);
+        boolean success = executeCallFrame(context, newFrame, gas);
 
         // Internal calls do not return data, but we still need to handle the success status.
         if (!success) {
@@ -118,6 +133,15 @@ public class CallExecutor implements InstructionExecutor {
         }
     }
 
+    /**
+     * STATICCALL (0xFA)
+     * Static (read-only) call to another contract.
+     * Disable state changes in the called contract.
+     * Not able to transfer value.
+     * Ensure not to modify the state of the called contract.
+     * Usually used for read-only operations (Query). view pure functions.
+     * @param context EVMContext
+     */
     private void executeStaticCall(EVMContext context) {
         Stack<Integer> stack = context.getStack();
         CallFrame currentFrame = context.getCurrentFrame();
@@ -155,7 +179,7 @@ public class CallExecutor implements InstructionExecutor {
                         .build()
         );
 
-        boolean success = executeCallFrame(context, newFrame);
+        boolean success = executeCallFrame(context, newFrame, gas);
 
         if (success && newFrame.getReturnData().length > 0) {
             writeMemoryData(context, retOffset, newFrame.getReturnData(), retSize);
@@ -164,6 +188,15 @@ public class CallExecutor implements InstructionExecutor {
         stack.safePush(success ? 1 : 0);
     }
 
+    /**
+     * DELEGATECALL (0xF4)
+     * All state changes are made in the calling contract's storage.
+     * Caller contract share the storage with the called contract.
+     * Not support value transfer.
+     * Usually used in proxy patterns and library contracts.
+     * Must be careful to using DELEGATECALL
+     * @param context EVMContext
+     */
     private void executeDelegateCall(EVMContext context) {
         Stack<Integer> stack = context.getStack();
         CallFrame currentFrame = context.getCurrentFrame();
@@ -192,7 +225,7 @@ public class CallExecutor implements InstructionExecutor {
                         .contractAddress(currentFrame.getContractAddress())
                         .caller(currentFrame.getCaller())
                         .origin(currentFrame.getOrigin())
-                        .value(currentFrame.getValue())
+                        .value(0) // DELEGATECALL does not transfer value
                         .inputData(callData)
                         .inputOffset(argsOffset)
                         .inputSize(argsSize)
@@ -200,11 +233,10 @@ public class CallExecutor implements InstructionExecutor {
                         .isStatic(currentFrame.isStatic())
                         .build());
 
-        // share storage and memory with current frame
+        // share storage and memory with current frame (DELEGATECALL Critical Feature)
         newFrame.setStorage(currentFrame.getStorage());
-        //newFrame.setMemory(currentFrame.getMemory());
 
-        boolean success = executeCallFrame(context, newFrame);
+        boolean success = executeCallFrame(context, newFrame, gas);
 
         if (success && newFrame.getReturnData().length > 0) {
             writeMemoryData(context, retOffset, newFrame.getReturnData(), retSize);
@@ -213,6 +245,14 @@ public class CallExecutor implements InstructionExecutor {
         stack.safePush(success ? 1 : 0);
     }
 
+    /**
+     * CALLCODE (0xF2)
+     * Execute the code of the target contract in the context of the calling contract.
+     * Able to transfer value and execute code.
+     * State changes are made in the calling contract's storage (pass caller's contract storage to new Frame).
+     * CALLCODE was deprecated in Solidity 0.5.0 and replaced by DELEGATECALL (EIP-7).
+     */
+    @Deprecated(since = "CALLCODE was deprecated in Solidity 0.5.0. EIP-2488")
     private void executeCallCode(EVMContext context) {
         Stack<Integer> stack = context.getStack();
         CallFrame currentFrame = context.getCurrentFrame();
@@ -231,7 +271,6 @@ public class CallExecutor implements InstructionExecutor {
 
         log.info("[CallExecutor] CALLCODE - gas: {}, contractAddress : {}, value: {}", gas, contractAddress, value);
 
-        // CALLCODE 在當前合約上下文中執行目標合約的程式碼
         byte[] callData = readMemoryData(context, argsOffset, argsSize);
         byte[] contractCode = loadContractCode(contractAddress);
 
@@ -239,7 +278,7 @@ public class CallExecutor implements InstructionExecutor {
         CallFrame newFrame = new CallFrame(
                 contractCode, gas,
                 CallData.builder()
-                        .contractAddress(currentFrame.getContractAddress()) // keep current contract address
+                        .contractAddress(currentFrame.getContractAddress()) // CALLCODE: keep current contract address
                         .caller(currentFrame.getCaller())
                         .origin(currentFrame.getOrigin())
                         .value(value)
@@ -250,10 +289,11 @@ public class CallExecutor implements InstructionExecutor {
                         .isStatic(false)
                         .build());
 
-        // share storage（這是 CALLCODE 的關鍵特徵）
+        // share storage（CALLCODE Critical Feature）
+        // CALLCODE does not change the storage, it uses the current contract's storage
         newFrame.setStorage(currentFrame.getStorage());
 
-        boolean success = executeCallFrame(context, newFrame);
+        boolean success = executeCallFrame(context, newFrame, gas);
 
         if (success && newFrame.getReturnData().length > 0) {
             writeMemoryData(context, retOffset, newFrame.getReturnData(), retSize);
@@ -384,23 +424,40 @@ public class CallExecutor implements InstructionExecutor {
      * @param frame
      * @return
      */
-    private boolean executeCallFrame(EVMContext context, CallFrame frame) {
+    private boolean executeCallFrame(EVMContext context, CallFrame frame, int transferGas) {
         try {
+
+            // transfer gas to the frame
+            log.info("[CallExecutor] Transferring {} gas to new frame: {}", transferGas, frame.getFrameId());
+            context.consumeGas(transferGas);
+
             CallStack callStack = context.getCallStack();
 
             // ----------------------------------------------------->>>
             // Push the frame onto the call stack
             callStack.safePush(frame);
             log.info("[CallExecutor] Starting execution of frame contract address: {}", frame.getContractAddress());
+            // this func won't throw an exception, but will return false if execution fails
             boolean success = executeFrameCode(context, frame);
             callStack.safePop();
             // <<-----------------------------------------------------
 
+            // refund the remaining gas to the frame
+            context.refundGas(frame.getGasRemaining());
+
             log.info("[CallExecutor] Frame execution completed. Success: {}, Reverted: {}",
                     success, frame.isReverted());
 
-            return success && !frame.isReverted();
+            // process reverted frame
+            if (frame.isReverted()) {
+                log.warn("[CallExecutor] Frame execution reverted: {}", frame.getRevertReason());
+                // If the frame is reverted, we can handle it here (e.g., log, revert state changes, etc.)
+                // For now, we just return false to indicate failure.
+                context.revert(frame.getRevertReason());
+                return false;
+            }
 
+            return success;
         } catch (Exception e) {
             log.error("[CallExecutor] Call execution failed: {}", e.getMessage());
 
@@ -426,6 +483,7 @@ public class CallExecutor implements InstructionExecutor {
             context.getStack().printStack();
             context.getMemory().printMemory();
             context.getStorage().printStorage();
+            System.out.println("Available Gas: " + context.getGasRemaining());
             log.info("<executeFrameCode> --------------- Context Content Check before run ---------------");
 
             SimpleEVM evm = new SimpleEVM(context);
@@ -443,19 +501,19 @@ public class CallExecutor implements InstructionExecutor {
             return frame.isSuccess();
 
         } catch (EVMException.OutOfGasException e) {
-            log.warn("[CallExecutor] Out of gas: {}", e.getMessage());
+            log.warn("[CallExecutor] {}", e.getMessage());
             frame.setReverted(true, "Out of gas");
             return false;
         } catch (EVMException.InvalidJumpException e) {
-            log.warn("[CallExecutor] Invalid jump destination: {}", e.getMessage());
+            log.warn("[CallExecutor] {}", e.getMessage());
             frame.setReverted(true, "Invalid jump destination");
             return false;
         } catch (EVMException.StackUnderflowException e) {
-            log.warn("[CallExecutor] Stack underflow: {}", e.getMessage());
+            log.warn("[CallExecutor] {}", e.getMessage());
             frame.setReverted(true, "Stack underflow");
             return false;
         } catch (Exception e) {
-            log.error("[CallExecutor] Unexpected error during execution: {}", e.getMessage());
+            log.error("[CallExecutor] {}", e.getMessage());
             frame.setReverted(true, "Execution error: " + e.getMessage());
             return false;
         }

@@ -13,10 +13,19 @@ public class ArithmeticExecutor implements InstructionExecutor {
     public void execute(EVMContext context, Opcode opcode) {
         switch (opcode) {
             case STOP -> context.stop();
-            case ADD -> binaryOp(context, (a, b) -> a + b);
+            case ADD -> binaryOp(context, Integer::sum);
             case MUL -> binaryOp(context, (a, b) -> a * b);
             case SUB -> binaryOp(context, (a, b) -> a - b);
             case DIV -> binaryOp(context, (a, b) -> a / b);
+            case ISZERO -> {
+                // ISZERO: Pops the top value from the stack, pushes 1 if it is zero, otherwise pushes 0
+                // Equals to NOT operation in some contexts
+                if (context.getStack().isEmpty()) {
+                    throw new EVMException.StackUnderflowException();
+                }
+                int value = context.getStack().safePop();
+                context.getStack().safePush(value == 0 ? 1 : 0);
+            }
             default -> throw new EVMException.UnknownOpcodeException(opcode);
         }
     }
@@ -34,7 +43,7 @@ public class ArithmeticExecutor implements InstructionExecutor {
     @Override
     public boolean canHandle(Opcode opcode) {
         return switch (opcode) {
-            case STOP, ADD, MUL, SUB, DIV -> true;
+            case STOP, ADD, MUL, SUB, DIV, ISZERO -> true;
             default -> false;
         };
     }

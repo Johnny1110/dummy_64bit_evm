@@ -7,4 +7,6 @@ public interface Memory<K, V> {
     boolean containsKey(K key);
     void clear(K key);
     void printMemory();
+
+    void cleanUp();
 }

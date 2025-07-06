@@ -12,6 +12,7 @@ public class JumpExecutor implements InstructionExecutor {
     public void execute(EVMContext context, Opcode opcode) {
         switch (opcode) {
             case JUMPDEST -> {
+                log.info("[JumpExecutor] <JUMPDEST> located, pc: {}", context.getPc());
                 // JUMPDEST does not affect stack or pc, just marks a valid jump destination
                 // No action needed here, just for validation
             }
