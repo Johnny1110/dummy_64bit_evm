@@ -294,5 +294,62 @@ B 也無法直接讀取或修改 A 的 Storage
     RETURN((byte) 0xF3, 0, ReturnExecutor.class),        // Return from a function call
     REVERT((byte) 0xFD, 0, ReturnExecutor.class),        // Revert a function call, used for error handling
 
+
+
+<br>
+
+## 關於記憶體管理:
+
+<br>
+
+### 將 "hello" 字串存入 Memory 後 STOP:
+
+```
+// EVM Bytecode: 將 "hello" 字串存入 Memory
+// "hello" 的 ASCII 編碼: 0x68656c6c6f
+
+// Step 1: 準備 "hello" 字串的 hex 值
+PUSH5 0x68656c6c6f    // 將 "hello" (5 bytes) 推送到 stack
+                      // Stack: [0x68656c6c6f]
+
+// Step 2: 準備 memory 位置 (從位置 0 開始)
+PUSH1 0x00            // 推送 memory offset 0
+                      // Stack: [0x00, 0x68656c6c6f]
+
+// Step 3: 將數據存入 memory
+MSTORE                // 從 stack 取出 offset 和 value，存入 memory
+                      // Memory[0:32] = 0x68656c6c6f (右對齊，左邊補零)
+                      // Stack: []
+
+// Step 4: 停止執行
+STOP                  // 停止合約執行
+
+// 完整的 bytecode (hex):
+// 6468656c6c6f 6000 52 00
+
+/* 
+Bytecode 分解:
+- 64: PUSH5 opcode
+- 68656c6c6f: "hello" 的 hex 值
+- 60: PUSH1 opcode  
+- 00: value 0 (memory offset)
+- 52: MSTORE opcode
+- 00: STOP opcode
+*/
+```
+
+<br>
+
+### 資料可視化
+
+![1](docs/imgs/1.jpg)
+
+<br>
+
+* 右對齊: "hello" 存在 memory 的位置 0x1B-0x1F (27-31)
+* 左邊補零: 位置 0x00-0x1A (0-26) 都是 0x00
+* 總長度: 32 bytes (0x20) 的 memory 被分配
+* 橘色格子: 實際的 "hello" 數據
+* 灰色格子: 補零的部分
     UNKNOWN((byte) 0xFF, 0, null),
 ```
