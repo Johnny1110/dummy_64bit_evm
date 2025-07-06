@@ -142,4 +142,27 @@ public class NumUtils {
 
         return result.toString();
     }
+
+    /**
+     * Convert a string to a byte array, where each character is represented by 4 bytes.
+     * This is useful for EVM-style encoding where each character is padded to 4 bytes (left padded).
+     * For example: 'A' -> [0x00, 0x00, 0x00, 0x41]
+     *
+     * @param text the input string to convert
+     * @return a byte array where each character is represented by 4 bytes
+     */
+    public static byte[] stringToBytes(String text) {
+        if (text == null || text.isEmpty()) return new byte[0];
+
+        byte[] result = new byte[text.length() * 4];
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            // 填入每個 char 的 4-byte big-endian 表示
+            result[i * 4] = 0x00;
+            result[i * 4 + 1] = 0x00;
+            result[i * 4 + 2] = 0x00;
+            result[i * 4 + 3] = (byte) c;
+        }
+        return result;
+    }
 }

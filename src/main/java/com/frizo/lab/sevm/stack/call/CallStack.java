@@ -1,6 +1,7 @@
 package com.frizo.lab.sevm.stack.call;
 
 import com.frizo.lab.sevm.context.call.CallFrame;
+import com.frizo.lab.sevm.context.log.LogEntry;
 import com.frizo.lab.sevm.exception.EVMException;
 import com.frizo.lab.sevm.stack.Stack;
 import lombok.extern.slf4j.Slf4j;
@@ -27,22 +28,23 @@ public class CallStack implements Stack<CallFrame> {
         if (frames.isEmpty()) {
             throw new EVMException.CallStackUnderFlowException();
         }
-        CallFrame frame = frames.pop();
+        CallFrame popped = frames.pop();
         log.info("[CallStack] Popped frame, depth: {}", frames.size());
-        return frame;
+
+        // collect LOGs to previous frame (if reverted -> do not collect logs)
+        if (!frames.isEmpty() && !popped.isReverted()) {
+            List<LogEntry> logs = popped.getLogs();
+            CallFrame previousFrame = frames.peek();
+            previousFrame.addLogs(logs);
+            log.info("[CallStack] Collected {} logs to previous frame:{}", logs.size(), previousFrame.getFrameId());
+        }
+
+        return popped;
     }
 
     @Override
     public List<CallFrame> safePop(int count) {
-        if (frames.size() < count) {
-            throw new EVMException.CallStackUnderFlowException();
-        }
-        List<CallFrame> poppedFrames = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            poppedFrames.add(frames.pop());
-        }
-        log.info("[CallStack] Popped {} frames, depth: {}", count, frames.size());
-        return poppedFrames;
+        throw new UnsupportedOperationException("safePop with count is not supported in CallStack");
     }
 
     @Override

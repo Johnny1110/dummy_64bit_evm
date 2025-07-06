@@ -25,7 +25,8 @@ public class InstructionDispatcher {
         this.executors.put(SwapExecutor.class, new SwapExecutor());
         this.executors.put(CallExecutor.class, new CallExecutor());
         this.executors.put(PopExecutor.class, new PopExecutor());
-        this.executors.put(ReturnExecutor.class, new ReturnExecutor());
+        this.executors.put(ReturnRevertExecutor.class, new ReturnRevertExecutor());
+        this.executors.put(LogExecutor.class, new LogExecutor());
     }
 
     public void dispatch(EVMContext context, Opcode opcode) {

@@ -4,6 +4,7 @@ import com.frizo.lab.sevm.common.Constant;
 import com.frizo.lab.sevm.context.call.CallData;
 import com.frizo.lab.sevm.context.call.CallFrame;
 import com.frizo.lab.sevm.context.call.CallType;
+import com.frizo.lab.sevm.context.log.LogEntry;
 import com.frizo.lab.sevm.memory.Memory;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
@@ -13,6 +14,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -154,5 +156,9 @@ public class EVMContext {
         log.warn("[EVMContext] Reverting frame: {}, reason: {}", getCurrentFrame().getFrameId(), revertReason);
         // TODO recover state with snapshot.
         //getStorage().revert(snapshot);
+    }
+
+    public List<LogEntry> getAllLogs() {
+        return getCurrentFrame().getLogs();
     }
 }

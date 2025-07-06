@@ -120,7 +120,7 @@ class SimpleEVMTest {
                 0x00              // STOP
         };
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 200, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 20000000, "OriginAddress");
         evm.run();
         evm.printStack();   // Expected: [42]
         evm.printStorage(); // Expected: {1=42}

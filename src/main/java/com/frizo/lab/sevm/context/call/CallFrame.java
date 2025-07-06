@@ -3,6 +3,7 @@ package com.frizo.lab.sevm.context.call;
 import com.frizo.lab.sevm.common.Constant;
 import com.frizo.lab.sevm.context.EVMComponentFactory;
 import com.frizo.lab.sevm.context.EVMContext;
+import com.frizo.lab.sevm.context.log.LogEntry;
 import com.frizo.lab.sevm.exception.EVMException;
 import com.frizo.lab.sevm.memory.Memory;
 import com.frizo.lab.sevm.op.Opcode;
@@ -12,6 +13,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -50,6 +53,9 @@ public class CallFrame {
     private String revertReason;
     @Setter
     private boolean success;
+
+    // Logs generated during the call
+    private final List<LogEntry> logs = new ArrayList<>();
 
     public CallFrame(byte[] bytecode, int initialGas, CallData callData) {
         this.contractAddress = callData.getContractAddress();
@@ -112,6 +118,8 @@ public class CallFrame {
 
     public void consumeGas(int amount) {
         if (gasRemaining < amount) {
+            log.warn("Out of gas in frame: {}, gas remaining: {}, required: {}",
+                    this.frameId, gasRemaining, amount);
             throw new EVMException.OutOfGasException();
         }
         gasRemaining -= amount;
@@ -162,5 +170,15 @@ public class CallFrame {
 
     public void updatePC(int newPC) {
         pc = newPC;
+    }
+
+    public void addLog(LogEntry logEntry) {
+        logs.add(logEntry);
+    }
+
+    public void addLogs(List<LogEntry> logs) {
+        if (logs != null && !logs.isEmpty()) {
+            this.logs.addAll(logs);
+        }
     }
 }

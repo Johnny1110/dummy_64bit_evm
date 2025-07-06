@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class ReturnExecutor implements InstructionExecutor {
+public class ReturnRevertExecutor implements InstructionExecutor {
     @Override
     public void execute(EVMContext context, Opcode opcode) {
         log.info("[ReturnExecutor] Executing: {}", opcode);

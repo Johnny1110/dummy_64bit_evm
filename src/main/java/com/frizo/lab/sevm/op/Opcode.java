@@ -33,8 +33,8 @@ public enum Opcode {
 
 
     // Storage operations (0x54, 0x55)
-    SLOAD((byte) 0x54, 20, StorageExecutor.class), // Load a value from memory onto the stack
-    SSTORE((byte) 0x55, 50, StorageExecutor.class), // Store a value from the stack into memory
+    SLOAD((byte) 0x54, 100, StorageExecutor.class), // Load a value from memory onto the stack
+    SSTORE((byte) 0x55, 20000, StorageExecutor.class), // Store a value from the stack into memory
 
     // JUMP
     JUMP((byte) 0x56, 8, JumpExecutor.class), // Stack: [dest] → JUMP → pc = dest
@@ -86,8 +86,8 @@ public enum Opcode {
 
     // Internal func call (Custom opcode)
     ICALL((byte) 0xFC, 10, CallExecutor.class),          // 內部調用
-    RETURN((byte) 0xF3, 0, ReturnExecutor.class),        // Return from a function call
-    REVERT((byte) 0xFD, 0, ReturnExecutor.class),        // Revert a function call, used for error handling
+    RETURN((byte) 0xF3, 0, ReturnRevertExecutor.class),        // Return from a function call
+    REVERT((byte) 0xFD, 0, ReturnRevertExecutor.class),        // Revert a function call, used for error handling
 
     // LOGn (0xA0 ~ 0xA4)
     LOG0((byte) 0xA0, 375, LogExecutor.class),
