@@ -27,6 +27,7 @@ public class InstructionDispatcher {
         this.executors.put(PopExecutor.class, new PopExecutor());
         this.executors.put(ReturnRevertExecutor.class, new ReturnRevertExecutor());
         this.executors.put(LogExecutor.class, new LogExecutor());
+        this.executors.put(NumLogicInstruction.class, new NumLogicInstruction());
     }
 
     public void dispatch(EVMContext context, Opcode opcode) {

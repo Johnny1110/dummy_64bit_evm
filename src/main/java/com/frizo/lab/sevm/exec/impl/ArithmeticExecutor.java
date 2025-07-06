@@ -43,7 +43,7 @@ public class ArithmeticExecutor implements InstructionExecutor {
     @Override
     public boolean canHandle(Opcode opcode) {
         return switch (opcode) {
-            case STOP, ADD, MUL, SUB, DIV, ISZERO -> true;
+            case STOP, ADD, MUL, SUB, DIV -> true;
             default -> false;
         };
     }

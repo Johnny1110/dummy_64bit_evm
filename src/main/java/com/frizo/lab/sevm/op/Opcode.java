@@ -14,7 +14,15 @@ public enum Opcode {
     SUB((byte) 0x03, 5, ArithmeticExecutor.class),
     DIV((byte) 0x04, 5, ArithmeticExecutor.class),
 
-    ISZERO((byte) 0x15, 3, ArithmeticExecutor.class),
+    LT((byte) 0x10, 3, NumLogicInstruction.class), // Less than
+    GT((byte) 0x11, 3, NumLogicInstruction.class), // Greater
+    SLT((byte) 0x12, 3, NumLogicInstruction.class), // Signed less than
+    SGT((byte) 0x13, 3, NumLogicInstruction.class), //
+    EQ((byte) 0x14, 3, NumLogicInstruction.class), // Equal
+    ISZERO((byte) 0x15, 3, NumLogicInstruction.class), // NOT
+    AND((byte) 0x16, 3, NumLogicInstruction.class), // Bitwise AND
+    OR((byte) 0x17, 3, NumLogicInstruction.class), // Bit
+    XOR((byte) 0x18, 3, NumLogicInstruction.class), // Bitwise XOR
 
     // PUSH1 ~ PUSH4 (32bit stack push opcodes)
 
@@ -118,6 +126,12 @@ public enum Opcode {
             }
         }
         throw new IllegalArgumentException("Unknown opcode: " + String.format("0x%02X", b));
+    }
+
+    public static boolean isNumLogic(Opcode opcode) {
+        return opcode == LT || opcode == GT || opcode == SLT || opcode == SGT ||
+               opcode == EQ || opcode == ISZERO ||
+               opcode == AND || opcode == OR || opcode == XOR;
     }
 
     public boolean isPush() {
