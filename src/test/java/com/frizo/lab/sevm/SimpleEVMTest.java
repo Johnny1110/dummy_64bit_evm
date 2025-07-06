@@ -180,7 +180,7 @@ class SimpleEVMTest {
 
     @Test
     public void testSWAP1() {
-        byte[] bytecode = new byte[] {
+        byte[] bytecode = new byte[]{
                 0x60, 0x01,       // PUSH1 1
                 0x60, 0x02,       // PUSH1 2
                 (byte) 0x90,      // SWAP1: swap top with 2nd
@@ -197,7 +197,7 @@ class SimpleEVMTest {
 
     @Test
     public void testSWAP2() {
-        byte[] bytecode = new byte[] {
+        byte[] bytecode = new byte[]{
                 0x60, 0x01,       // PUSH1 1
                 0x60, 0x02,       // PUSH1 2
                 0x60, 0x03,       // PUSH1 3
@@ -216,7 +216,7 @@ class SimpleEVMTest {
 
     @Test
     public void testSWAP3() {
-        byte[] bytecode = new byte[] {
+        byte[] bytecode = new byte[]{
                 0x60, 0x10,       // PUSH1 16
                 0x60, 0x20,       // PUSH1 32
                 0x60, 0x30,       // PUSH1 48

@@ -24,7 +24,7 @@ public enum Opcode {
     PUSH3((byte) 0x62, 3, PushExecutor.class),
     PUSH4((byte) 0x63, 3, PushExecutor.class),
 
-    POP((byte) 0x50,2, PopExecutor.class), // Pop the top value from the stack
+    POP((byte) 0x50, 2, PopExecutor.class), // Pop the top value from the stack
 
 
     // 0x51 0x52 memory
@@ -92,18 +92,17 @@ public enum Opcode {
     UNKNOWN((byte) 0xFF, 0, null),
     ;
 
-    Opcode(byte code, int gasCost, Class<? extends InstructionExecutor> executorClass) {
-        this.code = code;
-        this.gasCost = gasCost;
-        this.executorClass = executorClass;
-    }
-
     @Getter
     private final byte code;
     @Getter
     private final int gasCost;
     @Getter
     private final Class<? extends InstructionExecutor> executorClass;
+    Opcode(byte code, int gasCost, Class<? extends InstructionExecutor> executorClass) {
+        this.code = code;
+        this.gasCost = gasCost;
+        this.executorClass = executorClass;
+    }
 
     public static Opcode fromByte(byte b) {
         for (Opcode op : values()) {

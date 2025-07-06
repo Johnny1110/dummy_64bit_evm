@@ -50,6 +50,7 @@ public class CallExecutor implements InstructionExecutor {
      * New Memory and isolation of Storage.
      * Able to transfer value and execute code.
      * Target contract state can be changed.
+     *
      * @param context EVMContext
      */
     private void executeCall(EVMContext context) {
@@ -80,16 +81,16 @@ public class CallExecutor implements InstructionExecutor {
         CallFrame newFrame = new CallFrame(
                 contractCode, gas,
                 CallData.builder()
-                    .contractAddress(NumUtils.intToHex(contractAddress))
-                    .caller(currentFrame.getContractAddress())
-                    .origin(currentFrame.getOrigin())
-                    .value(value)
-                    .inputData(callData)
-                    .inputOffset(argsOffset)
-                    .inputSize(argsSize)
-                    .callType(CallType.CALL)
-                    .isStatic(false)
-                    .build()
+                        .contractAddress(NumUtils.intToHex(contractAddress))
+                        .caller(currentFrame.getContractAddress())
+                        .origin(currentFrame.getOrigin())
+                        .value(value)
+                        .inputData(callData)
+                        .inputOffset(argsOffset)
+                        .inputSize(argsSize)
+                        .callType(CallType.CALL)
+                        .isStatic(false)
+                        .build()
         );
 
         boolean success = executeCallFrame(context, newFrame, gas);
@@ -107,6 +108,7 @@ public class CallExecutor implements InstructionExecutor {
      * EVM not define ICALL (0xF8) instruction.
      * ICALL is a custom instruction for internal calls.
      * Internal calls are used to jump to another function within the same contract.
+     *
      * @param context
      */
     private void executeInternalCall(EVMContext context) {
@@ -140,6 +142,7 @@ public class CallExecutor implements InstructionExecutor {
      * Not able to transfer value.
      * Ensure not to modify the state of the called contract.
      * Usually used for read-only operations (Query). view pure functions.
+     *
      * @param context EVMContext
      */
     private void executeStaticCall(EVMContext context) {
@@ -195,6 +198,7 @@ public class CallExecutor implements InstructionExecutor {
      * Not support value transfer.
      * Usually used in proxy patterns and library contracts.
      * Must be careful to using DELEGATECALL
+     *
      * @param context EVMContext
      */
     private void executeDelegateCall(EVMContext context) {
@@ -347,7 +351,7 @@ public class CallExecutor implements InstructionExecutor {
      * @param context EVMContext
      * @param offset  offset in memory to start writing to
      * @param data    the data to write to memory
-     * @param size  maximum size to write to 1 memory address
+     * @param size    maximum size to write to 1 memory address
      */
     private void writeMemoryData(EVMContext context, int offset, byte[] data, int size) {
         log.info("[CallExecutor] Writing memory data to offset: {}, dataSize: {}, fixedSizePerAddress: {}",
@@ -407,7 +411,7 @@ public class CallExecutor implements InstructionExecutor {
         // TODO: Real implementation should fetch from a blockchain.
         // TODO: This is a simple contract that returns the value 42 when called.
         return new byte[]{
-                Opcode.PUSH1.getCode(), (byte)0xAA,  // PUSH1 170
+                Opcode.PUSH1.getCode(), (byte) 0xAA,  // PUSH1 170
                 Opcode.PUSH1.getCode(), 0x10,  // PUSH1 16 (memory offset)
                 Opcode.MSTORE.getCode(),        // MSTORE
                 Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1 (return size)

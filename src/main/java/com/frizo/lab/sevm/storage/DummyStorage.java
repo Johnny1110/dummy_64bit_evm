@@ -14,7 +14,7 @@ import java.util.Objects;
  * It allows for basic operations like getting, putting, checking existence of keys,
  * clearing keys, and printing the storage contents.
  * This is a simplified version and does not implement all EVM storage features.
- *
+ * <p>
  * Real EVM storage would also handle gas costs, state changes, and more complex data structures.
  * Each Smart Contract would have its own storage, and the storage would be persistent across transactions.
  */
@@ -36,8 +36,7 @@ public class DummyStorage implements Storage<Integer, byte[]> {
     public void put(Integer key, byte[] value) {
         if (value == null) {
             S.put(key, new byte[Constant.MAX_BYTES]);
-        }
-        else if (value.length > Constant.MAX_BYTES) {
+        } else if (value.length > Constant.MAX_BYTES) {
             throw new IllegalArgumentException("Value exceeds maximum size of " + Constant.MAX_BYTES + " bytes");
         } else {
             S.put(key, value);

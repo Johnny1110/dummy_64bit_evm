@@ -56,7 +56,7 @@ public class ReturnExecutor implements InstructionExecutor {
         currentFrame.setSuccess(true);
         currentFrame.halt();
 
-        log.info("[ReturnExecutor] Return data:{}, size: {}", NumUtils.bytesToHex(returnData) ,returnData.length);
+        log.info("[ReturnExecutor] Return data:{}, size: {}", NumUtils.bytesToHex(returnData), returnData.length);
     }
 
     private void executeRevert(EVMContext context) {
@@ -123,7 +123,7 @@ public class ReturnExecutor implements InstructionExecutor {
      * @param context EVMContext
      * @param offset  offset in memory to start writing to
      * @param data    the data to write to memory
-     * @param size maximum size to write to memory
+     * @param size    maximum size to write to memory
      */
     private void writeMemoryData(EVMContext context, int offset, byte[] data, int size) {
         log.info("[CallExecutor] Writing memory data to offset: {}, dataSize: {}, fixedSizePerAddress: {}",

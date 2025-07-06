@@ -4,7 +4,6 @@ import com.frizo.lab.sevm.common.Constant;
 import com.frizo.lab.sevm.context.call.CallData;
 import com.frizo.lab.sevm.context.call.CallFrame;
 import com.frizo.lab.sevm.context.call.CallType;
-import com.frizo.lab.sevm.exception.EVMException;
 import com.frizo.lab.sevm.memory.Memory;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
@@ -20,14 +19,13 @@ import java.util.Set;
 @Getter
 public class EVMContext {
 
-    // call
-    private final CallStack callStack;
-    private final Set<Integer> validJumpDestIdx;
-
     // Global context
     protected final String txOrigin;
     protected final long blockNumber;
     protected final long timestamp;
+    // call
+    private final CallStack callStack;
+    private final Set<Integer> validJumpDestIdx;
 
     public EVMContext(byte[] bytecode, int initialGas, String txOrigin) {
         this.callStack = new CallStack(Constant.MAX_STACK_DEPTH);

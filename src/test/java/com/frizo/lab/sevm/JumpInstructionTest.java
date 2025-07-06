@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class JumpInstructionTest {
 
-    private SimpleEVM evm;
     private static final int INITIAL_GAS = 1000000;
+    private SimpleEVM evm;
 
     @BeforeEach
     void setUp() {

@@ -11,20 +11,24 @@ public class EVMException extends RuntimeException {
         public StackUnderflowException() {
             super("Stack underflow: not enough items on the stack");
         }
+
         public StackUnderflowException(String message) {
             super(message);
         }
     }
+
     public static class StackOverflowException extends EVMException {
         public StackOverflowException() {
             super("Stack overflow: too many items on the stack");
         }
     }
+
     public static class OutOfGasException extends EVMException {
         public OutOfGasException() {
             super("Out of gas: not enough gas to execute the operation");
         }
     }
+
     public static class InvalidJumpException extends EVMException {
         public InvalidJumpException() {
             super("Invalid jump destination: the jump target is not a valid jump destination");

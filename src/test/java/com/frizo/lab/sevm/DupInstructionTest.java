@@ -1,16 +1,16 @@
 package com.frizo.lab.sevm;
 
 import com.frizo.lab.sevm.vm.SimpleEVM;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DupInstructionTest {
 
-    private SimpleEVM evm;
     private static final int INITIAL_GAS = 1000000;
+    private SimpleEVM evm;
 
     @BeforeEach
     void setUp() {
@@ -28,7 +28,7 @@ public class DupInstructionTest {
          */
         byte[] bytecode = {
                 0x60, 0x42,       // PUSH1 0x42
-                (byte)0x80,             // DUP1
+                (byte) 0x80,             // DUP1
                 0x00              // STOP
         };
 
@@ -54,7 +54,7 @@ public class DupInstructionTest {
         byte[] bytecode = {
                 0x60, 0x11,       // PUSH1 0x11
                 0x60, 0x22,       // PUSH1 0x22
-                (byte)0x81,             // DUP2
+                (byte) 0x81,             // DUP2
                 0x00              // STOP
         };
 
@@ -83,7 +83,7 @@ public class DupInstructionTest {
                 0x60, 0x11,       // PUSH1 0x11
                 0x60, 0x22,       // PUSH1 0x22
                 0x60, 0x33,       // PUSH1 0x33
-                (byte)0x82,             // DUP3
+                (byte) 0x82,             // DUP3
                 0x00              // STOP
         };
 
@@ -128,7 +128,7 @@ public class DupInstructionTest {
          * 1: STOP          // 停止執行
          */
         byte[] bytecode = {
-                (byte)0x80,             // DUP1 (no elements on stack)
+                (byte) 0x80,             // DUP1 (no elements on stack)
                 0x00              // STOP
         };
 
@@ -153,7 +153,7 @@ public class DupInstructionTest {
          */
         byte[] bytecode = {
                 0x60, 0x42,       // PUSH1 0x42
-                (byte)0x81,             // DUP2 (need at least 2 elements)
+                (byte) 0x81,             // DUP2 (need at least 2 elements)
                 0x00              // STOP
         };
 
@@ -204,8 +204,8 @@ public class DupInstructionTest {
          */
         byte[] bytecode = {
                 0x60, 0x05,       // PUSH1 0x05
-                (byte)0x80,             // DUP1
-                (byte)0x80,             // DUP1
+                (byte) 0x80,             // DUP1
+                (byte) 0x80,             // DUP1
                 0x01,             // ADD
                 0x02,             // MUL
                 0x00              // STOP
@@ -233,9 +233,9 @@ public class DupInstructionTest {
         byte[] bytecode = {
                 0x60, 0x11,       // PUSH1 0x11
                 0x60, 0x22,       // PUSH1 0x22
-                (byte)0x81,             // DUP2 (copy 0x11)
-                (byte)0x81,             // DUP2 (copy 0x22)
-                (byte)0x83,             // DUP4 (copy 0x11)
+                (byte) 0x81,             // DUP2 (copy 0x11)
+                (byte) 0x81,             // DUP2 (copy 0x22)
+                (byte) 0x83,             // DUP4 (copy 0x11)
                 0x00              // STOP
         };
 
@@ -262,7 +262,7 @@ public class DupInstructionTest {
          */
         byte[] bytecode = {
                 0x60, 0x42,       // PUSH1 0x42
-                (byte)0x80,             // DUP1
+                (byte) 0x80,             // DUP1
                 0x00              // STOP
         };
 
@@ -321,8 +321,8 @@ public class DupInstructionTest {
         byte[] bytecode = {
                 0x60, 0x11,       // PUSH1 0x11
                 0x60, 0x22,       // PUSH1 0x22
-                (byte)0x81,             // DUP2
-                (byte)0x90,             // SWAP1
+                (byte) 0x81,             // DUP2
+                (byte) 0x90,             // SWAP1
                 0x00              // STOP
         };
 

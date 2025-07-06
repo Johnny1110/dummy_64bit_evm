@@ -21,16 +21,7 @@ public class CallFrame {
     private final String frameId = UUID.randomUUID().toString(); // Unique identifier for the frame, can be used for debugging
 
     private final Stack<Integer> stack;
-    @Setter
-    private Memory<Integer, byte[]> memory;
-    @Setter
-    private Storage<Integer, byte[]> storage;
     private final byte[] code;
-    private int pc;
-    private int gasRemaining;
-    private int gasUsed;
-    private boolean running;
-
     // Call Data
     private final String contractAddress;    // contract Address
     private final String caller;            // caller Address
@@ -39,28 +30,26 @@ public class CallFrame {
     private final byte[] inputData;        // input data
     private final int inputOffset;         // input data offset in memory
     private final int inputSize;           // input data size
-
+    // Call Type
+    private final CallType callType;
+    // Static Call (read-only)
+    private final boolean isStatic;
+    @Setter
+    private Memory<Integer, byte[]> memory;
+    @Setter
+    private Storage<Integer, byte[]> storage;
+    private int pc;
+    private int gasRemaining;
+    private int gasUsed;
+    private boolean running;
     // Call Result
     private byte[] returnData;
     private int returnOffset;
     private int returnSize;
     private boolean reverted;
     private String revertReason;
-
     @Setter
     private boolean success;
-
-    // Call Type
-    private final CallType callType;
-
-    // Static Call (read-only)
-    private final boolean isStatic;
-
-    @Override
-    public String toString() {
-        return String.format("CallFrame{id='%s', contract='%s', caller='%s', pc=%d, gasRemaining=%d, running=%b, success=%b, reverted=%b}",
-                frameId, contractAddress, caller, pc, gasRemaining, running, success, reverted);
-    }
 
     public CallFrame(byte[] bytecode, int initialGas, CallData callData) {
         this.contractAddress = callData.getContractAddress();
@@ -113,6 +102,12 @@ public class CallFrame {
         this.success = false;
         this.reverted = false;
         this.returnData = new byte[0];
+    }
+
+    @Override
+    public String toString() {
+        return String.format("CallFrame{id='%s', contract='%s', caller='%s', pc=%d, gasRemaining=%d, running=%b, success=%b, reverted=%b}",
+                frameId, contractAddress, caller, pc, gasRemaining, running, success, reverted);
     }
 
     public void consumeGas(int amount) {

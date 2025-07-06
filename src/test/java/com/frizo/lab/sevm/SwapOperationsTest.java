@@ -3,21 +3,70 @@ package com.frizo.lab.sevm;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
 import com.frizo.lab.sevm.vm.SimpleEVM;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.jupiter.api.Nested;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("SWAP Operations Unit Tests")
 public class SwapOperationsTest {
 
     private static final int INITIAL_GAS = 100000;
+
+    // Helper method to get SWAP opcode by index
+    private Opcode getSwapOpcode(int index) {
+        switch (index) {
+            case 1:
+                return Opcode.SWAP1;
+            case 2:
+                return Opcode.SWAP2;
+            case 3:
+                return Opcode.SWAP3;
+            case 4:
+                return Opcode.SWAP4;
+            case 5:
+                return Opcode.SWAP5;
+            case 6:
+                return Opcode.SWAP6;
+            case 7:
+                return Opcode.SWAP7;
+            case 8:
+                return Opcode.SWAP8;
+            case 9:
+                return Opcode.SWAP9;
+            case 10:
+                return Opcode.SWAP10;
+            case 11:
+                return Opcode.SWAP11;
+            case 12:
+                return Opcode.SWAP12;
+            case 13:
+                return Opcode.SWAP13;
+            case 14:
+                return Opcode.SWAP14;
+            case 15:
+                return Opcode.SWAP15;
+            case 16:
+                return Opcode.SWAP16;
+            default:
+                throw new IllegalArgumentException("Invalid SWAP index: " + index);
+        }
+    }
+
+    // Helper method to convert List<Byte> to byte[]
+    private byte[] toByteArray(List<Byte> list) {
+        byte[] array = new byte[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            array[i] = list.get(i);
+        }
+        return array;
+    }
 
     @Nested
     @DisplayName("SWAP1 Tests")
@@ -407,37 +456,5 @@ public class SwapOperationsTest {
             evm.getStack().safePop();
             assertEquals(131072, evm.peek());
         }
-    }
-
-    // Helper method to get SWAP opcode by index
-    private Opcode getSwapOpcode(int index) {
-        switch (index) {
-            case 1: return Opcode.SWAP1;
-            case 2: return Opcode.SWAP2;
-            case 3: return Opcode.SWAP3;
-            case 4: return Opcode.SWAP4;
-            case 5: return Opcode.SWAP5;
-            case 6: return Opcode.SWAP6;
-            case 7: return Opcode.SWAP7;
-            case 8: return Opcode.SWAP8;
-            case 9: return Opcode.SWAP9;
-            case 10: return Opcode.SWAP10;
-            case 11: return Opcode.SWAP11;
-            case 12: return Opcode.SWAP12;
-            case 13: return Opcode.SWAP13;
-            case 14: return Opcode.SWAP14;
-            case 15: return Opcode.SWAP15;
-            case 16: return Opcode.SWAP16;
-            default: throw new IllegalArgumentException("Invalid SWAP index: " + index);
-        }
-    }
-
-    // Helper method to convert List<Byte> to byte[]
-    private byte[] toByteArray(List<Byte> list) {
-        byte[] array = new byte[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            array[i] = list.get(i);
-        }
-        return array;
     }
 }

@@ -1,7 +1,6 @@
 package com.frizo.lab.sevm.vm;
 
 import com.frizo.lab.sevm.context.EVMContext;
-import com.frizo.lab.sevm.context.call.CallFrame;
 import com.frizo.lab.sevm.exec.InstructionDispatcher;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;

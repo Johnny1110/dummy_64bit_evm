@@ -16,11 +16,11 @@
 
 ✅ 支援 Storage 模擬 (實際版本需要依賴區塊鏈，暫時 SKIP 用 HashMap 模擬)
 
-✅  CALL / RETURN 模型，支援呼叫內部 function / 合約
+✅ CALL / RETURN 模型，支援呼叫內部 function / 合約
 
-🔜  LOG 模擬：支援類似 Solidity 的 event 紀錄
+🔜 LOG 模擬：支援類似 Solidity 的 event 紀錄
 
-🔜  寫 bytecode 編譯器（高階語言轉 bytecode）
+🔜 寫 bytecode 編譯器（高階語言轉 bytecode）
 
 
 <br>
@@ -40,6 +40,7 @@ JUMPI: 條件跳轉，當條件不為 0 時才跳轉
 <br>
 
 ### 📘 EVM 中的 Gas 是什麼？
+
 在 Ethereum 中，每條指令都會消耗 Gas。當合約執行時，會累計使用的 Gas。若 Gas 用盡，EVM 就會中止執行並 Revert 所有變更。
 
 * 每條指令設定基本的固定 Gas 消耗
@@ -60,6 +61,7 @@ DUP2 複製的是第 2 個（從頂部數下來）…
 DUP16 是複製第 16 個元素
 
 範例：
+
 ```text
 stack = [5, 10, 15]
 DUP2 → 複製 10，stack = [5, 10, 15, 10]
@@ -71,6 +73,7 @@ SWAP1 把 top 與第 2 個交換
 SWAP16 把 top 與第 17 個交換
 
 範例：
+
 ```text
 stack = [5, 10, 15]
 SWAP2 → stack = [15, 10, 5]
@@ -107,15 +110,16 @@ EVM 是基於 "message call" 模型：每個 CALL 都是一個新的上下文（
 
 ✅ 設計重點
 
-📦 CALL	呼叫一段「bytecode offset」開始的邏輯區塊（模擬 function 呼叫）
+📦 CALL 呼叫一段「bytecode offset」開始的邏輯區塊（模擬 function 呼叫）
 
-🔁 RETURN	將控制權返回到 CALL 的下一行，並還原 stack/memory
+🔁 RETURN 將控制權返回到 CALL 的下一行，並還原 stack/memory
 
-🧱 CallFrame	保存 returnPC、stack snapshot、memory snapshot、gas
+🧱 CallFrame 保存 returnPC、stack snapshot、memory snapshot、gas
 
-💾 單一 code 區	同一份 bytecode 中跳到某段邏輯區塊執行（無多合約）
+💾 單一 code 區 同一份 bytecode 中跳到某段邏輯區塊執行（無多合約）
 
 🧠 CALL 操作語意
+
 ```
 Stack: [call_offset, return_offset]
 CALL
@@ -132,7 +136,6 @@ RETURN
 → pop context from callStack
 → restore stack, memory, gas, pc = return_offset
 ```
-
 
 ### 與 Stack/Memory 的對比
 

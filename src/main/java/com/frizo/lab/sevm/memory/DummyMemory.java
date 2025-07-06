@@ -14,7 +14,7 @@ import java.util.Objects;
  * addresses) and values are byte arrays (representing the data stored at those addresses).
  * It allows for basic operations like getting, putting, checking existence of keys,
  * clearing keys, and printing the memory contents.
- *
+ * <p>
  * In a real EVM implementation, memory is a temporary storage that is used during the execution of smart contracts.
  * It is not persistent and is cleared after the execution of a transaction.
  * This DummyMemory class is a simplified version and does not implement all EVM memory features.
@@ -38,8 +38,7 @@ public class DummyMemory implements Memory<Integer, byte[]> {
     public void put(Integer key, byte[] value) {
         if (value == null) {
             M.put(key, new byte[Constant.MAX_BYTES]);
-        }
-        else if (value.length > Constant.MAX_BYTES) {
+        } else if (value.length > Constant.MAX_BYTES) {
             log.error("[DummyMemory] Value exceeds maximum size of {} bytes: {}", Constant.MAX_BYTES, value.length);
             throw new IllegalArgumentException("Value exceeds maximum size of " + Constant.MAX_BYTES + " bytes");
         } else {

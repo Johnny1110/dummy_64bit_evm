@@ -73,7 +73,9 @@ public class Stack32Bit implements Stack<Integer> {
 
         int i = 0;
         for (Integer val : stack) {
-            if (i == index) {return val;}
+            if (i == index) {
+                return val;
+            }
             i++;
         }
 

@@ -16,6 +16,6 @@ public class StopExecutor implements InstructionExecutor {
 
     @Override
     public boolean canHandle(Opcode opcode) {
-       return opcode.equals(Opcode.STOP);
+        return opcode.equals(Opcode.STOP);
     }
 }
