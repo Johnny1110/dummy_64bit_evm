@@ -1,11 +1,14 @@
 package com.frizo.lab.sevm.vm;
 
 import com.frizo.lab.sevm.context.EVMContext;
+import com.frizo.lab.sevm.context.log.LogEntry;
 import com.frizo.lab.sevm.exec.InstructionDispatcher;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 @Slf4j
 public class SimpleEVM {
@@ -94,5 +97,9 @@ public class SimpleEVM {
 
     public boolean isRunning() {
         return context.isRunning();
+    }
+
+    public List<LogEntry> getAllLogs() {
+        return context.getAllLogs();
     }
 }

@@ -18,7 +18,7 @@
 
 ✅ CALL / RETURN 模型，支援呼叫內部 function / 合約
 
-🔜 LOG 模擬：支援類似 Solidity 的 event 紀錄
+✅ LOG 模擬：支援類似 Solidity 的 event 紀錄
 
 🔜 寫 bytecode 編譯器（高階語言轉 bytecode）
 
