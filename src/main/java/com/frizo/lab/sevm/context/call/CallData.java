@@ -9,10 +9,10 @@ public class CallData {
     private String contractAddress;    // contract Address
     private String caller;            // caller Address
     private String origin;            // Txn Origin Address
-    private int value;               // transfer value
+    private long value;               // transfer value
     private byte[] inputData;        // input data
-    private int inputOffset;         // input data offset in memory
-    private int inputSize;           // input data size
+    private long inputOffset;         // input data offset in memory
+    private long inputSize;           // input data size
 
     // Call Type
     private CallType callType;

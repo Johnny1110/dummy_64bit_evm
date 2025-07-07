@@ -28,7 +28,7 @@ public class SimpleEVM {
         this.dispatcher = new InstructionDispatcher();
     }
 
-    public int getGasRemaining() {
+    public long getGasRemaining() {
         return context.getGasRemaining();
     }
 
@@ -71,7 +71,7 @@ public class SimpleEVM {
         log.info("[SimpleEVM] consumeGas: {} ({} gas), gasRemaining: {}", opcode, opcode.getGasCost(), context.getGasRemaining());
     }
 
-    public int peek() {
+    public long peek() {
         return getStack().peek();
     }
 
@@ -87,11 +87,11 @@ public class SimpleEVM {
         context.getStorage().printStorage();
     }
 
-    public Stack<Integer> getStack() {
+    public Stack<Long> getStack() {
         return context.getStack();
     }
 
-    public int totalGasUsed() {
+    public long totalGasUsed() {
         return context.getGasUsed();
     }
 

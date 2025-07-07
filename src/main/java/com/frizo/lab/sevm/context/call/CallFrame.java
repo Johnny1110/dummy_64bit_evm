@@ -23,41 +23,46 @@ public class CallFrame {
 
     private final String frameId = UUID.randomUUID().toString(); // Unique identifier for the frame, can be used for debugging
 
-    private final Stack<Integer> stack;
+    // 64-bit Stack
+    private final Stack<Long> stack;
     private final byte[] code;
+
     // Call Data
     private final String contractAddress;    // contract Address
     private final String caller;            // caller Address
     private final String origin;            // Txn Origin Address
-    private final int value;               // transfer value
+    private final long value;               // transfer value
     private final byte[] inputData;        // input data
-    private final int inputOffset;         // input data offset in memory
-    private final int inputSize;           // input data size
+    private final long inputOffset;         // input data offset in memory
+    private final long inputSize;           // input data size
     // Call Type
     private final CallType callType;
     // Static Call (read-only)
     private final boolean isStatic;
     @Setter
-    private Memory<Integer, byte[]> memory;
+    private Memory<Long, Long> memory;
     @Setter
-    private Storage<Integer, byte[]> storage;
+    private Storage<Long, Long> storage;
     private int pc;
-    private int gasRemaining;
-    private int gasUsed;
+    private long gasRemaining;
+    private long gasUsed;
     private boolean running;
     // Call Result
     private byte[] returnData;
-    private int returnOffset;
-    private int returnSize;
+    private long returnOffset;
+    private long returnSize;
     private boolean reverted;
     private String revertReason;
     @Setter
     private boolean success;
 
+    @Setter
+    private byte[] callReturnData; // Data returned from the call, used for internal calls
+
     // Logs generated during the call
     private final List<LogEntry> logs = new ArrayList<>();
 
-    public CallFrame(byte[] bytecode, int initialGas, CallData callData) {
+    public CallFrame(byte[] bytecode, long initialGas, CallData callData) {
         this.contractAddress = callData.getContractAddress();
         this.caller = callData.getCaller();
         this.origin = callData.getOrigin();
@@ -82,7 +87,7 @@ public class CallFrame {
         this.returnData = new byte[0];
     }
 
-    public CallFrame(EVMContext parentContext, int jumpAddress, int gasLimit) {
+    public CallFrame(EVMContext parentContext, int jumpAddress, long gasLimit) {
         this.contractAddress = "INTERNAL";
         this.caller = "INTERNAL";
         this.origin = "INTERNAL";
@@ -116,7 +121,7 @@ public class CallFrame {
                 frameId, contractAddress, caller, pc, gasRemaining, running, success, reverted);
     }
 
-    public void consumeGas(int amount) {
+    public void consumeGas(long amount) {
         if (gasRemaining < amount) {
             log.warn("Out of gas in frame: {}, gas remaining: {}, required: {}",
                     this.frameId, gasRemaining, amount);
@@ -126,7 +131,7 @@ public class CallFrame {
         gasUsed += amount;
     }
 
-    public void refundGas(int gasRemaining) {
+    public void refundGas(long gasRemaining) {
         this.gasRemaining += gasRemaining;
         this.gasUsed -= gasRemaining;
         log.info("Refunded {} gas to frame:{}, new gas remaining: {}",
@@ -138,7 +143,7 @@ public class CallFrame {
         this.memory.cleanUp();
     }
 
-    public void setReturnData(byte[] data, int offset, int size) {
+    public void setReturnData(byte[] data, long offset, long size) {
         this.returnOffset = offset;
         this.returnSize = size;
         this.returnData = data;

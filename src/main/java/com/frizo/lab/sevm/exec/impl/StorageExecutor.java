@@ -3,7 +3,6 @@ package com.frizo.lab.sevm.exec.impl;
 import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.exec.InstructionExecutor;
 import com.frizo.lab.sevm.op.Opcode;
-import com.frizo.lab.sevm.utils.NumUtils;
 
 public class StorageExecutor implements InstructionExecutor {
 
@@ -11,14 +10,16 @@ public class StorageExecutor implements InstructionExecutor {
     public void execute(EVMContext context, Opcode opcode) {
         switch (opcode) {
             case SSTORE -> {
-                int key = context.getStack().safePop();
-                int value = context.getStack().safePop();
-                context.getStorage().put(key, NumUtils.intTo4Bytes(value)); // store value in storage
+                // Default storage size is 8 bytes
+                long offset = context.getStack().safePop();
+                long value = context.getStack().safePop();
+                context.getStorage().put(offset, 8, value);
             }
 
             case SLOAD -> {
-                int key = context.getStack().safePop();
-                int value = NumUtils.bytes4ToInt(context.getStorage().get(key));
+                // Default storage size is 8 bytes
+                long offset = context.getStack().safePop();
+                long value = context.getStorage().get(offset, 8);
                 context.getStack().safePush(value);
             }
         }

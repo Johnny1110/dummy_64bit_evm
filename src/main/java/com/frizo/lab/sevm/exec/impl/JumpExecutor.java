@@ -18,15 +18,15 @@ public class JumpExecutor implements InstructionExecutor {
             }
 
             case JUMP -> {
-                int destIdx = context.getStack().safePop();
+                int destIdx = Math.toIntExact(context.getStack().safePop());
                 requiredValidJump(context, destIdx);
                 Opcode targetOp = Opcode.fromByte(context.getCode()[destIdx]);
                 log.info("[JumpExecutor] <JUMP> to destination index: {}, tartget:{}", destIdx, targetOp);
                 context.updatePC(destIdx); // set pc to the destination index
             }
             case JUMPI -> {
-                int dest = context.getStack().safePop();
-                int condition = context.getStack().safePop();
+                int dest = Math.toIntExact(context.getStack().safePop());
+                long condition = context.getStack().safePop();
                 if (condition != 0) {
                     requiredValidJump(context, dest);
                     Opcode targetOp = Opcode.fromByte(context.getCode()[dest]);

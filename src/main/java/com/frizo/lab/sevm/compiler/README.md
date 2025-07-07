@@ -129,8 +129,6 @@ Lexer.java: 主要詞法分析邏輯
 Token.java: 表示單個詞法單元
 TokenType.java: 定義所有 Token 類型（關鍵字、操作符、識別符等）
 
-
-
 2. 語法分析器 (Parser)
 
 功能: 將 Token 流轉換成抽象語法樹 (AST)
@@ -138,8 +136,6 @@ TokenType.java: 定義所有 Token 類型（關鍵字、操作符、識別符等
 
 Parser.java: 實現遞歸下降解析器
 ast/: 包含所有 AST 節點類型
-
-
 
 3. 語義分析器 (Semantic Analyzer)
 
@@ -150,8 +146,6 @@ SemanticAnalyzer.java: 主要語義分析邏輯
 SymbolTable.java: 符號表管理
 TypeChecker.java: 型別檢查
 
-
-
 4. 程式碼生成器 (Code Generator)
 
 功能: 將 AST 轉換成 EVM 字節碼
@@ -160,8 +154,6 @@ TypeChecker.java: 型別檢查
 EVMCodeGenerator.java: 生成 EVM 操作碼
 BytecodeGenerator.java: 生成最終字節碼
 ABIGenerator.java: 生成 ABI 介面
-
-
 
 5. 最佳化器 (Optimizer)
 

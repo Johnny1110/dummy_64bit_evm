@@ -13,8 +13,13 @@ public class Assignment extends AbsNode {
         this.right = right;
     }
 
-    public Expression getLeft() { return left; }
-    public Expression getRight() { return right; }
+    public Expression getLeft() {
+        return left;
+    }
+
+    public Expression getRight() {
+        return right;
+    }
 
     @Override
     public void accept(AbsVisitor visitor) {

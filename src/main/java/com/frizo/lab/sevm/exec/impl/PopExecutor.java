@@ -17,7 +17,7 @@ public class PopExecutor implements InstructionExecutor {
         if (context.getStack().isEmpty()) {
             throw new EVMException.StackUnderflowException("Stack underflow: POP requires at least one item on the stack");
         }
-        int p = context.getStack().safePop();
+        long p = context.getStack().safePop();
 
         log.info("[PopExecutor] POP:{}, current Stack size: {}", p, context.getStack().size());
     }

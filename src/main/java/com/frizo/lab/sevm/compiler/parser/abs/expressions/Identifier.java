@@ -9,7 +9,9 @@ public class Identifier extends Expression {
         this.name = name;
     }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
     @Override
     public void accept(AbsVisitor visitor) {

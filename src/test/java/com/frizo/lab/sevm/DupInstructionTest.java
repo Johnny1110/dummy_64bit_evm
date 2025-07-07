@@ -267,9 +267,9 @@ public class DupInstructionTest {
         };
 
         evm = new SimpleEVM(bytecode, INITIAL_GAS, "OriginAddress");
-        int gasBeforeRun = evm.getGasRemaining();
+        long gasBeforeRun = evm.getGasRemaining();
         evm.run();
-        int gasAfterRun = evm.getGasRemaining();
+        long gasAfterRun = evm.getGasRemaining();
 
         // 驗證 Gas 被消耗
         assertTrue(gasAfterRun < gasBeforeRun);

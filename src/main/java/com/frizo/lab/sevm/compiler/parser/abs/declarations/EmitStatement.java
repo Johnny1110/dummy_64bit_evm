@@ -10,7 +10,9 @@ public class EmitStatement extends AbsNode {
         this.eventCall = eventCall;
     }
 
-    public FunctionCall getEventCall() { return eventCall; }
+    public FunctionCall getEventCall() {
+        return eventCall;
+    }
 
     @Override
     public void accept(AbsVisitor visitor) {

@@ -14,7 +14,8 @@ public class Lexer {
     private int position;
     private int line;
     private int column;
-    private final Map<String, TokenType> keywords;;
+    private final Map<String, TokenType> keywords;
+    ;
 
     public Lexer(String sourceCode) {
         this.source = sourceCode;
@@ -103,15 +104,24 @@ public class Lexer {
 
     private Token newToken(char c) {
         switch (c) {
-            case '(': return new Token(TokenType.LPAREN, "(", line, column - 1);
-            case ')': return new Token(TokenType.RPAREN, ")", line, column - 1);
-            case '{': return new Token(TokenType.LBRACE, "{", line, column - 1);
-            case '}': return new Token(TokenType.RBRACE, "}", line, column - 1);
-            case '[': return new Token(TokenType.LBRACKET, "[", line, column - 1);
-            case ']': return new Token(TokenType.RBRACKET, "]", line, column - 1);
-            case ';': return new Token(TokenType.SEMICOLON, ";", line, column - 1);
-            case ',': return new Token(TokenType.COMMA, ",", line, column - 1);
-            case '.': return new Token(TokenType.DOT, ".", line, column - 1);
+            case '(':
+                return new Token(TokenType.LPAREN, "(", line, column - 1);
+            case ')':
+                return new Token(TokenType.RPAREN, ")", line, column - 1);
+            case '{':
+                return new Token(TokenType.LBRACE, "{", line, column - 1);
+            case '}':
+                return new Token(TokenType.RBRACE, "}", line, column - 1);
+            case '[':
+                return new Token(TokenType.LBRACKET, "[", line, column - 1);
+            case ']':
+                return new Token(TokenType.RBRACKET, "]", line, column - 1);
+            case ';':
+                return new Token(TokenType.SEMICOLON, ";", line, column - 1);
+            case ',':
+                return new Token(TokenType.COMMA, ",", line, column - 1);
+            case '.':
+                return new Token(TokenType.DOT, ".", line, column - 1);
             case '+':
                 if (match('+')) return new Token(TokenType.PLUS_PLUS, "++", line, column - 2);
                 if (match('=')) return new Token(TokenType.PLUS_ASSIGN, "+=", line, column - 2);
@@ -120,9 +130,12 @@ public class Lexer {
                 if (match('-')) return new Token(TokenType.MINUS_MINUS, "--", line, column - 2);
                 if (match('=')) return new Token(TokenType.MINUS_ASSIGN, "-=", line, column - 2);
                 return new Token(TokenType.MINUS, "-", line, column - 1);
-            case '*': return new Token(TokenType.MULTIPLY, "*", line, column - 1);
-            case '/': return new Token(TokenType.DIVIDE, "/", line, column - 1);
-            case '%': return new Token(TokenType.MODULO, "%", line, column - 1);
+            case '*':
+                return new Token(TokenType.MULTIPLY, "*", line, column - 1);
+            case '/':
+                return new Token(TokenType.DIVIDE, "/", line, column - 1);
+            case '%':
+                return new Token(TokenType.MODULO, "%", line, column - 1);
             case '=':
                 if (match('=')) return new Token(TokenType.EQUAL, "==", line, column - 2);
                 return new Token(TokenType.ASSIGN, "=", line, column - 1);

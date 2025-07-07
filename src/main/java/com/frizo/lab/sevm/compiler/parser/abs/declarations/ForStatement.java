@@ -2,7 +2,6 @@ package com.frizo.lab.sevm.compiler.parser.abs.declarations;
 
 import com.frizo.lab.sevm.compiler.parser.abs.AbsNode;
 import com.frizo.lab.sevm.compiler.parser.abs.AbsVisitor;
-
 import com.frizo.lab.sevm.compiler.parser.abs.expressions.Expression;
 
 public class ForStatement extends AbsNode {
@@ -19,10 +18,21 @@ public class ForStatement extends AbsNode {
         this.body = body;
     }
 
-    public AbsNode getInit() { return init; }
-    public Expression getCondition() { return condition; }
-    public Expression getUpdate() { return update; }
-    public AbsNode getBody() { return body; }
+    public AbsNode getInit() {
+        return init;
+    }
+
+    public Expression getCondition() {
+        return condition;
+    }
+
+    public Expression getUpdate() {
+        return update;
+    }
+
+    public AbsNode getBody() {
+        return body;
+    }
 
     @Override
     public void accept(AbsVisitor visitor) {

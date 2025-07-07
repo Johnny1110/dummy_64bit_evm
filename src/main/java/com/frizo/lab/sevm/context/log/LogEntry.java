@@ -12,7 +12,7 @@ import java.util.List;
 public class LogEntry {
 
     private String contractAddress; //current frame contractAddress
-    private List<Integer> topics;   // max 4 topic, usually: event signature + indexed params
+    private List<Long> topics;   // max 4 topic, usually: event signature + indexed params
     private byte[] data;            //non-indexed data (from memory)
 
     private long blockNumber;       // optional: block number

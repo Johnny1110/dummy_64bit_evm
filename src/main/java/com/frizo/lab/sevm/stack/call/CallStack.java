@@ -31,10 +31,13 @@ public class CallStack implements Stack<CallFrame> {
         CallFrame popped = frames.pop();
         log.info("[CallStack] Popped frame, depth: {}", frames.size());
 
+        CallFrame previousFrame = frames.peek();
+        previousFrame.setCallReturnData(popped.getReturnData());
+
         // collect LOGs to previous frame (if reverted -> do not collect logs)
         if (!frames.isEmpty() && !popped.isReverted()) {
             List<LogEntry> logs = popped.getLogs();
-            CallFrame previousFrame = frames.peek();
+
             previousFrame.addLogs(logs);
             log.info("[CallStack] Collected {} logs to previous frame:{}", logs.size(), previousFrame.getFrameId());
         }

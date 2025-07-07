@@ -24,21 +24,10 @@ public enum Opcode {
     OR((byte) 0x17, 3, NumLogicInstruction.class), // Bit
     XOR((byte) 0x18, 3, NumLogicInstruction.class), // Bitwise XOR
 
-    // PUSH1 ~ PUSH4 (32bit stack push opcodes)
-
-    // 0x60 represents PUSH1, which pushes 1 byte onto the stack
-    PUSH1((byte) 0x60, 3, PushExecutor.class),
-    PUSH2((byte) 0x61, 3, PushExecutor.class),
-    PUSH3((byte) 0x62, 3, PushExecutor.class),
-    PUSH4((byte) 0x63, 3, PushExecutor.class),
-
     POP((byte) 0x50, 2, PopExecutor.class), // Pop the top value from the stack
-
-
     // 0x51 0x52 memory
     MLOAD((byte) 0x51, 3, MemoryExecutor.class),
     MSTORE((byte) 0x52, 12, MemoryExecutor.class),
-
 
     // Storage operations (0x54, 0x55)
     SLOAD((byte) 0x54, 100, StorageExecutor.class), // Load a value from memory onto the stack
@@ -49,6 +38,16 @@ public enum Opcode {
     JUMPI((byte) 0x57, 10, JumpExecutor.class), // Stack: [dest, condition] → JUMPI → if condition != 0 then pc = dest
     JUMPDEST((byte) 0x5B, 1, JumpExecutor.class), // mark a valid jump destination, no effect on stack or pc
 
+    // PUSH1 ~ PUSH4 (32bit stack push opcodes)
+    // 0x60 represents PUSH1, which pushes 1 byte onto the stack
+    PUSH1((byte) 0x60, 3, PushExecutor.class),
+    PUSH2((byte) 0x61, 3, PushExecutor.class),
+    PUSH3((byte) 0x62, 3, PushExecutor.class),
+    PUSH4((byte) 0x63, 3, PushExecutor.class),
+    PUSH5((byte) 0x64, 3, PushExecutor.class),
+    PUSH6((byte) 0x65, 3, PushExecutor.class),
+    PUSH7((byte) 0x66, 3, PushExecutor.class),
+    PUSH8((byte) 0x67, 3, PushExecutor.class),
 
     // DUP1~DUP16 (0x80 ~ 0x8f)
     DUP1((byte) 0x80, 3, DupExecutor.class),
@@ -115,6 +114,7 @@ public enum Opcode {
     private final int gasCost;
     @Getter
     private final Class<? extends InstructionExecutor> executorClass;
+
     Opcode(byte code, int gasCost, Class<? extends InstructionExecutor> executorClass) {
         this.code = code;
         this.gasCost = gasCost;
@@ -132,13 +132,13 @@ public enum Opcode {
 
     public static boolean isNumLogic(Opcode opcode) {
         return opcode == LT || opcode == GT || opcode == SLT || opcode == SGT ||
-               opcode == EQ || opcode == ISZERO ||
-               opcode == AND || opcode == OR || opcode == XOR;
+                opcode == EQ || opcode == ISZERO ||
+                opcode == AND || opcode == OR || opcode == XOR;
     }
 
     public boolean isPush() {
         // 32 bit stack push opcodes are from 0x60 (PUSH1) to 0x63 (PUSH4)
-        return this.code >= PUSH1.code && this.code <= PUSH4.code;
+        return this.code >= PUSH1.code && this.code <= PUSH8.code;
     }
 
     public boolean isDup() {

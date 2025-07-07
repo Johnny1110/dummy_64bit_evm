@@ -14,8 +14,13 @@ public class EventDeclaration extends AbsNode {
         this.parameters = parameters;
     }
 
-    public String getName() { return name; }
-    public List<VariableDeclaration> getParameters() { return parameters; }
+    public String getName() {
+        return name;
+    }
+
+    public List<VariableDeclaration> getParameters() {
+        return parameters;
+    }
 
     @Override
     public void accept(AbsVisitor visitor) {

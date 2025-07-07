@@ -62,15 +62,15 @@ public class EVMContext {
         return callStack.peek();
     }
 
-    public Stack<Integer> getStack() {
+    public Stack<Long> getStack() {
         return getCurrentFrame().getStack();
     }
 
-    public Memory<Integer, byte[]> getMemory() {
+    public Memory<Long, Long> getMemory() {
         return getCurrentFrame().getMemory();
     }
 
-    public Storage<Integer, byte[]> getStorage() {
+    public Storage<Long, Long> getStorage() {
         return getCurrentFrame().getStorage();
     }
 
@@ -83,11 +83,11 @@ public class EVMContext {
         return getCurrentFrame().getPc();
     }
 
-    public int getGasRemaining() {
+    public long getGasRemaining() {
         return getCurrentFrame().getGasRemaining();
     }
 
-    public int getGasUsed() {
+    public long getGasUsed() {
         return getCurrentFrame().getGasUsed();
     }
 
@@ -95,11 +95,11 @@ public class EVMContext {
         return getCurrentFrame().isRunning();
     }
 
-    public void consumeGas(int amount) {
+    public void consumeGas(long amount) {
         getCurrentFrame().consumeGas(amount);
     }
 
-    public void refundGas(int gasRemaining) {
+    public void refundGas(long gasRemaining) {
         getCurrentFrame().refundGas(gasRemaining);
     }
 
