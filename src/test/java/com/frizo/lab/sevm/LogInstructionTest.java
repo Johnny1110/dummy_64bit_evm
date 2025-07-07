@@ -20,22 +20,10 @@ public class LogInstructionTest {
     @DisplayName("測試 LOG0：單一資料無 topic")
     public void testLog0WithoutTopics() {
         byte[] bytecode = {
-                Opcode.PUSH1.getCode(), 0x45,  // PUSH1 69 ('E')
+                Opcode.PUSH8.getCode(), 0x00, 0x00, 0x00, 0x45, 0x72, 0x72, 0x6F, 0x72,  // PUSH1 ('000Error')
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0
-                Opcode.MSTORE.getCode(),       // MSTORE8
-                Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
-                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1
-                Opcode.MSTORE.getCode(),       // MSTORE8
-                Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
-                Opcode.PUSH1.getCode(), 0x02,  // PUSH1 2
-                Opcode.MSTORE.getCode(),       // MSTORE8
-                Opcode.PUSH1.getCode(), 0x6F,  // PUSH1 111 ('o')
-                Opcode.PUSH1.getCode(), 0x03,  // PUSH1 3
-                Opcode.MSTORE.getCode(),       // MSTORE8
-                Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
-                Opcode.PUSH1.getCode(), 0x04,  // PUSH1 4
-                Opcode.MSTORE.getCode(),       // MSTORE8
-                Opcode.PUSH1.getCode(), 0x05,       // size = 5
+                Opcode.MSTORE.getCode(),       // MSTORE
+                Opcode.PUSH1.getCode(), 0x08,       // size = 8
                 Opcode.PUSH1.getCode(), 0x00,       // offset = 0
                 Opcode.LOG0.getCode(),              // LOG0
                 Opcode.STOP.getCode()               // STOP
@@ -48,8 +36,9 @@ public class LogInstructionTest {
         assertEquals(1, logs.size());
         LogEntry log = logs.get(0);
         assertEquals(0, log.getTopics().size());
-        System.out.println("LOG:" + logs.get(0));
-        assertArrayEquals(NumUtils.stringToBytes("Error"), log.getData());
+        System.out.println("LOG:" + log);
+        System.out.println("LOG data: " + NumUtils.bytesToHex(log.getData()));
+        assertEquals("0x0000004572726F72", NumUtils.bytesToHex(log.getData()));
     }
 
     @Test
@@ -57,18 +46,17 @@ public class LogInstructionTest {
     public void testLog1WithOneTopic() {
         byte[] bytecode = {
                 Opcode.PUSH4.getCode(), 0x00, 0x00, 0x00, (byte) 0xAB, // topic 0xAB 171
-                Opcode.PUSH1.getCode(), 0x05,       // size
+                Opcode.PUSH1.getCode(), 0x08,       // size
                 Opcode.PUSH1.getCode(), 0x00,       // offset
                 Opcode.LOG1.getCode(),
                 Opcode.STOP.getCode()
         };
 
         SimpleEVM evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
-        evm.getContext().getMemory().put(0, NumUtils.stringToBytes("h"));
-        evm.getContext().getMemory().put(1, NumUtils.stringToBytes("e"));
-        evm.getContext().getMemory().put(2, NumUtils.stringToBytes("l"));
-        evm.getContext().getMemory().put(3, NumUtils.stringToBytes("l"));
-        evm.getContext().getMemory().put(4, NumUtils.stringToBytes("o"));
+        byte[] memoryData = NumUtils.stringToBytes("hello", 8);
+        for (int i = 0; i < memoryData.length; i++) {
+            evm.getContext().getMemory().put((long) i, memoryData[i]);
+        }
         evm.run();
 
         List<LogEntry> logs = evm.getContext().getCurrentFrame().getLogs();
@@ -76,7 +64,7 @@ public class LogInstructionTest {
         LogEntry log = logs.get(0);
         assertEquals(1, log.getTopics().size());
         System.out.println("LOG:" + logs.get(0));
-        assertArrayEquals(NumUtils.stringToBytes("hello"), log.getData());
+        assertArrayEquals(NumUtils.stringToBytes("hello", 8), log.getData());
         assertEquals("000000AB", String.format("%08X", log.getTopics().get(0)));  // 32-bit int
     }
 
@@ -88,16 +76,17 @@ public class LogInstructionTest {
                 Opcode.PUSH4.getCode(), 0x00, 0x00, 0x00, 0x02,
                 Opcode.PUSH4.getCode(), 0x00, 0x00, 0x00, 0x03,
                 Opcode.PUSH4.getCode(), 0x00, 0x00, 0x00, 0x04,
-                Opcode.PUSH1.getCode(), 0x03,       // size 3
+                Opcode.PUSH1.getCode(), 0x08,       // size 8
                 Opcode.PUSH1.getCode(), 0x00,       // offset 0
                 Opcode.LOG4.getCode(),
                 Opcode.STOP.getCode()
         };
 
         SimpleEVM evm = new SimpleEVM(bytecode, 10000000, TEST_ORIGIN);
-        evm.getContext().getMemory().put(0, NumUtils.stringToBytes("a"));
-        evm.getContext().getMemory().put(1, NumUtils.stringToBytes("b"));
-        evm.getContext().getMemory().put(2, NumUtils.stringToBytes("c"));
+        byte[] memoryData = NumUtils.stringToBytes("abc", 8);
+        for (int i = 0; i < memoryData.length; i++) {
+            evm.getContext().getMemory().put((long) i, memoryData[i]);
+        }
         evm.run();
 
         List<LogEntry> logs = evm.getContext().getCurrentFrame().getLogs();
@@ -107,7 +96,7 @@ public class LogInstructionTest {
         assertEquals(0x04, log.getTopics().get(0).intValue());
         assertEquals(0x01, log.getTopics().get(3).intValue());
         System.out.println("LOG:" + logs.get(0));
-        assertArrayEquals(NumUtils.stringToBytes("abc"), log.getData());
+        assertEquals("abc", NumUtils.bytesToString(logs.get(0).getData(), 8));
     }
 
 }

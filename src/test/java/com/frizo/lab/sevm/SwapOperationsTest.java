@@ -127,7 +127,7 @@ public class SwapOperationsTest {
             evm.run();
 
             // Assert: Stack should be [3, 4, 2, 1] (top to bottom)
-            Stack<Integer> stack = evm.getStack();
+            Stack<Long> stack = evm.getStack();
             assertEquals(3, stack.safePop());  // Top
             assertEquals(4, stack.safePop());  // Second
             assertEquals(2, stack.safePop());  // Third
@@ -155,7 +155,7 @@ public class SwapOperationsTest {
             evm.run();
 
             // Assert: Stack should be [10, 20, 30] (top to bottom)
-            Stack<Integer> stack = evm.getStack();
+            Stack<Long> stack = evm.getStack();
             assertEquals(10, stack.safePop());  // Top (was bottom)
             assertEquals(20, stack.safePop());  // Middle (unchanged)
             assertEquals(30, stack.safePop());  // Bottom (was top)
@@ -178,7 +178,7 @@ public class SwapOperationsTest {
             evm.run();
 
             // Assert: Stack should be [2, 3, 4, 1] (top to bottom)
-            Stack<Integer> stack = evm.getStack();
+            Stack<Long> stack = evm.getStack();
             assertEquals(2, stack.safePop());  // Top
             assertEquals(3, stack.safePop());  // Second
             assertEquals(4, stack.safePop());  // Third
@@ -207,7 +207,7 @@ public class SwapOperationsTest {
             evm.run();
 
             // Assert: Stack should be [10, 30, 20, 40] (top to bottom)
-            Stack<Integer> stack = evm.getStack();
+            Stack<Long> stack = evm.getStack();
             assertEquals(10, stack.safePop());  // Top
             assertEquals(30, stack.safePop());  // Second
             assertEquals(20, stack.safePop());  // Third
@@ -239,7 +239,7 @@ public class SwapOperationsTest {
             evm.printStack();
 
             // Assert: Stack should be [1, 4, 3, 2, 5] (top to bottom)
-            Stack<Integer> stack = evm.getStack();
+            Stack<Long> stack = evm.getStack();
             assertEquals(1, stack.safePop());  // Top
             assertEquals(4, stack.safePop());  // Second
             assertEquals(3, stack.safePop());  // Third
@@ -327,7 +327,7 @@ public class SwapOperationsTest {
             evm.run();
 
             // Assert: All values should still be 42
-            Stack<Integer> stack = evm.getStack();
+            Stack<Long> stack = evm.getStack();
             assertEquals(42, stack.safePop());
             assertEquals(42, stack.safePop());
             assertEquals(42, stack.safePop());
@@ -355,7 +355,7 @@ public class SwapOperationsTest {
             evm.run();
 
             // Assert: Final stack should be [10, 30, 20] (top to bottom)
-            Stack<Integer> stack = evm.getStack();
+            Stack<Long> stack = evm.getStack();
             assertEquals(10, stack.safePop());
             assertEquals(30, stack.safePop());
             assertEquals(20, stack.safePop());
@@ -377,7 +377,7 @@ public class SwapOperationsTest {
             evm.run();
 
             // Assert: Stack should be [20, 20, 10] (top to bottom)
-            Stack<Integer> stack = evm.getStack();
+            Stack<Long> stack = evm.getStack();
             assertEquals(20, stack.safePop());
             assertEquals(20, stack.safePop());
             assertEquals(10, stack.safePop());
@@ -403,7 +403,7 @@ public class SwapOperationsTest {
             evm.run();
 
             // Assert: Verify final stack state
-            Stack<Integer> stack = evm.getStack();
+            Stack<Long> stack = evm.getStack();
             assertEquals(5, stack.size());
             assertEquals(4, stack.safePop());  // Top
             assertEquals(2, stack.safePop());

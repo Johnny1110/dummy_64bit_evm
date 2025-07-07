@@ -2,6 +2,7 @@ package com.frizo.lab.sevm;
 
 import com.frizo.lab.sevm.context.call.CallFrame;
 import com.frizo.lab.sevm.op.Opcode;
+import com.frizo.lab.sevm.utils.NumUtils;
 import com.frizo.lab.sevm.vm.SimpleEVM;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,8 +47,8 @@ public class CallReturnTest {
                 Opcode.PUSH1.getCode(), 0x2A,  // PUSH1 42
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0
                 Opcode.MSTORE.getCode(),        // MSTORE
-                Opcode.PUSH4.getCode(), 0x00, 0x00, 0x00, 0x01,  // PUSH1 1
-                Opcode.PUSH4.getCode(), 0x00, 0x00, 0x00, 0x00,  // PUSH1 0
+                Opcode.PUSH1.getCode(), 0x08,  // PUSH1 size
+                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 offset
                 Opcode.RETURN.getCode()         // RETURN
         };
 
@@ -58,8 +59,8 @@ public class CallReturnTest {
         evm.printStack();
         evm.printMemory();
 
-        System.out.println("Return data: " + Arrays.toString(evm.getContext().getCurrentFrame().getReturnData()));
-
+        System.out.println("Return data: " + NumUtils.bytesToHex(evm.getContext().getCurrentFrame().getCallReturnData()));
+        assertEquals("0x000000000000002A", NumUtils.bytesToHex(evm.getContext().getCurrentFrame().getCallReturnData()));
 
         // 驗證執行結果
         assertFalse(evm.isRunning());
@@ -87,7 +88,7 @@ public class CallReturnTest {
                 Opcode.MSTORE.getCode(),        // MSTORE
                 Opcode.PUSH1.getCode(), 0x04,  // PUSH1 4 (retSize)
                 Opcode.PUSH1.getCode(), (byte) 0x01,  // PUSH1 1 (retOffset)
-                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1 (argsSize)
+                Opcode.PUSH1.getCode(), 0x08,  // PUSH1 1 (argsSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (value)
                 Opcode.PUSH4.getCode(), (byte) 0x1C, (byte) 0x3D, (byte) 0xA6, (byte) 0x18, // PUSH1 0x1C3DA618 (address)
@@ -106,7 +107,7 @@ public class CallReturnTest {
         // 驗證呼叫成功（堆疊頂部應該是 1）
         assertEquals(1, evm.getContext().getStack().peek().intValue());
 
-        System.out.println("Return data: " + Arrays.toString(evm.getContext().getCurrentFrame().getReturnData()));
+        System.out.println("Return data: " + Arrays.toString(evm.getContext().getCurrentFrame().getCallReturnData()));
 
     }
 
@@ -123,9 +124,10 @@ public class CallReturnTest {
         // STATICCALL
         // STOP
 
+        // STATICCALL: [gas, address, argsOffset, argsSize, retOffset, retSize]
         byte[] bytecode = {
-                Opcode.PUSH1.getCode(), 0x04,  // PUSH1 4 (retSize)
-                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (retOffset)
+                Opcode.PUSH1.getCode(), 0x08,  // PUSH1 8 (retSize)
+                Opcode.PUSH1.getCode(), 0x08,  // PUSH1 8 (retOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
                 Opcode.PUSH4.getCode(), 0x22, 0x22, 0x22, 0x22, // PUSH2 0x2222 (address)
@@ -247,18 +249,47 @@ public class CallReturnTest {
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0
                 Opcode.MSTORE.getCode(),       // MSTORE8
                 Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
-                Opcode.PUSH1.getCode(), 0x01,  // PUSH1 1
+                Opcode.PUSH1.getCode(), 0x08,  // PUSH1 8
                 Opcode.MSTORE.getCode(),       // MSTORE8
                 Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
-                Opcode.PUSH1.getCode(), 0x02,  // PUSH1 2
+                Opcode.PUSH1.getCode(), (byte)0x10,  // PUSH1 16
                 Opcode.MSTORE.getCode(),       // MSTORE8
                 Opcode.PUSH1.getCode(), 0x6F,  // PUSH1 111 ('o')
-                Opcode.PUSH1.getCode(), 0x03,  // PUSH1 3
+                Opcode.PUSH1.getCode(), 0x18,  // PUSH1 24
                 Opcode.MSTORE.getCode(),       // MSTORE8
                 Opcode.PUSH1.getCode(), 0x72,  // PUSH1 114 ('r')
-                Opcode.PUSH1.getCode(), 0x04,  // PUSH1 4
+                Opcode.PUSH1.getCode(), 0x20,  // PUSH1 32
                 Opcode.MSTORE.getCode(),       // MSTORE8
-                Opcode.PUSH1.getCode(), 0x05,  // PUSH1 5 (size)
+                Opcode.PUSH1.getCode(), 0x28,  // PUSH1 40 (size)
+                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (offset)
+                Opcode.REVERT.getCode()         // REVERT
+        };
+
+        evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
+        evm.run();
+
+        System.out.println("Revert test completed");
+        evm.printMemory();
+
+        // 驗證執行已停止且回滾
+        assertFalse(evm.getContext().isRunning());
+
+        CallFrame frame = evm.getContext().getCurrentFrame();
+        assertFalse(frame.isSuccess());
+        assertTrue(frame.isReverted());
+        assertNotNull(frame.getRevertReason());
+
+        System.out.println("Revert reason: " + frame.getRevertReason());
+    }
+
+    @Test
+    @DisplayName("測試回滾 (REVERT 2)")
+    public void testRevert_2() {
+        byte[] bytecode = {
+                Opcode.PUSH8.getCode(), 0x00, 0x00, 0x00, 0x45, 0x72, 0x72, 0x6F, 0x72,  // PUSH1 ('000Error')
+                Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0
+                Opcode.MSTORE.getCode(),       // MSTORE
+                Opcode.PUSH1.getCode(), 0x08,  // PUSH1 8 (size)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (offset)
                 Opcode.REVERT.getCode()         // REVERT
         };

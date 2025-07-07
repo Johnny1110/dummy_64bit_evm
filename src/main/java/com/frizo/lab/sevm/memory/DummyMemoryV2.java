@@ -12,13 +12,22 @@ public class DummyMemoryV2 implements Memory<Long, Long> {
     private final Map<Long, Byte> memory = new HashMap<>();
 
     @Override
-    public Long get(Long key) {
-        throw new UnsupportedOperationException("Deprecated Class: DummyMemory does not support get with offset and length");
+    public byte get(Long key) {
+        if (!memory.containsKey(key)) {
+            log.error("Attempted to get memory at invalid address: {}", key);
+            throw new NullPointerException("Invalid address: " + key);
+        }
+        return memory.getOrDefault(key, (byte) 0x00);
     }
 
     @Override
-    public void put(Long key, Long value) {
-        throw new UnsupportedOperationException("Deprecated Class: DummyMemory does not support put with offset and length");
+    public void put(Long key, byte value) {
+        if (key < 0) {
+            log.error("Attempted to put memory at negative offset: {}", key);
+            throw new IllegalArgumentException("Offset must be non-negative");
+        }
+        memory.put(key, value);
+        log.info("Put value {} at offset {}", NumUtils.byteToHex(value), key);
     }
 
     @Override
@@ -45,12 +54,12 @@ public class DummyMemoryV2 implements Memory<Long, Long> {
 
         if (offset + length < offset) {
             log.error("Overflow detected when calculating end offset: {} + {}", offset, length);
-            throw  new RuntimeException("Overflow detected");
+            throw new RuntimeException("Overflow detected");
         }
 
         if (offset + length > memory.size()) {
             log.error("Attempted to clear memory beyond its size: offset {} + length {} exceeds memory size {}",
-                      offset, length, memory.size());
+                    offset, length, memory.size());
             throw new RuntimeException("Attempted to clear memory beyond its size");
         }
 
@@ -62,11 +71,14 @@ public class DummyMemoryV2 implements Memory<Long, Long> {
 
     @Override
     public void printMemory() {
-        System.out.println("-- DummyMemoryV2 contents ------------------------------------------------------>");
+        System.out.println(">> DummyMemoryV2 contents ------------------------------------------------------>");
+        if (memory.isEmpty()) {
+            System.out.println("                                  Memory is empty.");
+        }
         for (Map.Entry<Long, Byte> entry : memory.entrySet()) {
             System.out.printf("Address: %d, Value: %d%n", entry.getKey(), NumUtils.byteToHex(entry.getValue()));
         }
-        System.out.println("-- DummyMemoryV2 contents ------------------------------------------------------>");
+        System.out.println("<< DummyMemoryV2 contents ------------------------------------------------------>");
     }
 
     @Override
@@ -126,12 +138,6 @@ public class DummyMemoryV2 implements Memory<Long, Long> {
         if (offset + length < offset) {
             log.error("Overflow detected when calculating end offset: {} + {}", offset, length);
             throw new RuntimeException("Overflow detected");
-        }
-
-        if (offset + length > memory.size()) {
-            log.error("Attempted to get memory beyond its size: offset {} + length {} exceeds memory size {}",
-                      offset, length, memory.size());
-            throw new RuntimeException("Attempted to get memory beyond its size");
         }
 
         byte[] bytes = new byte[(int) length];

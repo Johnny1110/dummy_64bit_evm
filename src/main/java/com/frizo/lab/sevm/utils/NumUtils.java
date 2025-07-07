@@ -1,5 +1,6 @@
 package com.frizo.lab.sevm.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class NumUtils {
@@ -67,7 +68,7 @@ public class NumUtils {
         for (byte b : value) {
             sb.append(String.format("%02X", b));
         }
-        return sb.toString();
+        return "0x" + sb.toString();
     }
 
     public static String intToHex(int contractAddress) {
@@ -187,25 +188,26 @@ public class NumUtils {
     }
 
     /**
-     * Convert a string to a byte array, where each character is represented by 4 bytes.
-     * This is useful for EVM-style encoding where each character is padded to 4 bytes (left padded).
-     * For example: 'A' -> [0x00, 0x00, 0x00, 0x41]
-     *
-     * @param text the input string to convert
-     * @return a byte array where each character is represented by 4 bytes
+     * Convert a string to a byte array.
+     * example: "Error" is [0x45, 0x72, 0x72, 0x6F, 0x72] groupSize = 8
+     * group 8 bytes as 1 group padding left, so the output is [ 0x00, 0x00, 0x00, 0x45, 0x72, 0x72, 0x6F, 0x72]
+     * @param text plain text to convert
+     * @param groupSize the size of each group in bytes
+     * @return a byte array representing the string, padded to the specified group size
      */
-    public static byte[] stringToBytes(String text) {
-        if (text == null || text.isEmpty()) return new byte[0];
+    public static byte[] stringToBytes(String text, int groupSize) {
+        // Convert string to bytes using UTF-8 encoding
+        byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
 
-        byte[] result = new byte[text.length() * 4];
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            // 填入每個 char 的 4-byte big-endian 表示
-            result[i * 4] = 0x00;
-            result[i * 4 + 1] = 0x00;
-            result[i * 4 + 2] = 0x00;
-            result[i * 4 + 3] = (byte) c;
-        }
+        // Calculate how many complete groups we need
+        int totalGroups = (textBytes.length + groupSize - 1) / groupSize;
+
+        // Create result array with proper size
+        byte[] result = new byte[totalGroups * groupSize];
+
+        // Copy original bytes to the end of the result array (left padding with zeros)
+        System.arraycopy(textBytes, 0, result, result.length - textBytes.length, textBytes.length);
+
         return result;
     }
 
@@ -297,5 +299,85 @@ public class NumUtils {
             return "00"; // Return "00" for null values
         }
         return String.format("%02X", value); // Format byte as two-digit hex
+    }
+
+    public static long bytesToLong(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return 0;
+        }
+
+        if (bytes.length > 8) {
+            throw new IllegalArgumentException("Input must be 8 bytes or less, got " + bytes.length + " bytes");
+        }
+
+        // Pad left to 8 bytes if needed
+        if (bytes.length < 8) {
+            bytes = padLeft(bytes, 8);
+        }
+
+        return paddingBytesToLong(bytes, 8);
+    }
+
+    public static String longToHex(long value) {
+        String hex = Long.toHexString(value);
+        if (hex.length() % 2 != 0) {
+            hex = "0" + hex; // Ensure even length
+        }
+        return "0x" + hex;
+    }
+
+    /**
+     * Convert a byte array to a string representation, grouping bytes into specified sizes.
+     * ex: input: rawdata = 000000000000004500000000000000720000000000000072000000000000006F0000000000000072 and  groupSize = 8
+     * group rawdata with 8 size: 0000000000000045, 0000000000000072, 0000000000000072, 000000000000006F, 0000000000000072,
+     * remove leading zeros:
+     *      "0x45, 0x72, 0x72, 0x6F, 0x72"
+     * convert to output: "Error"
+     * @param rawData the byte array to convert
+     * @param groupSize the size of each group in bytes
+     * @return a string representation of the byte array, grouped by the specified size
+     */
+    public static String bytesToString(byte[] rawData, int groupSize) {
+        if (rawData == null || rawData.length == 0 || groupSize <= 0) {
+            return "";
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        // Process the byte array in groups of specified size
+        for (int i = 0; i < rawData.length; i += groupSize) {
+            // Calculate the end index for this group
+            int endIndex = Math.min(i + groupSize, rawData.length);
+
+            // Process each byte in the group individually
+            for (int j = i; j < endIndex; j++) {
+                int byteValue = rawData[j] & 0xFF;
+
+                // Skip zero bytes (leading zeros)
+                if (byteValue == 0) {
+                    continue;
+                }
+
+                // Convert to ASCII character if it's a valid printable character
+                if (byteValue >= 32 && byteValue <= 126) {
+                    result.append((char) byteValue);
+                }
+            }
+        }
+
+        return result.toString();
+    }
+
+    // 輔助方法：將十六進制字符串轉換為字節數組（用於測試）
+    public static byte[] hexStringToBytes(String hex) {
+        if (hex == null || hex.length() % 2 != 0) {
+            throw new IllegalArgumentException("Invalid hex string");
+        }
+
+        byte[] bytes = new byte[hex.length() / 2];
+        for (int i = 0; i < hex.length(); i += 2) {
+            bytes[i / 2] = (byte) Integer.parseInt(hex.substring(i, i + 2), 16);
+        }
+        return bytes;
     }
 }

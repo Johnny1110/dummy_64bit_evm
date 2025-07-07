@@ -13,7 +13,9 @@ public class BlockStatement extends AbsNode {
         this.statements = statements;
     }
 
-    public List<AbsNode> getStatements() { return statements; }
+    public List<AbsNode> getStatements() {
+        return statements;
+    }
 
     @Override
     public void accept(AbsVisitor visitor) {

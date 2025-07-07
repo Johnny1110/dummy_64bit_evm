@@ -14,9 +14,17 @@ public class VariableDeclaration extends AbsNode {
         this.indexed = indexed;
     }
 
-    public String getType() { return type; }
-    public String getName() { return name; }
-    public boolean isIndexed() { return indexed; }
+    public String getType() {
+        return type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isIndexed() {
+        return indexed;
+    }
 
     @Override
     public void accept(AbsVisitor visitor) {

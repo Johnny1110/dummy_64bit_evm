@@ -1,12 +1,10 @@
 package com.frizo.lab.sevm.storage;
 
-import com.frizo.lab.sevm.common.Constant;
 import com.frizo.lab.sevm.utils.NumUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * In real Ethereum Virtual Machine (EVM) implementations, the storage is a key-value store
@@ -25,13 +23,22 @@ public class DummyStorageV2 implements Storage<Long, Long> {
     private final Map<Long, Byte> S = new HashMap<>();
 
     @Override
-    public Long get(Long key) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public byte get(Long key) {
+        if (!S.containsKey(key)) {
+            log.error("Attempted to get storage at invalid address: {}", key);
+            throw new NullPointerException("Invalid address: " + key);
+        }
+        return S.getOrDefault(key, (byte) 0x00);
     }
 
     @Override
-    public void put(Long key, Long value) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void put(Long key, byte value) {
+        if (key < 0) {
+            log.error("Attempted to put storage at negative offset: {}", key);
+            throw new IllegalArgumentException("Offset must be non-negative");
+        }
+        S.put(key, value);
+        log.info("Put value {} at offset {}", NumUtils.byteToHex(value), key);
     }
 
     @Override
@@ -142,12 +149,6 @@ public class DummyStorageV2 implements Storage<Long, Long> {
         if (offset + length < offset) {
             log.error("Overflow detected when calculating end offset: {} + {}", offset, length);
             throw new RuntimeException("Overflow detected");
-        }
-
-        if (offset + length > S.size()) {
-            log.error("Attempted to get storage beyond its size: offset {} + length {} exceeds storage size {}",
-                    offset, length, S.size());
-            throw new RuntimeException("Attempted to get storage beyond its size");
         }
 
         byte[] bytes = new byte[(int) length];

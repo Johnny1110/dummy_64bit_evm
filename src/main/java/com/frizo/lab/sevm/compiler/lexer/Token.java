@@ -16,10 +16,21 @@ public class Token {
         this.column = column;
     }
 
-    public TokenType getType() { return type; }
-    public String getValue() { return value; }
-    public int getLine() { return line; }
-    public int getColumn() { return column; }
+    public TokenType getType() {
+        return type;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public int getLine() {
+        return line;
+    }
+
+    public int getColumn() {
+        return column;
+    }
 
     @Override
     public String toString() {

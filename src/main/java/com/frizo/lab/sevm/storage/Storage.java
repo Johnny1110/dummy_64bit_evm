@@ -2,11 +2,9 @@ package com.frizo.lab.sevm.storage;
 
 public interface Storage<K, V> {
 
-    @Deprecated(forRemoval = true)
-    V get(K key);
+    byte get(K key);
 
-    @Deprecated(forRemoval = true)
-    void put(K key, V value);
+    void put(K key, byte value);
 
     boolean containsKey(K key);
 

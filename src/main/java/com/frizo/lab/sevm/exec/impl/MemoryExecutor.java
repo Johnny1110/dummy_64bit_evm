@@ -4,7 +4,6 @@ import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.exception.EVMException;
 import com.frizo.lab.sevm.exec.InstructionExecutor;
 import com.frizo.lab.sevm.op.Opcode;
-import com.frizo.lab.sevm.utils.NumUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -14,15 +13,16 @@ public class MemoryExecutor implements InstructionExecutor {
     public void execute(EVMContext context, Opcode opcode) {
         switch (opcode) {
             case MSTORE -> {
-                int offset = context.getStack().safePop();
-                int value = context.getStack().safePop();
-                context.getMemory().put(offset, NumUtils.intTo4Bytes(value));
+                // 8 bytes as default size for MSTORE
+                long offset = context.getStack().safePop();
+                long value = context.getStack().safePop();
+                context.getMemory().put(offset, 8, value);
                 log.debug("[MemoryExecutor] MSTORE: offset={}, value={}", offset, value);
             }
             case MLOAD -> {
-                int offset = context.getStack().safePop();
-                byte[] data = context.getMemory().get(offset);
-                int value = NumUtils.bytes4ToInt(data);
+                // 8 bytes as default size for MLOAD
+                long offset = context.getStack().safePop();
+                long value = context.getMemory().get(offset, 8);
                 context.getStack().safePush(value);
                 log.debug("[MemoryExecutor] MLOAD: offset={}, value={}", offset, value);
             }

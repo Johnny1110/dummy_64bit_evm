@@ -11,8 +11,13 @@ public class Literal extends Expression {
         this.type = type;
     }
 
-    public Object getValue() { return value; }
-    public String getType() { return type; }
+    public Object getValue() {
+        return value;
+    }
+
+    public String getType() {
+        return type;
+    }
 
     @Override
     public void accept(AbsVisitor visitor) {

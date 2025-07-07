@@ -15,8 +15,13 @@ public class ContractDeclaration extends AbsNode {
         this.members = members;
     }
 
-    public String getName() { return name; }
-    public List<AbsNode> getMembers() { return members; }
+    public String getName() {
+        return name;
+    }
+
+    public List<AbsNode> getMembers() {
+        return members;
+    }
 
     @Override
     public void accept(AbsVisitor visitor) {

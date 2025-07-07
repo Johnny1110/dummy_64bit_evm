@@ -4,5 +4,6 @@ package com.frizo.lab.sevm.compiler.parser.abs;
 public abstract class AbsNode {
 
     public abstract void accept(AbsVisitor visitor);
+
     public abstract String toString();
 }

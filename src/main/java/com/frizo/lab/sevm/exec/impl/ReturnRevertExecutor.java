@@ -5,11 +5,9 @@ import com.frizo.lab.sevm.context.call.CallFrame;
 import com.frizo.lab.sevm.exec.InstructionExecutor;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
+import com.frizo.lab.sevm.utils.MemoryUtils;
 import com.frizo.lab.sevm.utils.NumUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class ReturnRevertExecutor implements InstructionExecutor {
@@ -35,7 +33,7 @@ public class ReturnRevertExecutor implements InstructionExecutor {
     }
 
     private void executeReturn(EVMContext context) {
-        Stack<Integer> stack = context.getStack();
+        Stack<Long> stack = context.getStack();
         CallFrame currentFrame = context.getCurrentFrame();
 
         if (stack.size() < 2) {
@@ -43,13 +41,13 @@ public class ReturnRevertExecutor implements InstructionExecutor {
         }
 
         // RETURN: [offset, size]
-        int offset = stack.safePop();
-        int size = stack.safePop();
+        long offset = stack.safePop();
+        long size = stack.safePop();
 
         log.info("[ReturnExecutor] RETURN - offset: {}, size: {}", offset, size);
 
         // read memory data based on offset and size
-        byte[] returnData = readMemoryData(context, offset, size);
+        byte[] returnData = MemoryUtils.read(context, offset, size);
 
         // set return data in the current frame
         currentFrame.setReturnData(returnData, offset, size);
@@ -60,21 +58,22 @@ public class ReturnRevertExecutor implements InstructionExecutor {
     }
 
     private void executeRevert(EVMContext context) {
-        Stack<Integer> stack = context.getStack();
+        Stack<Long> stack = context.getStack();
         CallFrame currentFrame = context.getCurrentFrame();
 
         if (stack.size() < 2) {
             throw new IllegalStateException("Stack underflow: REVERT requires at least 2 items on the stack");
         }
         // REVERT: [offset, size]
-        int offset = stack.safePop();
-        int size = stack.safePop();
+        long offset = stack.safePop();
+        long size = stack.safePop();
 
         log.info("[ReturnExecutor] REVERT - offset: {}, size: {}", offset, size);
 
         // read memory data based on offset and size
-        byte[] revertData = readMemoryData(context, offset, size);
-        String revertReason = NumUtils.bytes4ToString(revertData);
+        byte[] revertData = MemoryUtils.read(context, offset, size);
+        log.info("[ReturnExecutor] REVERT data: {}", NumUtils.bytesToHex(revertData));
+        String revertReason = NumUtils.bytesToString(revertData, 8);
 
         // set revert reason in the current frame
         currentFrame.setReverted(true, revertReason);
@@ -82,92 +81,5 @@ public class ReturnRevertExecutor implements InstructionExecutor {
         currentFrame.halt();
 
         log.info("[ReturnExecutor] Revert reason: {}", revertReason);
-    }
-
-    /**
-     * Reads a range of data from the memory.
-     *
-     * @param context EVMContext
-     * @param offset  offset in memory to start reading from
-     * @param size    size of the data to read
-     * @return the data read from memory as a byte array
-     */
-    private byte[] readMemoryData(EVMContext context, int offset, int size) {
-        log.info("[CallExecutor] Reading memory data from offset: {}, size: {}", offset, size);
-        context.getMemory().printMemory();
-
-        List<Byte> dataList = new ArrayList<>();
-
-        for (int i = 0; i < size; i++) {
-            byte[] memData = context.getMemory().get(offset + i);
-            if (memData != null) {
-                // Add all bytes from this memory location
-                for (byte b : memData) {
-                    dataList.add(b);
-                }
-            }
-        }
-
-        // Convert List<Byte> to byte[]
-        byte[] data = new byte[dataList.size()];
-        for (int i = 0; i < dataList.size(); i++) {
-            data[i] = dataList.get(i);
-        }
-
-        return data;
-    }
-
-    /**
-     * Writes a range of data to the memory.
-     *
-     * @param context EVMContext
-     * @param offset  offset in memory to start writing to
-     * @param data    the data to write to memory
-     * @param size    maximum size to write to memory
-     */
-    private void writeMemoryData(EVMContext context, int offset, byte[] data, int size) {
-        log.info("[CallExecutor] Writing memory data to offset: {}, dataSize: {}, fixedSizePerAddress: {}",
-                offset, data.length, size);
-
-        if (data == null || data.length == 0) {
-            log.warn("[CallExecutor] No data to write");
-            return;
-        }
-
-        if (size <= 0) {
-            log.warn("[CallExecutor] Invalid size parameter: {}", size);
-            return;
-        }
-
-        int dataIndex = 0;
-        int currentOffset = offset;
-
-        // Write data in fixed chunks of 'size' bytes per memory address
-        while (dataIndex < data.length) {
-            // Create fixed-size chunk (pad with zeros if needed)
-            byte[] chunk = new byte[size];
-
-            // Copy available data
-            int remainingBytes = data.length - dataIndex;
-            int bytesToCopy = Math.min(size, remainingBytes);
-            System.arraycopy(data, dataIndex, chunk, 0, bytesToCopy);
-
-            // Remaining bytes in chunk are already zero (default value)
-
-            // Write chunk to memory address
-            context.getMemory().put(currentOffset, chunk);
-
-            log.debug("[CallExecutor] Wrote {} bytes (padded to {}) to memory address {}",
-                    bytesToCopy, size, currentOffset);
-
-            // Move to next memory address and data position
-            currentOffset++;
-            dataIndex += bytesToCopy;
-        }
-
-        int addressesUsed = currentOffset - offset;
-        log.info("[CallExecutor] Successfully wrote {} bytes to {} memory addresses starting at offset {}",
-                data.length, addressesUsed, offset);
-        context.getMemory().printMemory();
     }
 }

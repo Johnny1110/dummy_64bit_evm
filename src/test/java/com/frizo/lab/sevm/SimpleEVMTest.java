@@ -113,7 +113,7 @@ class SimpleEVMTest {
         byte[] bytecode = {
                 0x60, 0x2A,       // PUSH1 42         ← value
                 0x60, 0x01,       // PUSH1 1          ← key
-                0x55,             // SSTORE (storage[1] = 42)
+                0x55,             // SSTORE (storage[1~8] = 0x0000002A)
 
                 0x60, 0x01,       // PUSH1 1
                 0x54,             // SLOAD  (→ stack ← 42)
@@ -124,7 +124,7 @@ class SimpleEVMTest {
         evm.run();
         evm.printStack();   // Expected: [42]
         evm.printStorage(); // Expected: {1=42}
-
+        evm.printStack();
         System.out.println("Gas left: " + evm.getGasRemaining());
     }
 

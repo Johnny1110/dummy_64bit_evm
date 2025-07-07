@@ -15,22 +15,22 @@ public class NumLogicInstruction implements InstructionExecutor {
         log.info("[NumLogicInstruction] Executing Opcode: {}", opcode);
         switch (opcode) {
             case LT:
-                context.getStack().safePush(context.getStack().safePop() < context.getStack().safePop() ? 1 : 0);
+                context.getStack().safePush(context.getStack().safePop() < context.getStack().safePop() ? 1L : 0);
                 break;
             case GT:
-                context.getStack().safePush(context.getStack().safePop() > context.getStack().safePop() ? 1 : 0);
+                context.getStack().safePush(context.getStack().safePop() > context.getStack().safePop() ? 1L : 0);
                 break;
             case SLT:
-                context.getStack().safePush(context.getStack().safePop() <= context.getStack().safePop() ? 1 : 0);
+                context.getStack().safePush(context.getStack().safePop() <= context.getStack().safePop() ? 1L : 0);
                 break;
             case SGT:
-                context.getStack().safePush(context.getStack().safePop() >= context.getStack().safePop() ? 1 : 0);
+                context.getStack().safePush(context.getStack().safePop() >= context.getStack().safePop() ? 1L : 0);
                 break;
             case EQ:
-                context.getStack().safePush(Objects.equals(context.getStack().safePop(), context.getStack().safePop()) ? 1 : 0);
+                context.getStack().safePush(Objects.equals(context.getStack().safePop(), context.getStack().safePop()) ? 1L : 0);
                 break;
             case ISZERO:
-                context.getStack().safePush(context.getStack().safePop() == 0 ? 1 : 0);
+                context.getStack().safePush(context.getStack().safePop() == 0 ? 1L : 0);
                 break;
             case AND:
                 context.getStack().safePush(context.getStack().safePop() & context.getStack().safePop());

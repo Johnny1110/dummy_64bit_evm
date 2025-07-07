@@ -13,8 +13,13 @@ public class FunctionCall extends Expression {
         this.arguments = arguments;
     }
 
-    public String getName() { return name; }
-    public List<Expression> getArguments() { return arguments; }
+    public String getName() {
+        return name;
+    }
+
+    public List<Expression> getArguments() {
+        return arguments;
+    }
 
     @Override
     public void accept(AbsVisitor visitor) {

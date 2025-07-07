@@ -1,12 +1,10 @@
 package com.frizo.lab.sevm.memory;
 
-import com.frizo.lab.sevm.common.Constant;
 import com.frizo.lab.sevm.utils.NumUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * This DummyMemory class simulates a memory storage for the Ethereum Virtual Machine (EVM).
@@ -25,25 +23,13 @@ public class DummyMemory implements Memory<Integer, byte[]> {
     private final Map<Integer, byte[]> M = new HashMap<>();
 
     @Override
-    public byte[] get(Integer key) {
-        if (!M.containsKey(key)) {
-            throw new NullPointerException("invalid address: " + key);
-        }
-        byte[] value = M.get(key);
-        // return empty byte array if no value is found
-        return Objects.requireNonNullElseGet(value, () -> new byte[Constant.MAX_BYTES]);
+    public byte get(Integer key) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void put(Integer key, byte[] value) {
-        if (value == null) {
-            M.put(key, new byte[Constant.MAX_BYTES]);
-        } else if (value.length > Constant.MAX_BYTES) {
-            log.error("[DummyMemory] Value exceeds maximum size of {} bytes: {}", Constant.MAX_BYTES, value.length);
-            throw new IllegalArgumentException("Value exceeds maximum size of " + Constant.MAX_BYTES + " bytes");
-        } else {
-            M.put(key, value);
-        }
+    public void put(Integer key, byte value) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -62,7 +48,7 @@ public class DummyMemory implements Memory<Integer, byte[]> {
 
     @Override
     public void clear(Integer offset, long length) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

@@ -2,11 +2,9 @@ package com.frizo.lab.sevm.memory;
 
 public interface Memory<K, V> {
 
-    @Deprecated(forRemoval = true)
-    V get(K key);
+    byte get(K address);
 
-    @Deprecated(forRemoval = true)
-    void put(K key, V value);
+    void put(K address, byte value);
 
     boolean containsKey(K offset);
 

@@ -16,7 +16,7 @@ public class DupExecutor implements InstructionExecutor {
             log.error("Stack underflow for DUP operation");
             throw new EVMException.StackUnderflowException();
         }
-        Integer value = context.getStack().get(depth - 1);
+        Long value = context.getStack().get(depth - 1);
         context.getStack().safePush(value);
     }
 

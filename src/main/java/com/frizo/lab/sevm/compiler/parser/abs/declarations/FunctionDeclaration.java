@@ -20,10 +20,21 @@ public class FunctionDeclaration extends AbsNode {
         this.body = body;
     }
 
-    public String getName() { return name; }
-    public List<VariableDeclaration> getParameters() { return parameters; }
-    public List<String> getVisibility() { return visibility; }
-    public BlockStatement getBody() { return body; }
+    public String getName() {
+        return name;
+    }
+
+    public List<VariableDeclaration> getParameters() {
+        return parameters;
+    }
+
+    public List<String> getVisibility() {
+        return visibility;
+    }
+
+    public BlockStatement getBody() {
+        return body;
+    }
 
     @Override
     public void accept(AbsVisitor visitor) {

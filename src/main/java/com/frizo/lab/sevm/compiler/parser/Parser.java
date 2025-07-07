@@ -27,7 +27,7 @@ public class Parser {
         consume(TokenType.CONTRACT, "Expected 'contract'");
         String name = consume(TokenType.IDENTIFIER, "Expected contract name").getValue();
         consume(TokenType.LBRACE, "Expected '{'");
-        
+
         return null;
     }
 
