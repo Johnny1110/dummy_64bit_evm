@@ -58,10 +58,25 @@ public class DummyStorage implements Storage<Integer, byte[]> {
     }
 
     @Override
+    public void clear(Integer offset, long length) {
+        throw  new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public void printStorage() {
         System.out.println("Storage contents:");
         for (Map.Entry<Integer, byte[]> entry : S.entrySet()) {
             System.out.printf("Address: %d, Value: %s%n", entry.getKey(), NumUtils.bytesToHex(entry.getValue()));
         }
+    }
+
+    @Override
+    public void put(long offset, long maxLength, byte[] value) {
+        throw  new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public byte[] get(long offset, long length) {
+        throw  new UnsupportedOperationException("Not supported yet.");
     }
 }

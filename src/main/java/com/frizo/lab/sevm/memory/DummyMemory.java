@@ -61,6 +61,11 @@ public class DummyMemory implements Memory<Integer, byte[]> {
     }
 
     @Override
+    public void clear(Integer offset, long length) {
+        throw  new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public void printMemory() {
         System.out.println("Memory contents:");
         for (Map.Entry<Integer, byte[]> entry : M.entrySet()) {
@@ -72,5 +77,15 @@ public class DummyMemory implements Memory<Integer, byte[]> {
     public void cleanUp() {
         M.clear();
         log.info("DummyMemory cleaned up.");
+    }
+
+    @Override
+    public void put(long offset, long maxLength, byte[] value) {
+        throw new UnsupportedOperationException("Deprecated Class: DummyMemory does not support put with offset and maxLength");
+    }
+
+    @Override
+    public byte[] get(long offset, long length) {
+        throw new UnsupportedOperationException("Deprecated Class: DummyMemory does not support get with offset and length");
     }
 }
