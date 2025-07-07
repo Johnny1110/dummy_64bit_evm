@@ -2,7 +2,7 @@
 
 <br>
 
-✅ Stack(32 bit) + Arithmetic Opcode 模擬
+✅ Stack(64 bit) + Arithmetic Opcode 模擬
 
 ✅ 支援 Memory 操作（MLOAD, MSTORE）
 
