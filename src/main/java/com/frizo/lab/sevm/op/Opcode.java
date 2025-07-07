@@ -24,6 +24,19 @@ public enum Opcode {
     OR((byte) 0x17, 3, NumLogicInstruction.class), // Bit
     XOR((byte) 0x18, 3, NumLogicInstruction.class), // Bitwise XOR
 
+    SHL((byte) 0x1B, 3, NumLogicInstruction.class), // Shift right
+    SHR((byte) 0x1C, 3, NumLogicInstruction.class), // Shift right
+
+
+    // 0x35 and 0x36 CallData operations
+    CALLDATALOAD((byte) 0x35, 3, CallDataExecutor.class), // Load data from calldata
+    CALLDATASIZE((byte) 0x36, 2, CallDataExecutor.class), // Get the size of calldata
+    CALLDATACOPY((byte) 0x37, 3, CallDataExecutor.class), // Copy data from calldata
+
+    // 0x3D and 0x3E are related to return data
+    RETURNDATASIZE((byte) 0x3D, 2, ReturnDataExecutor.class), // Return data size
+    RETURNDATACOPY((byte) 0x3E, 3, ReturnDataExecutor.class), // Copy return data
+
     POP((byte) 0x50, 2, PopExecutor.class), // Pop the top value from the stack
     // 0x51 0x52 memory
     MLOAD((byte) 0x51, 3, MemoryExecutor.class),
@@ -104,8 +117,10 @@ public enum Opcode {
     LOG4((byte) 0xA4, 1875, LogExecutor.class),
 
     // System operations
+    INVALID((byte) 0xFE, 0, InvalidExecutor.class), // Invalid opcode, Consumes all gas, and reverts the transaction
     PRINT((byte) 0xF0, 0, PrintExecutor.class), // Custom opcode for printing stack values
     UNKNOWN((byte) 0xFF, 0, null),
+
     ;
 
     @Getter

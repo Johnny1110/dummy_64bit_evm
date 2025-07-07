@@ -32,14 +32,19 @@ public class CallStack implements Stack<CallFrame> {
         log.info("[CallStack] Popped frame, depth: {}", frames.size());
 
         CallFrame previousFrame = frames.peek();
-        previousFrame.setCallReturnData(popped.getReturnData());
 
-        // collect LOGs to previous frame (if reverted -> do not collect logs)
-        if (!frames.isEmpty() && !popped.isReverted()) {
+        if (previousFrame!= null && popped.isSuccess()) {
+            // Set return data to previous frame buffer.
+            previousFrame.cacheReturn(popped.getReturnOffset(), popped.getReturnSize(), popped.getReturnData());
+            // Collect logs to previous frame buffer.
             List<LogEntry> logs = popped.getLogs();
-
             previousFrame.addLogs(logs);
             log.info("[CallStack] Collected {} logs to previous frame:{}", logs.size(), previousFrame.getFrameId());
+        }
+
+        if (previousFrame!= null && popped.isReverted()) {
+            // Set revert reason to previous frame buffer.
+            previousFrame.cacheReverted(popped.getRevertReason());
         }
 
         return popped;

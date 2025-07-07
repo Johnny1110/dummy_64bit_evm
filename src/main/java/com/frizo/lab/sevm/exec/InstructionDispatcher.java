@@ -1,5 +1,6 @@
 package com.frizo.lab.sevm.exec;
 
+import com.frizo.lab.sevm.blockchain.impl.MockBlockChain;
 import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.exec.impl.*;
 import com.frizo.lab.sevm.op.Opcode;
@@ -23,12 +24,13 @@ public class InstructionDispatcher {
         this.executors.put(PushExecutor.class, new PushExecutor());
         this.executors.put(StorageExecutor.class, new StorageExecutor());
         this.executors.put(SwapExecutor.class, new SwapExecutor());
-        this.executors.put(CallExecutor.class, new CallExecutor());
+        this.executors.put(CallExecutor.class, new CallExecutor(new MockBlockChain()));
         this.executors.put(PopExecutor.class, new PopExecutor());
         this.executors.put(ReturnRevertExecutor.class, new ReturnRevertExecutor());
         this.executors.put(LogExecutor.class, new LogExecutor());
         this.executors.put(NumLogicInstruction.class, new NumLogicInstruction());
         this.executors.put(PrintExecutor.class, new PrintExecutor());
+        this.executors.put(ReturnDataExecutor.class, new ReturnDataExecutor());
     }
 
     public void dispatch(EVMContext context, Opcode opcode) {

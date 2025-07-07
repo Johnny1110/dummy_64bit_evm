@@ -41,6 +41,12 @@ public class NumLogicInstruction implements InstructionExecutor {
             case XOR:
                 context.getStack().safePush(context.getStack().safePop() ^ context.getStack().safePop());
                 break;
+            case SHL:
+                context.getStack().safePush(context.getStack().safePop() << context.getStack().safePop());
+                break;
+            case SHR:
+                context.getStack().safePush(context.getStack().safePop() >> context.getStack().safePop());
+                break;
             default:
                 throw new UnsupportedOperationException("Unsupported opcode: " + opcode);
         }
@@ -48,6 +54,6 @@ public class NumLogicInstruction implements InstructionExecutor {
 
     @Override
     public boolean canHandle(Opcode opcode) {
-        return Opcode.isNumLogic(opcode);
+        return opcode.getExecutorClass().equals(NumLogicInstruction.class);
     }
 }

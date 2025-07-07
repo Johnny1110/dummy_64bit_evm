@@ -59,8 +59,8 @@ public class CallReturnTest {
         evm.printStack();
         evm.printMemory();
 
-        System.out.println("Return data: " + NumUtils.bytesToHex(evm.getContext().getCurrentFrame().getCallReturnData()));
-        assertEquals("0x000000000000002A", NumUtils.bytesToHex(evm.getContext().getCurrentFrame().getCallReturnData()));
+        System.out.println("Return data: " + NumUtils.bytesToHex(evm.getContext().getCurrentFrame().getCallReturnBuffer().getReturnData()));
+        assertEquals("0x000000000000002A", NumUtils.bytesToHex(evm.getContext().getCurrentFrame().getCallReturnBuffer().getReturnData()));
 
         // 驗證執行結果
         assertFalse(evm.isRunning());
@@ -71,16 +71,6 @@ public class CallReturnTest {
     @Test
     @DisplayName("測試外部呼叫 (CALL)")
     public void testExternalCall() {
-        // 測試程式碼：
-        // PUSH1 100 (retSize)
-        // PUSH1 0   (retOffset)
-        // PUSH1 32  (argsSize)
-        // PUSH1 0   (argsOffset)
-        // PUSH1 0   (value)
-        // PUSH1 0x1111 (address)
-        // PUSH1 500 (gas)
-        // CALL
-        // STOP
 
         byte[] bytecode = {
                 Opcode.PUSH1.getCode(), 0x65,  // PUSH1 101 (MSTORE value)
@@ -97,7 +87,7 @@ public class CallReturnTest {
                 Opcode.STOP.getCode()           // STOP
         };
 
-        evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
+        evm = new SimpleEVM(bytecode, 1000000L, TEST_ORIGIN);
         evm.run();
 
         System.out.println("External call test completed");
@@ -107,8 +97,7 @@ public class CallReturnTest {
         // 驗證呼叫成功（堆疊頂部應該是 1）
         assertEquals(1, evm.getContext().getStack().peek().intValue());
 
-        System.out.println("Return data: " + Arrays.toString(evm.getContext().getCurrentFrame().getCallReturnData()));
-
+        System.out.println("Return data: " + NumUtils.bytesToHex(evm.getContext().getCurrentFrame().getCallReturnBuffer().getReturnData()));
     }
 
     @Test

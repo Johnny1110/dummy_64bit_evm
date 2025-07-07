@@ -2,6 +2,17 @@
 
 <br>
 
+參考文件: Ethereum Virtual Machine Opcodes
+
+https://ethervm.io/#1C
+
+<br>
+
+---
+
+## 任務清單:
+
+
 ✅ Stack(64 bit) + Arithmetic Opcode 模擬
 
 ✅ 支援 Memory 操作（MLOAD, MSTORE）
@@ -20,10 +31,61 @@
 
 ✅ LOG 模擬：支援類似 Solidity 的 event 紀錄
 
-🔜 重構 Memory 模型（目前的 Memory 不符合 EVM 標準規範）
+✅ 重構 Memory 模型（目前的 Memory 不符合 EVM 標準規範）
+
+✅ RETURNDATASIZE RETURNDATACOPY 模擬
+
+🔜 待完成 OPCODE
 
 🔜 寫 bytecode 編譯器（高階語言轉 bytecode） 2025/07/06
 
+<br>
+
+---
+
+## 待完成的 OPCODE:
+
+1. CALLDATA 相關:
+    ```
+    CALLDATASIZE (0x36) - 獲取呼叫資料大小
+    CALLDATALOAD (0x35) - 載入呼叫資料
+    SHL (0x1B) - 左移運算
+    SHR (0x1C) - 右移運算
+    ```
+
+2. 環境資訊存取
+
+    ```
+   ADDRESS (0x30) - 當前合約地址
+   BALANCE (0x31) - 帳戶餘額
+   CALLER (0x33) - 呼叫者地址
+   CALLVALUE (0x34) - 呼叫時的 ETH 值
+   CALLDATALOAD (0x35) - 載入呼叫資料
+   CALLDATASIZE (0x36) - 呼叫資料大小
+   GASPRICE (0x3A) - Gas 價格
+   COINBASE (0x41) - 礦工地址
+   TIMESTAMP (0x42) - 區塊時間戳
+   NUMBER (0x43) - 區塊號碼
+   DIFFICULTY (0x44) - 挖礦難度
+   GASLIMIT (0x45) - Gas 限制
+    ```
+
+3. 記憶體管理
+    ```
+   MSIZE (0x59) - 記憶體大小
+    ``` 
+
+4. 程式碼操作
+   ```
+   CODECOPY (0x39) - 複製程式碼
+   CODESIZE (0x38) - 程式碼大小
+   ```
+   
+5. 合約創建
+   ```
+   CREATE (0xF0) - 創建合約
+   CREATE2 (0xF5) - 創建合約 (deterministic)
+   ```
 
 <br>
 

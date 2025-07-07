@@ -5,11 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 @Slf4j
 public class DummyMemoryV2 implements Memory<Long, Long> {
 
-    private final Map<Long, Byte> memory = new HashMap<>();
+    private final Map<Long, Byte> memory = new TreeMap<>();
 
     @Override
     public byte get(Long key) {
@@ -76,7 +77,7 @@ public class DummyMemoryV2 implements Memory<Long, Long> {
             System.out.println("                                  Memory is empty.");
         }
         for (Map.Entry<Long, Byte> entry : memory.entrySet()) {
-            System.out.printf("Address: %d, Value: %d%n", entry.getKey(), NumUtils.byteToHex(entry.getValue()));
+            System.out.printf("Address: %d, Value: %s%n", entry.getKey(), NumUtils.byteToHex(entry.getValue()));
         }
         System.out.println("<< DummyMemoryV2 contents ------------------------------------------------------>");
     }

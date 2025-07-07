@@ -17,7 +17,7 @@ public class SimpleEVM {
     private final EVMContext context;
     private final InstructionDispatcher dispatcher;
 
-    public SimpleEVM(byte[] bytecode, int initialGas, String originAddr) {
+    public SimpleEVM(byte[] bytecode, long initialGas, String originAddr) {
         this.context = new EVMContext(bytecode, initialGas, originAddr);
         this.dispatcher = new InstructionDispatcher();
     }

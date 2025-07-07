@@ -70,4 +70,18 @@ public class EVMException extends RuntimeException {
             super(errorMessage);
         }
     }
+
+    public static class InvalidMemoryAccess extends EVMException {
+        public InvalidMemoryAccess(String returnDataOutOfBounds) {
+            super(returnDataOutOfBounds);
+        }
+    }
+
+    public static class
+
+    ContractNotFoundException extends EVMException {
+        public ContractNotFoundException(String contractAddress) {
+            super("Contract not found: " + contractAddress);
+        }
+    }
 }

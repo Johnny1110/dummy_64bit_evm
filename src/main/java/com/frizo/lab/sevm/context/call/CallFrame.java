@@ -56,8 +56,8 @@ public class CallFrame {
     @Setter
     private boolean success;
 
-    @Setter
-    private byte[] callReturnData; // Data returned from the call, used for internal calls
+    @Getter
+    private final CallReturnDataBuffer callReturnBuffer = new CallReturnDataBuffer(); // Data buffer returned from the call
 
     // Logs generated during the call
     private final List<LogEntry> logs = new ArrayList<>();
@@ -140,7 +140,7 @@ public class CallFrame {
 
     public void halt() {
         running = false;
-        this.memory.cleanUp();
+        //this.memory.cleanUp();
     }
 
     public void setReturnData(byte[] data, long offset, long size) {
@@ -185,5 +185,13 @@ public class CallFrame {
         if (logs != null && !logs.isEmpty()) {
             this.logs.addAll(logs);
         }
+    }
+
+    public void cacheReturn(long returnOffset, long returnSize, byte[] returnData) {
+        this.callReturnBuffer.setReturnData(returnData, returnOffset, returnSize);
+    }
+
+    public void cacheReverted(String revertReason) {
+        this.callReturnBuffer.setReverted(revertReason);
     }
 }

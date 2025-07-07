@@ -1,5 +1,6 @@
 package com.frizo.lab.sevm.exec.impl;
 
+import com.frizo.lab.sevm.blockchain.Blockchain;
 import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.context.call.CallData;
 import com.frizo.lab.sevm.context.call.CallFrame;
@@ -16,6 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CallExecutor implements InstructionExecutor {
+
+    private final Blockchain blockchain;
+
+    public CallExecutor(Blockchain blockchain) {
+        this.blockchain = blockchain;
+    }
+
     @Override
     public void execute(EVMContext context, Opcode opcode) {
         log.info("[CallExecutor] Executing: {}", opcode);
@@ -94,8 +102,8 @@ public class CallExecutor implements InstructionExecutor {
         boolean success = executeCallFrame(context, newFrame, gas);
 
         if (success && newFrame.getReturnData().length > 0) {
-            log.info("[CallExecutor] CALL - write CALL contract return data to memory at offset: {}, size: {}", retOffset, newFrame.getReturnData().length);
-            MemoryUtils.write(context, retOffset, newFrame.getReturnData());
+            //log.info("[CallExecutor] CALL - write CALL contract return data to memory at offset: {}, size: {}", retOffset, newFrame.getReturnData().length);
+            //MemoryUtils.write(context, retOffset, newFrame.getReturnData());
         }
 
         // Push the success status onto the stack
@@ -184,8 +192,8 @@ public class CallExecutor implements InstructionExecutor {
         boolean success = executeCallFrame(context, newFrame, gas);
 
         if (success && newFrame.getReturnData().length > 0) {
-            log.info("[CallExecutor] STATICCALL - write STATICCALL contract return data to memory at offset: {}, size: {}", retOffset, newFrame.getReturnData().length);
-            MemoryUtils.write(context, retOffset, newFrame.getReturnData());
+            //log.info("[CallExecutor] STATICCALL - write STATICCALL contract return data to memory at offset: {}, size: {}", retOffset, newFrame.getReturnData().length);
+            //MemoryUtils.write(context, retOffset, newFrame.getReturnData());
         }
 
         stack.safePush(success ? 1L : 0);
@@ -243,8 +251,8 @@ public class CallExecutor implements InstructionExecutor {
         boolean success = executeCallFrame(context, newFrame, gas);
 
         if (success && newFrame.getReturnData().length > 0) {
-            log.info("[CallExecutor] DELEGATECALL - write DELEGATECALL contract return data to memory at offset: {}, size: {}", retOffset, newFrame.getReturnData().length);
-            MemoryUtils.write(context, retOffset, newFrame.getReturnData());
+            //log.info("[CallExecutor] DELEGATECALL - write DELEGATECALL contract return data to memory at offset: {}, size: {}", retOffset, newFrame.getReturnData().length);
+            //MemoryUtils.write(context, retOffset, newFrame.getReturnData());
         }
 
         stack.safePush(success ? 1L : 0);
@@ -301,8 +309,8 @@ public class CallExecutor implements InstructionExecutor {
         boolean success = executeCallFrame(context, newFrame, gas);
 
         if (success && newFrame.getReturnData().length > 0) {
-            log.info("[CallExecutor] CALLCODE - write CALLCODE contract return data to memory at offset: {}, size: {}", retOffset, newFrame.getReturnData().length);
-            MemoryUtils.write(context, retOffset, newFrame.getReturnData());
+            //log.info("[CallExecutor] CALLCODE - write CALLCODE contract return data to memory at offset: {}, size: {}", retOffset, newFrame.getReturnData().length);
+            //MemoryUtils.write(context, retOffset, newFrame.getReturnData());
         }
 
         stack.safePush(success ? 1L : 0);
@@ -322,18 +330,12 @@ public class CallExecutor implements InstructionExecutor {
      */
     private byte[] loadContractCode(long contractAddress) {
         log.info("[CallExecutor] Loading contract code for contractAddress: {}", NumUtils.longToHex(contractAddress));
-
-        // TODO: Mock a simple contract code for demonstration purposes,
-        // TODO: Real implementation should fetch from a blockchain.
-        // TODO: This is a simple contract that returns the value 42 when called.
-        return new byte[]{
-                Opcode.PUSH1.getCode(), (byte) 0x3A,  // PUSH1 170
-                Opcode.PUSH1.getCode(), 0x10,  // PUSH1 16 (memory offset)
-                Opcode.MSTORE.getCode(),        // MSTORE
-                Opcode.PUSH1.getCode(), 0x08,  // PUSH1 8 (return size)
-                Opcode.PUSH1.getCode(), 0x10,  // PUSH1 10 (return offset)
-                Opcode.RETURN.getCode()         // RETURN
-        };
+        try {
+            return blockchain.loadCode(NumUtils.longToHex(contractAddress));
+        } catch (Exception e) {
+            log.error("[CallExecutor] Failed to load contract code for address {}: {}", NumUtils.longToHex(contractAddress), e.getMessage());
+            throw new EVMException.ContractNotFoundException("Contract not found at address: " + NumUtils.longToHex(contractAddress));
+        }
     }
 
     /**

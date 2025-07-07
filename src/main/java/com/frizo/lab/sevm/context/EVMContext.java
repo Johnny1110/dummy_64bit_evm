@@ -29,7 +29,7 @@ public class EVMContext {
     private final CallStack callStack;
     private final Set<Integer> validJumpDestIdx;
 
-    public EVMContext(byte[] bytecode, int initialGas, String txOrigin) {
+    public EVMContext(byte[] bytecode, long initialGas, String txOrigin) {
         this.callStack = new CallStack(Constant.MAX_STACK_DEPTH);
         this.validJumpDestIdx = new HashSet<>();
 
