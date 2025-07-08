@@ -47,10 +47,10 @@ https://ethervm.io/#1C
 
 1. CALLDATA 相關:
     ```
-    CALLDATASIZE (0x36) - 獲取呼叫資料大小
-    CALLDATALOAD (0x35) - 載入呼叫資料
-    SHL (0x1B) - 左移運算
-    SHR (0x1C) - 右移運算
+    CALLDATASIZE (0x36) - 獲取呼叫資料大小 ✅
+    CALLDATALOAD (0x35) - 載入呼叫資料 ✅
+    SHL (0x1B) - 左移運算 ✅
+    SHR (0x1C) - 右移運算 ✅
     ```
 
 2. 環境資訊存取
