@@ -14,7 +14,7 @@ public class PrintExecutor implements InstructionExecutor {
     @Override
     public void execute(EVMContext context, Opcode opcode) {
         // PRINT structure: pop order: 1. length, 2~x. print data. at least 2 values are required on the stack.
-        Stack<Long> stack = context.getStack();
+        Stack<Long> stack = context.getCurrentStack();
         if (stack.size() < 2) {
             throw new EVMException.StackUnderflowException(
                     "PRINT requires at least 2 values on the stack, but only " + stack.size() + " found.");

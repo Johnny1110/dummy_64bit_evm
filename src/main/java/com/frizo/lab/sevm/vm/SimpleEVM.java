@@ -5,6 +5,7 @@ import com.frizo.lab.sevm.context.log.LogEntry;
 import com.frizo.lab.sevm.exec.InstructionDispatcher;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
+import com.frizo.lab.sevm.utils.NumUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,8 +38,8 @@ public class SimpleEVM {
      */
     private void preHandle() {
         log.info("[SimpleEVM] Pre-handling bytecode to find valid jump destinations...");
-        for (int i = 0; i < context.getCode().length; i++) {
-            if (context.getCode()[i] == Opcode.JUMPDEST.getCode()) {
+        for (int i = 0; i < context.getCurrentCode().length; i++) {
+            if (context.getCurrentCode()[i] == Opcode.JUMPDEST.getCode()) {
                 context.getValidJumpDestIdx().add(i);
             }
         }
@@ -52,7 +53,7 @@ public class SimpleEVM {
         while (context.isRunning() && context.hasMoreCode()) {
             Opcode opcode = context.getCurrentOpcode();
             consumeGas(opcode);
-            context.advancePC();
+            context.advanceCurrentPC();
 
             try {
                 dispatcher.dispatch(context, opcode);
@@ -80,7 +81,7 @@ public class SimpleEVM {
     }
 
     public void printMemory() {
-        context.getMemory().printMemory();
+        context.getCurrentMemory().printMemory();
     }
 
     public void printStorage() {
@@ -88,7 +89,7 @@ public class SimpleEVM {
     }
 
     public Stack<Long> getStack() {
-        return context.getStack();
+        return context.getCurrentStack();
     }
 
     public long totalGasUsed() {
@@ -101,5 +102,10 @@ public class SimpleEVM {
 
     public List<LogEntry> getAllLogs() {
         return context.getAllLogs();
+    }
+
+    public void registerContract(byte[] contractAddress, byte[] contractBytecode) {
+        String contractAddressHex = NumUtils.bytesToHex(contractAddress);
+        context.getBlockchain().registerContract(contractAddressHex, contractBytecode);
     }
 }

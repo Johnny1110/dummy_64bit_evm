@@ -1,5 +1,7 @@
 package com.frizo.lab.sevm.context;
 
+import com.frizo.lab.sevm.blockchain.Blockchain;
+import com.frizo.lab.sevm.blockchain.impl.BlockChainFactory;
 import com.frizo.lab.sevm.common.Constant;
 import com.frizo.lab.sevm.context.call.CallData;
 import com.frizo.lab.sevm.context.call.CallFrame;
@@ -28,6 +30,10 @@ public class EVMContext {
     // call
     private final CallStack callStack;
     private final Set<Integer> validJumpDestIdx;
+
+    // Blockchain instance for state access
+    @Getter
+    private final Blockchain blockchain = BlockChainFactory.getBlockchainInstance();
 
     public EVMContext(byte[] bytecode, long initialGas, String txOrigin) {
         this.callStack = new CallStack(Constant.MAX_STACK_DEPTH);
@@ -62,11 +68,11 @@ public class EVMContext {
         return callStack.peek();
     }
 
-    public Stack<Long> getStack() {
+    public Stack<Long> getCurrentStack() {
         return getCurrentFrame().getStack();
     }
 
-    public Memory<Long, Long> getMemory() {
+    public Memory<Long, Long> getCurrentMemory() {
         return getCurrentFrame().getMemory();
     }
 
@@ -74,12 +80,12 @@ public class EVMContext {
         return getCurrentFrame().getStorage();
     }
 
-    public byte[] getCode() {
+    public byte[] getCurrentCode() {
         return getCurrentFrame().getCode();
     }
 
 
-    public int getPc() {
+    public int getCurrentPc() {
         return getCurrentFrame().getPc();
     }
 
@@ -111,7 +117,7 @@ public class EVMContext {
         getCurrentFrame().halt();
     }
 
-    public void updatePC(int idx) {
+    public void updateCurrentPC(int idx) {
         getCurrentFrame().updatePC(idx);
     }
 
@@ -123,11 +129,11 @@ public class EVMContext {
         return getCurrentFrame().getCurrentOp();
     }
 
-    public void advancePC() {
+    public void advanceCurrentPC() {
         getCurrentFrame().advancePC();
     }
 
-    public void advancePC(int count) {
+    public void advanceCurrentPC(int count) {
         getCurrentFrame().advancePC(count);
     }
 

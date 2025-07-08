@@ -55,7 +55,7 @@ public class LogInstructionTest {
         SimpleEVM evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
         byte[] memoryData = NumUtils.stringToBytes("hello", 8);
         for (int i = 0; i < memoryData.length; i++) {
-            evm.getContext().getMemory().put((long) i, memoryData[i]);
+            evm.getContext().getCurrentMemory().put((long) i, memoryData[i]);
         }
         evm.run();
 
@@ -85,7 +85,7 @@ public class LogInstructionTest {
         SimpleEVM evm = new SimpleEVM(bytecode, 10000000, TEST_ORIGIN);
         byte[] memoryData = NumUtils.stringToBytes("abc", 8);
         for (int i = 0; i < memoryData.length; i++) {
-            evm.getContext().getMemory().put((long) i, memoryData[i]);
+            evm.getContext().getCurrentMemory().put((long) i, memoryData[i]);
         }
         evm.run();
 

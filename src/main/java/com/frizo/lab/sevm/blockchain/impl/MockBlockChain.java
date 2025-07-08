@@ -5,18 +5,39 @@ import com.frizo.lab.sevm.exception.EVMException;
 import com.frizo.lab.sevm.op.Opcode;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 public class MockBlockChain implements Blockchain {
+
+    private final Map<String, byte[]> contractStorage = new HashMap<>();
+
+    public MockBlockChain() {
+        log.info("[MockBlockChain] Initialized MockBlockChain with empty contract storage.");
+
+        // 預設註冊一些合約
+        registerContract("0x0101010101010101", returnNothingContract());
+        registerContract("0x0202020202020202", callAddTwoNumContract());
+        registerContract("0x0101010101010102", return0x3AContract());
+
+        // for legacy unit test address compatibility:
+        registerContract("0x1c3da618", return0x3AContract());
+        registerContract("0x01", return0x3AContract());
+        registerContract("0x22222222", return0x3AContract());
+        registerContract("0x01c1a18c", return0x3AContract());
+        registerContract("0x3333", return0x3AContract());
+    }
+
     @Override
     public byte[] loadCode(String contractAddress) throws EVMException.ContractNotFoundException {
-        switch (contractAddress) {
-            case "0x0101010101010101":
-                return returnNothingContract();
-            case "0x0202020202020202":
-                return callAddTwoNumContract();
-            default:
-                return return0x3AContract(contractAddress);
+        log.info("[MockBlockChain] Loading contract code for address: {}", contractAddress);
+        byte[] code = contractStorage.get(contractAddress);
+        if (code == null) {
+            log.error("[MockBlockChain] Contract not found at address: {}", contractAddress);
+            throw new EVMException.ContractNotFoundException("Contract not found at address: " + contractAddress);
         }
+        return code;
     }
 
     /**
@@ -120,8 +141,8 @@ public class MockBlockChain implements Blockchain {
         };
     }
 
-    private byte[] return0x3AContract(String contractAddress) {
-        log.info("[MockBlockChain] Loading contract code for address: {}", contractAddress);
+    private byte[] return0x3AContract() {
+        log.info("[MockBlockChain] Loading contract code for return0x3AContract");
         return new byte[]{
                 Opcode.PUSH1.getCode(), (byte) 0x3A,  // PUSH1 170
                 Opcode.PUSH1.getCode(), 0x10,  // PUSH1 16 (memory offset)
@@ -147,5 +168,16 @@ public class MockBlockChain implements Blockchain {
     @Override
     public void transfer(String from, String to, long value) {
         log.info("[MockBlockChain] Transfer ETH:[{}] from [{}] to [{}]", value, from, to);
+    }
+
+    @Override
+    public void registerContract(String contractAddress, byte[] contractBytecode) {
+        if (contractStorage.containsKey(contractAddress)) {
+            log.warn("[MockBlockChain] Contract already registered at address: {}", contractAddress);
+            throw new EVMException.ContractAlreadyExistsException("Contract already exists at address: " + contractAddress);
+        } else {
+            contractStorage.put(contractAddress, contractBytecode);
+            log.info("[MockBlockChain] Registered contract at address: {}", contractAddress);
+        }
     }
 }

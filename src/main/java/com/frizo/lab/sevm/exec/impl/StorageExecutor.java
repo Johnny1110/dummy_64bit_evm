@@ -11,16 +11,16 @@ public class StorageExecutor implements InstructionExecutor {
         switch (opcode) {
             case SSTORE -> {
                 // Default storage size is 8 bytes
-                long offset = context.getStack().safePop();
-                long value = context.getStack().safePop();
+                long offset = context.getCurrentStack().safePop();
+                long value = context.getCurrentStack().safePop();
                 context.getStorage().put(offset, 8, value);
             }
 
             case SLOAD -> {
                 // Default storage size is 8 bytes
-                long offset = context.getStack().safePop();
+                long offset = context.getCurrentStack().safePop();
                 long value = context.getStorage().get(offset, 8);
-                context.getStack().safePush(value);
+                context.getCurrentStack().safePush(value);
             }
         }
     }

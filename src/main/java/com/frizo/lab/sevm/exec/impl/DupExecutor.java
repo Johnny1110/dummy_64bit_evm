@@ -12,12 +12,12 @@ public class DupExecutor implements InstructionExecutor {
     @Override
     public void execute(EVMContext context, Opcode opcode) {
         int depth = opcode.getCode() - Opcode.DUP1.getCode() + 1;
-        if (context.getStack().size() < depth) {
+        if (context.getCurrentStack().size() < depth) {
             log.error("Stack underflow for DUP operation");
             throw new EVMException.StackUnderflowException();
         }
-        Long value = context.getStack().get(depth - 1);
-        context.getStack().safePush(value);
+        Long value = context.getCurrentStack().get(depth - 1);
+        context.getCurrentStack().safePush(value);
     }
 
     @Override

@@ -10,7 +10,7 @@ public class MemoryUtils {
         log.info("[MemoryUtils] Reading memory data from frame: [{}] offset: [{}], size: [{}]", context.getCurrentFrame().getFrameId(), offset, size);
         byte[] data = new byte[(int) size];
         for (int i = 0; i < size; i++) {
-            byte memData = context.getMemory().get(offset + i);
+            byte memData = context.getCurrentMemory().get(offset + i);
             data[i] = memData;
         }
         return data;
@@ -26,7 +26,7 @@ public class MemoryUtils {
             throw new IndexOutOfBoundsException("Memory write out of bounds: offset=" + offset + ", size=" + data.length);
         }
         for (int i = 0; i < data.length; i++) {
-            context.getMemory().put(offset + i, data[i]);
+            context.getCurrentMemory().put(offset + i, data[i]);
         }
     }
 }

@@ -92,7 +92,7 @@ public class CallFrame {
         this.caller = "INTERNAL";
         this.origin = "INTERNAL";
         this.value = parentContext.getCurrentFrame().value;
-        this.code = parentContext.getCode();
+        this.code = parentContext.getCurrentCode();
         this.inputData = new byte[0];
         this.inputOffset = 0;
         this.inputSize = 0;
@@ -104,8 +104,8 @@ public class CallFrame {
         this.isStatic = false;
 
         // share components with parent context
-        this.stack = parentContext.getStack();
-        this.memory = parentContext.getMemory();
+        this.stack = parentContext.getCurrentStack();
+        this.memory = parentContext.getCurrentMemory();
         this.storage = parentContext.getStorage();
         this.pc = jumpAddress;
 

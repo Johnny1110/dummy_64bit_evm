@@ -14,16 +14,16 @@ public class MemoryExecutor implements InstructionExecutor {
         switch (opcode) {
             case MSTORE -> {
                 // 8 bytes as default size for MSTORE
-                long offset = context.getStack().safePop();
-                long value = context.getStack().safePop();
-                context.getMemory().put(offset, 8, value);
+                long offset = context.getCurrentStack().safePop();
+                long value = context.getCurrentStack().safePop();
+                context.getCurrentMemory().put(offset, 8, value);
                 log.debug("[MemoryExecutor] MSTORE: offset={}, value={}", offset, value);
             }
             case MLOAD -> {
                 // 8 bytes as default size for MLOAD
-                long offset = context.getStack().safePop();
-                long value = context.getMemory().get(offset, 8);
-                context.getStack().safePush(value);
+                long offset = context.getCurrentStack().safePop();
+                long value = context.getCurrentMemory().get(offset, 8);
+                context.getCurrentStack().safePush(value);
                 log.debug("[MemoryExecutor] MLOAD: offset={}, value={}", offset, value);
             }
             default -> throw new EVMException.UnknownOpcodeException(opcode);

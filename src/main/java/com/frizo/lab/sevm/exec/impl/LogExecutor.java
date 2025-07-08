@@ -31,7 +31,7 @@ public class LogExecutor implements InstructionExecutor {
             throw new IllegalArgumentException("Invalid log index: " + logIndex + ". Must be between 0 and 4.");
         }
 
-        Stack<Long> stack = context.getStack();
+        Stack<Long> stack = context.getCurrentStack();
         CallFrame callFrame = context.getCurrentFrame();
 
         // 1. Pop memory offset and size

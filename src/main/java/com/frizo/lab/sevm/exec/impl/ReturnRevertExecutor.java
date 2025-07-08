@@ -33,7 +33,7 @@ public class ReturnRevertExecutor implements InstructionExecutor {
     }
 
     private void executeReturn(EVMContext context) {
-        Stack<Long> stack = context.getStack();
+        Stack<Long> stack = context.getCurrentStack();
         CallFrame currentFrame = context.getCurrentFrame();
 
         if (stack.size() < 2) {
@@ -58,7 +58,7 @@ public class ReturnRevertExecutor implements InstructionExecutor {
     }
 
     private void executeRevert(EVMContext context) {
-        Stack<Long> stack = context.getStack();
+        Stack<Long> stack = context.getCurrentStack();
         CallFrame currentFrame = context.getCurrentFrame();
 
         if (stack.size() < 2) {

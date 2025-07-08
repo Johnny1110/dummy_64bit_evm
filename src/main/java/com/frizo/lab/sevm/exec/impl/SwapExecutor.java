@@ -13,12 +13,12 @@ public class SwapExecutor implements InstructionExecutor {
     public void execute(EVMContext context, Opcode opcode) {
         int depth = opcode.getCode() - Opcode.SWAP1.getCode() + 1;
         // swap operation requires at least depth + 1 items on the stack
-        if (context.getStack().size() < depth + 1) {
-            log.error("Stack underflow for SWAP operation: required {}, but got {}", depth + 1, context.getStack().size());
+        if (context.getCurrentStack().size() < depth + 1) {
+            log.error("Stack underflow for SWAP operation: required {}, but got {}", depth + 1, context.getCurrentStack().size());
             throw new EVMException.StackUnderflowException();
         }
 
-        context.getStack().swap(0, depth);
+        context.getCurrentStack().swap(0, depth);
     }
 
     @Override

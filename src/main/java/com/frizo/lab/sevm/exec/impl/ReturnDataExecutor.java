@@ -19,19 +19,25 @@ public class ReturnDataExecutor implements InstructionExecutor {
         switch (opcode) {
             case RETURNDATASIZE:
                 // Push the size of the return data onto the stack
-                context.getStack().safePush(buffer.getReturnSize());
+                long returnSize = buffer.getReturnSize();
+                log.info("[ReturnDataExecutor] RETURNDATASIZE: the return size is [{}]", returnSize);
+                context.getCurrentStack().safePush(returnSize);
                 break;
 
             case RETURNDATACOPY:
                 // structure of the stack: [destOffset, offset, size]
-                if (context.getStack().size() < 3) {
+                if (context.getCurrentStack().size() < 3) {
                     throw new EVMException.StackUnderflowException("Not enough items on the stack for RETURNDATACOPY");
                 }
 
                 // Copy return data to memory
-                long memoryOffset = context.getStack().safePop();     // destOffset
-                long returnDataOffset = context.getStack().safePop(); // offset
-                long length = context.getStack().safePop();           // size
+                long memoryOffset = context.getCurrentStack().safePop();     // destOffset
+                long returnDataOffset = context.getCurrentStack().safePop(); // offset
+                long length = context.getCurrentStack().safePop();           // size
+
+                log.info("[ReturnDataExecutor] RETURNDATACOPY - memoryOffset: {}, returnDataOffset: {}, length: {}",
+                        memoryOffset, returnDataOffset, length);
+
                 if (buffer.getReturnSize() == 0) {
                     return;
                 }

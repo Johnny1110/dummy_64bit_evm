@@ -17,8 +17,8 @@ public class PushExecutor implements InstructionExecutor {
 
 
         long value = NumUtils.bytesToLong(data);
-        context.getStack().safePush(value);
-        context.advancePC(pushSize);
+        context.getCurrentStack().safePush(value);
+        context.advanceCurrentPC(pushSize);
         log.info("[PushExecutor] Executing: {}, size: {}, value: {}", opcode, pushSize, value);
     }
 

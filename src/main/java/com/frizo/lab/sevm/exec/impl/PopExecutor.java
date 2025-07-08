@@ -14,12 +14,12 @@ public class PopExecutor implements InstructionExecutor {
         log.info("[PopExecutor] Executing: {}", opcode);
 
         // Pop the top item from the stack
-        if (context.getStack().isEmpty()) {
+        if (context.getCurrentStack().isEmpty()) {
             throw new EVMException.StackUnderflowException("Stack underflow: POP requires at least one item on the stack");
         }
-        long p = context.getStack().safePop();
+        long p = context.getCurrentStack().safePop();
 
-        log.info("[PopExecutor] POP:{}, current Stack size: {}", p, context.getStack().size());
+        log.info("[PopExecutor] POP:{}, current Stack size: {}", p, context.getCurrentStack().size());
     }
 
     @Override

@@ -380,4 +380,73 @@ public class NumUtils {
         }
         return bytes;
     }
+
+    /**
+     * Reads a long value from the input data array starting at the specified offset.
+     * if offset + size > inputData.length, padding left with zeros.
+     * @param inputData the byte array containing the input data
+     * @param offset the offset in the byte array from which to start reading
+     * @param size the number of bytes to read
+     * @return the long value read from the input data
+     */
+    public static long readBytes(byte[] inputData, long offset, int size) {
+        if (inputData == null || offset < 0 || size <= 0 || size > 8) {
+            return 0L;
+        }
+
+        if (offset >= inputData.length) {
+            return 0L;
+        }
+
+        long result = 0L;
+
+        int availableBytes = (int) Math.min(size, inputData.length - offset);
+
+        for (int i = 0; i < size; i++) {
+            result <<= 8; // 左移 8 位為下一個字節騰出空間
+
+            if (i < availableBytes) {
+                // 讀取實際數據，使用 & 0xFF 避免符號擴展
+                result |= (inputData[(int)(offset + i)] & 0xFF);
+            }
+            // 如果超出範圍，左邊補零（通過左移已經實現）
+        }
+        return result;
+    }
+
+    /**
+     * Cuts a byte array from the specified offset and length.
+     * if offset + length > inputData.length, padding left with zeros.
+     * @param inputData the byte array to cut from
+     * @param offset the starting offset in the byte array
+     * @param length the number of bytes to cut
+     * @return a new byte array containing the cut data
+     */
+    public static byte[] cutBytes(byte[] inputData, long offset, long length) {
+        // 檢查參數有效性
+        if (inputData == null || offset < 0 || length <= 0) {
+            return new byte[0];
+        }
+
+        // 防止 length 過大導致內存問題
+        if (length > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Length too large: " + length);
+        }
+
+        int len = (int) length;
+        byte[] result = new byte[len];
+
+        // 如果 offset 超出數組範圍，整個結果都是零（已經是默認值）
+        if (offset >= inputData.length) {
+            return result;
+        }
+
+        // 計算實際可複製的字節數
+        int availableBytes = (int) Math.min(len, inputData.length - offset);
+        // 計算需要左邊補零的字節數
+        int paddingBytes = len - availableBytes;
+        // 複製實際數據到結果數組的右邊部分（左邊補零）
+        System.arraycopy(inputData, (int) offset, result, paddingBytes, availableBytes);
+        return result;
+    }
 }

@@ -95,7 +95,7 @@ public class CallReturnTest {
         evm.printMemory();
 
         // 驗證呼叫成功（堆疊頂部應該是 1）
-        assertEquals(1, evm.getContext().getStack().peek().intValue());
+        assertEquals(1, evm.getContext().getCurrentStack().peek().intValue());
 
         System.out.println("Return data: " + NumUtils.bytesToHex(evm.getContext().getCurrentFrame().getCallReturnBuffer().getReturnData()));
     }
@@ -131,10 +131,10 @@ public class CallReturnTest {
         System.out.println("Static call test completed");
         evm.printStack();
 
-        evm.getContext().getMemory().printMemory();
+        evm.getContext().getCurrentMemory().printMemory();
 
         // 驗證靜態呼叫成功
-        assertEquals(1, evm.getContext().getStack().peek().intValue());
+        assertEquals(1, evm.getContext().getCurrentStack().peek().intValue());
     }
 
     @Test
@@ -168,7 +168,7 @@ public class CallReturnTest {
         evm.printStack();
 
         // 驗證委託呼叫成功
-        assertEquals(1, evm.getContext().getStack().peek().intValue());
+        assertEquals(1, evm.getContext().getCurrentStack().peek().intValue());
     }
 
     @Test
@@ -320,7 +320,7 @@ public class CallReturnTest {
             bytecode[pos++] = Opcode.PUSH1.getCode();
             bytecode[pos++] = 0x00; // value
             bytecode[pos++] = Opcode.PUSH1.getCode();
-            bytecode[pos++] = 0x00; // contract address
+            bytecode[pos++] = 0x01; // contract address
             bytecode[pos++] = Opcode.PUSH1.getCode();
             bytecode[pos++] = (byte) 0xFF; // gas
             bytecode[pos++] = Opcode.CALL.getCode();
@@ -363,7 +363,7 @@ public class CallReturnTest {
         //assertTrue(evm.getContext().getCurrentFrame().isReverted());
         System.out.println("Revert reason: " + evm.getContext().getCurrentFrame().getRevertReason());
         // 驗證呼叫失敗（堆疊頂部應該是 0）
-        assertEquals(0, evm.getContext().getStack().peek().intValue());
+        assertEquals(0, evm.getContext().getCurrentStack().peek().intValue());
     }
 
     @Test
@@ -439,9 +439,9 @@ public class CallReturnTest {
         System.out.println("Call context preservation test completed");
         evm.printStack();
 
-        assertEquals(3, evm.getContext().getStack().size());
-        assertEquals(0x33, evm.getContext().getStack().safePop());
-        assertEquals(0x22, evm.getContext().getStack().safePop());
-        assertEquals(0x11, evm.getContext().getStack().safePop());
+        assertEquals(3, evm.getContext().getCurrentStack().size());
+        assertEquals(0x33, evm.getContext().getCurrentStack().safePop());
+        assertEquals(0x22, evm.getContext().getCurrentStack().safePop());
+        assertEquals(0x11, evm.getContext().getCurrentStack().safePop());
     }
 }

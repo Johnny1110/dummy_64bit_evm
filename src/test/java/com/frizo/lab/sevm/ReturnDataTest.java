@@ -43,10 +43,10 @@ public class ReturnDataTest {
         // 驗證堆疊狀態
         // 堆疊頂部應該是返回數據的大小
         // 第二個元素應該是 CALL 的返回值 (1 表示成功)
-        assertEquals(2, evm.getContext().getStack().size()); // 應該有兩個元素
+        assertEquals(2, evm.getContext().getCurrentStack().size()); // 應該有兩個元素
 
-        long returnDataSize = evm.getContext().getStack().safePop();
-        long callResult = evm.getContext().getStack().safePop();
+        long returnDataSize = evm.getContext().getCurrentStack().safePop();
+        long callResult = evm.getContext().getCurrentStack().safePop();
 
         assertEquals(1, callResult); // CALL 成功
         assertTrue(returnDataSize > 0); // 返回數據大小應該大於 0
@@ -89,16 +89,16 @@ public class ReturnDataTest {
         evm.printMemory();
 
         // 驗證堆疊狀態 - 應該只剩下 return size + CALL 的返回值
-        assertEquals(2, evm.getContext().getStack().size());
-        assertEquals(8, evm.getContext().getStack().safePop()); // 返回值大小
-        assertEquals(1, evm.getContext().getStack().safePop()); // CALL 成功
+        assertEquals(2, evm.getContext().getCurrentStack().size());
+        assertEquals(8, evm.getContext().getCurrentStack().safePop()); // 返回值大小
+        assertEquals(1, evm.getContext().getCurrentStack().safePop()); // CALL 成功
 
         // 驗證記憶體中是否正確複製了返回數據
         // 檢查記憶體位置 0x40 (64) 處是否有數據
-        assertNotNull(evm.getContext().getMemory().get(64L));
+        assertNotNull(evm.getContext().getCurrentMemory().get(64L));
 
         System.out.println("Return data copied to memory at offset 64");
-        System.out.println("Memory content at offset 64: " + evm.getContext().getMemory().get(64L));
+        System.out.println("Memory content at offset 64: " + evm.getContext().getCurrentMemory().get(64L));
     }
 
     @Test
@@ -117,7 +117,7 @@ public class ReturnDataTest {
 
                 Opcode.PUSH8.getCode(),
                 (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01,
-                (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x02, // PUSH8 address: 這個地址會 RETURN 8 bytes 的數據
+                (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x02, // PUSH8 address: 這個合約地址的內容是會 RETURN 8 bytes 的數據
 
                 Opcode.PUSH1.getCode(), (byte) 0x64, // PUSH1 100 (gas)
                 Opcode.CALL.getCode(),          // CALL
@@ -142,16 +142,16 @@ public class ReturnDataTest {
         evm.printMemory();
 
         // 驗證堆疊狀態
-        assertEquals(2, evm.getContext().getStack().size());
+        assertEquals(2, evm.getContext().getCurrentStack().size());
 
-        long returnDataSize = evm.getContext().getStack().safePop();
-        long callResult = evm.getContext().getStack().safePop();
+        long returnDataSize = evm.getContext().getCurrentStack().safePop();
+        long callResult = evm.getContext().getCurrentStack().safePop();
 
         assertEquals(1, callResult); // CALL 成功
         assertTrue(returnDataSize > 0); // 返回數據大小應該大於 0
 
         // 驗證記憶體中是否正確複製了返回數據
-        assertNotNull(evm.getContext().getMemory().get(128L));
+        assertNotNull(evm.getContext().getCurrentMemory().get(128L));
 
         System.out.println("Return data size: " + returnDataSize);
         System.out.println("Call result: " + callResult);
@@ -188,10 +188,10 @@ public class ReturnDataTest {
         evm.printStack();
 
         // 驗證堆疊狀態
-        assertEquals(2, evm.getContext().getStack().size());
+        assertEquals(2, evm.getContext().getCurrentStack().size());
 
-        long returnDataSize = evm.getContext().getStack().safePop();
-        long callResult = evm.getContext().getStack().safePop();
+        long returnDataSize = evm.getContext().getCurrentStack().safePop();
+        long callResult = evm.getContext().getCurrentStack().safePop();
 
         assertEquals(1, callResult); // CALL 成功
         assertEquals(0, returnDataSize); // 沒有返回數據，大小應該為 0

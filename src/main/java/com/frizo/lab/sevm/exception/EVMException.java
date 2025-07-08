@@ -84,4 +84,10 @@ public class EVMException extends RuntimeException {
             super("Contract not found: " + contractAddress);
         }
     }
+
+    public static class ContractAlreadyExistsException extends EVMException {
+        public ContractAlreadyExistsException(String s) {
+            super("Contract already exists: " + s);
+        }
+    }
 }

@@ -12,26 +12,26 @@ public class JumpExecutor implements InstructionExecutor {
     public void execute(EVMContext context, Opcode opcode) {
         switch (opcode) {
             case JUMPDEST -> {
-                log.info("[JumpExecutor] <JUMPDEST> located, pc: {}", context.getPc());
+                log.info("[JumpExecutor] <JUMPDEST> located, pc: {}", context.getCurrentPc());
                 // JUMPDEST does not affect stack or pc, just marks a valid jump destination
                 // No action needed here, just for validation
             }
 
             case JUMP -> {
-                int destIdx = Math.toIntExact(context.getStack().safePop());
+                int destIdx = Math.toIntExact(context.getCurrentStack().safePop());
                 requiredValidJump(context, destIdx);
-                Opcode targetOp = Opcode.fromByte(context.getCode()[destIdx]);
+                Opcode targetOp = Opcode.fromByte(context.getCurrentCode()[destIdx]);
                 log.info("[JumpExecutor] <JUMP> to destination index: {}, tartget:{}", destIdx, targetOp);
-                context.updatePC(destIdx); // set pc to the destination index
+                context.updateCurrentPC(destIdx); // set pc to the destination index
             }
             case JUMPI -> {
-                int dest = Math.toIntExact(context.getStack().safePop());
-                long condition = context.getStack().safePop();
+                int dest = Math.toIntExact(context.getCurrentStack().safePop());
+                long condition = context.getCurrentStack().safePop();
                 if (condition != 0) {
                     requiredValidJump(context, dest);
-                    Opcode targetOp = Opcode.fromByte(context.getCode()[dest]);
+                    Opcode targetOp = Opcode.fromByte(context.getCurrentCode()[dest]);
                     log.info("[JumpExecutor] <JUMPI> to destination index: {}, target: {}", dest, targetOp);
-                    context.updatePC(dest); // set pc to the destination index if condition is true
+                    context.updateCurrentPC(dest); // set pc to the destination index if condition is true
                 }
             }
         }

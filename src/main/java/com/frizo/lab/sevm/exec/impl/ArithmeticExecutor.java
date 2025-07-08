@@ -21,13 +21,13 @@ public class ArithmeticExecutor implements InstructionExecutor {
     }
 
     private void binaryOp(EVMContext context, BinaryOperator<Long> op) {
-        if (context.getStack().size() < 2) {
+        if (context.getCurrentStack().size() < 2) {
             throw new EVMException.StackUnderflowException();
         }
-        long b = context.getStack().safePop();
-        long a = context.getStack().safePop();
+        long b = context.getCurrentStack().safePop();
+        long a = context.getCurrentStack().safePop();
         long result = op.apply(a, b);
-        context.getStack().safePush(result);
+        context.getCurrentStack().safePush(result);
     }
 
     @Override

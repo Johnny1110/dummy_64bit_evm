@@ -1,6 +1,5 @@
 package com.frizo.lab.sevm.exec.impl;
 
-import com.frizo.lab.sevm.blockchain.Blockchain;
 import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.context.call.CallData;
 import com.frizo.lab.sevm.context.call.CallFrame;
@@ -17,12 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CallExecutor implements InstructionExecutor {
-
-    private final Blockchain blockchain;
-
-    public CallExecutor(Blockchain blockchain) {
-        this.blockchain = blockchain;
-    }
 
     @Override
     public void execute(EVMContext context, Opcode opcode) {
@@ -60,7 +53,7 @@ public class CallExecutor implements InstructionExecutor {
      * @param context EVMContext
      */
     private void executeCall(EVMContext context) {
-        Stack<Long> stack = context.getStack();
+        Stack<Long> stack = context.getCurrentStack();
         CallFrame currentFrame = context.getCurrentFrame();
 
         // CALL's stack :[gas, address, value, argsOffset, argsSize, retOffset, retSize]
@@ -81,7 +74,16 @@ public class CallExecutor implements InstructionExecutor {
         byte[] callData = MemoryUtils.read(context, argsOffset, argsSize);
         log.info("[CallExecutor] CALL - load callData from memory: {}", callData);
         // load the contract code for the given contractAddress.
-        byte[] contractCode = loadContractCode(contractAddress);
+        byte[] contractCode;
+        try {
+            contractCode = loadContractCode(context, contractAddress);
+        } catch (EVMException ex) {
+            // revert.
+            context.getCurrentFrame().setSuccess(false);
+            context.getCurrentFrame().setReverted(true, ex.getMessage());
+            stack.safePush(0L);
+            return;
+        }
 
         // Create a new call frame for the called contract
         CallFrame newFrame = new CallFrame(
@@ -119,7 +121,7 @@ public class CallExecutor implements InstructionExecutor {
      * @param context
      */
     private void executeInternalCall(EVMContext context) {
-        Stack<Long> stack = context.getStack();
+        Stack<Long> stack = context.getCurrentStack();
 
         // ICALL [address, gas]
         if (stack.size() < 2) {
@@ -153,7 +155,7 @@ public class CallExecutor implements InstructionExecutor {
      * @param context EVMContext
      */
     private void executeStaticCall(EVMContext context) {
-        Stack<Long> stack = context.getStack();
+        Stack<Long> stack = context.getCurrentStack();
         CallFrame currentFrame = context.getCurrentFrame();
 
         if (stack.size() < 6) {
@@ -172,7 +174,17 @@ public class CallExecutor implements InstructionExecutor {
 
         // STATICCALL read-only
         byte[] callData = MemoryUtils.read(context, argsOffset, argsSize);
-        byte[] contractCode = loadContractCode(contractAddress);
+
+        byte[] contractCode;
+        try {
+            contractCode = loadContractCode(context, contractAddress);
+        } catch (EVMException ex) {
+            // revert.
+            context.getCurrentFrame().setSuccess(false);
+            context.getCurrentFrame().setReverted(true, ex.getMessage());
+            stack.safePush(0L);
+            return;
+        }
 
         CallFrame newFrame = new CallFrame(
                 contractCode, gas,
@@ -210,7 +222,7 @@ public class CallExecutor implements InstructionExecutor {
      * @param context EVMContext
      */
     private void executeDelegateCall(EVMContext context) {
-        Stack<Long> stack = context.getStack();
+        Stack<Long> stack = context.getCurrentStack();
         CallFrame currentFrame = context.getCurrentFrame();
 
         if (stack.size() < 6) {
@@ -229,7 +241,17 @@ public class CallExecutor implements InstructionExecutor {
 
         // DELEGATECALL keep all current context （msg.sender, msg.value, storage）
         byte[] callData = MemoryUtils.read(context, argsOffset, argsSize);
-        byte[] contractCode = loadContractCode(contractAddress);
+
+        byte[] contractCode;
+        try {
+            contractCode = loadContractCode(context, contractAddress);
+        } catch (EVMException ex) {
+            // revert.
+            context.getCurrentFrame().setSuccess(false);
+            context.getCurrentFrame().setReverted(true, ex.getMessage());
+            stack.safePush(0L);
+            return;
+        }
 
         CallFrame newFrame = new CallFrame(
                 contractCode, gas,
@@ -267,7 +289,7 @@ public class CallExecutor implements InstructionExecutor {
      */
     @Deprecated(since = "CALLCODE was deprecated in Solidity 0.5.0. EIP-2488")
     private void executeCallCode(EVMContext context) {
-        Stack<Long> stack = context.getStack();
+        Stack<Long> stack = context.getCurrentStack();
         CallFrame currentFrame = context.getCurrentFrame();
 
         if (stack.size() < 7) {
@@ -285,7 +307,17 @@ public class CallExecutor implements InstructionExecutor {
         log.info("[CallExecutor] CALLCODE - gas: {}, contractAddress : {}, value: {}", gas, contractAddress, value);
 
         byte[] callData = MemoryUtils.read(context, argsOffset, argsSize);
-        byte[] contractCode = loadContractCode(contractAddress);
+
+        byte[] contractCode;
+        try {
+            contractCode = loadContractCode(context, contractAddress);
+        } catch (EVMException ex) {
+            // revert.
+            context.getCurrentFrame().setSuccess(false);
+            context.getCurrentFrame().setReverted(true, ex.getMessage());
+            stack.safePush(0L);
+            return;
+        }
 
         // create new Frame, but keep current contract address
         CallFrame newFrame = new CallFrame(
@@ -325,13 +357,14 @@ public class CallExecutor implements InstructionExecutor {
     /**
      * Loads the contract code for the given address.
      *
+     * @param context
      * @param contractAddress contract address
      * @return the contract code as a byte array
      */
-    private byte[] loadContractCode(long contractAddress) {
+    private byte[] loadContractCode(EVMContext context, long contractAddress) {
         log.info("[CallExecutor] Loading contract code for contractAddress: {}", NumUtils.longToHex(contractAddress));
         try {
-            return blockchain.loadCode(NumUtils.longToHex(contractAddress));
+            return context.getBlockchain().loadCode(NumUtils.longToHex(contractAddress));
         } catch (Exception e) {
             log.error("[CallExecutor] Failed to load contract code for address {}: {}", NumUtils.longToHex(contractAddress), e.getMessage());
             throw new EVMException.ContractNotFoundException("Contract not found at address: " + NumUtils.longToHex(contractAddress));
@@ -403,8 +436,8 @@ public class CallExecutor implements InstructionExecutor {
 
             log.info("<executeFrameCode> --------------- ⚠⚠⚠ Context Content Check before run ⚠⚠⚠ ---------------");
             System.out.println("⚡ Available Gas ⚡: " + context.getGasRemaining());
-            context.getStack().printStack();
-            context.getMemory().printMemory();
+            context.getCurrentStack().printStack();
+            context.getCurrentMemory().printMemory();
             context.getStorage().printStorage();
             log.info("<executeFrameCode> --------------- ⚠⚠⚠ Context Content Check before run ⚠⚠⚠ ---------------");
 
