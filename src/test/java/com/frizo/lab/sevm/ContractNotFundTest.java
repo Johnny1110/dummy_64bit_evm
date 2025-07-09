@@ -5,11 +5,10 @@ import com.frizo.lab.sevm.vm.SimpleEVM;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static com.frizo.lab.sevm.TestConstant.TEST_ORIGIN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ContractNotFundTest {
-
-    private static String TEST_ORIGIN = "0x001";
 
     @Test
     @DisplayName("測試找不到合約時的行為")

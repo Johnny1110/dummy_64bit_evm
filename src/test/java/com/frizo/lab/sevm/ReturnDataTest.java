@@ -5,11 +5,10 @@ import com.frizo.lab.sevm.vm.SimpleEVM;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static com.frizo.lab.sevm.TestConstant.TEST_ORIGIN;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReturnDataTest {
-
-    private static final String TEST_ORIGIN = "0x123456789A";
 
     @Test
     @DisplayName("測試 RETURNDATASIZE 操作")
@@ -24,7 +23,7 @@ public class ReturnDataTest {
                 Opcode.PUSH1.getCode(), 0x08,  // PUSH1 8 (argsSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (value)
-                Opcode.PUSH4.getCode(), (byte) 0x1C, (byte) 0x3D, (byte) 0xA6, (byte) 0x18, // PUSH4 address
+                Opcode.PUSH8.getCode(), 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, // PUSH2 0x2222 (address)
                 Opcode.PUSH1.getCode(), (byte) 0x64, // PUSH1 100 (gas)
                 Opcode.CALL.getCode(),          // CALL
 
@@ -68,7 +67,7 @@ public class ReturnDataTest {
                 Opcode.PUSH1.getCode(), 0x08,  // PUSH1 8 (argsSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (value)
-                Opcode.PUSH4.getCode(), (byte) 0x1C, (byte) 0x3D, (byte) 0xA6, (byte) 0x18, // PUSH4 address
+                Opcode.PUSH8.getCode(), 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, // PUSH2 0x2222 (address)
                 Opcode.PUSH1.getCode(), (byte) 0x64, // PUSH1 100 (gas)
                 Opcode.CALL.getCode(),          // CALL
 

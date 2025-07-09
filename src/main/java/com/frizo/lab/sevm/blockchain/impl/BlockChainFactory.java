@@ -6,6 +6,6 @@ import lombok.Getter;
 public class BlockChainFactory {
 
     @Getter
-    private static final Blockchain blockchainInstance = new MockBlockChain();
+    private static final Blockchain mockStateDB = new MockBlockChain();
 
 }

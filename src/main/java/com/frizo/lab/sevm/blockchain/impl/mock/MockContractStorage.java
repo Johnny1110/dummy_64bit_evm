@@ -1,5 +1,6 @@
 package com.frizo.lab.sevm.blockchain.impl.mock;
 
+import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.op.Opcode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -11,26 +12,19 @@ import java.util.Map;
 public class MockContractStorage {
 
     @Getter
-    private static final Map<String, byte[]> contractStorage = new HashMap<>();
+    private static final Map<Address, byte[]> contractStorage = new HashMap<>();
 
 
     static {
         log.info("[MockBlockChain] Initialized MockBlockChain with empty contract storage.");
 
-        // 預設註冊一些合約
-        addContract("0x0101010101010101", returnNothingContract());
-        addContract("0x0202020202020202", callAddTwoNumContract());
-        addContract("0x0101010101010102", return0x3AContract());
-
-        // for legacy unit test address compatibility:
-        addContract("0x1c3da618", return0x3AContract());
-        addContract("0x01", return0x3AContract());
-        addContract("0x22222222", return0x3AContract());
-        addContract("0x01c1a18c", return0x3AContract());
-        addContract("0x3333", return0x3AContract());
+        // Default contracts for testing
+        addContract(Address.of("0x0101010101010101"), returnNothingContract());
+        addContract(Address.of("0x0202020202020202"), callAddTwoNumContract());
+        addContract(Address.of("0x0101010101010102"), return0x3AContract());
     }
 
-    public static void addContract(String contractAddress, byte[] contractBytecode) {
+    public static void addContract(Address contractAddress, byte[] contractBytecode) {
         log.info("[MockContractStorage] add contract at address: {}", contractAddress);
         contractStorage.put(contractAddress, contractBytecode);
     }
@@ -161,13 +155,13 @@ public class MockContractStorage {
     }
 
 
-    public static byte[] get(String contractAddress) {
+    public static byte[] get(Address contractAddress) {
         log.info("[MockContractStorage] Retrieving contract at address: {}", contractAddress);
         byte[] code = contractStorage.get(contractAddress);
         return code;
     }
 
-    public static boolean exists(String contractAddress) {
+    public static boolean exists(Address contractAddress) {
         return contractStorage.containsKey(contractAddress);
     }
 }

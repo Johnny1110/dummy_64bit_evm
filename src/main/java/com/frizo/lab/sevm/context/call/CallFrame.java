@@ -1,5 +1,6 @@
 package com.frizo.lab.sevm.context.call;
 
+import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.common.Constant;
 import com.frizo.lab.sevm.context.EVMComponentFactory;
 import com.frizo.lab.sevm.context.EVMContext;
@@ -28,9 +29,9 @@ public class CallFrame {
     private final byte[] code;
 
     // Call Data
-    private final String contractAddress;    // contract Address
-    private final String caller;            // caller Address
-    private final String origin;            // Txn Origin Address
+    private final Address contractAddress;    // contract Address
+    private final Address caller;            // caller Address
+    private final Address origin;            // Txn Origin Address
     private final long value;               // transfer value
     private final byte[] inputData;        // input data
     private final long inputOffset;         // input data offset in memory
@@ -87,11 +88,17 @@ public class CallFrame {
         this.returnData = new byte[0];
     }
 
+    /**
+     * For internal calls
+     * @param parentContext parent EVMContext
+     * @param jumpAddress jump address to execute
+     * @param gasLimit gas limit for this call frame
+     */
     public CallFrame(EVMContext parentContext, int jumpAddress, long gasLimit) {
-        this.contractAddress = "INTERNAL";
-        this.caller = "INTERNAL";
-        this.origin = "INTERNAL";
-        this.value = parentContext.getCurrentFrame().value;
+        this.contractAddress = parentContext.getCurrentFrame().getContractAddress();
+        this.caller = parentContext.getCurrentFrame().getCaller();
+        this.origin = parentContext.getTxnContext().getTxOrigin();
+        this.value = parentContext.getCurrentFrame().getValue();
         this.code = parentContext.getCurrentCode();
         this.inputData = new byte[0];
         this.inputOffset = 0;

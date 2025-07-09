@@ -4,9 +4,9 @@ import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.vm.SimpleEVM;
 import org.junit.jupiter.api.Test;
 
-public class PrintTest {
+import static com.frizo.lab.sevm.TestConstant.TEST_ORIGIN;
 
-    private static final String TEST_ORIGIN = "0x12345678";
+public class PrintTest {
 
     @Test
     void testPrint() {

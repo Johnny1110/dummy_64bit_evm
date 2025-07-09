@@ -1,5 +1,6 @@
 package com.frizo.lab.sevm;
 
+import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.context.call.CallFrame;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.utils.NumUtils;
@@ -10,11 +11,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
+import static com.frizo.lab.sevm.TestConstant.TEST_ORIGIN;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CallReturnTest {
 
-    private static final String TEST_ORIGIN = "0x123456789A";
     private SimpleEVM evm;
 
     @BeforeEach
@@ -40,10 +41,10 @@ public class CallReturnTest {
 
         byte[] bytecode = {
                 Opcode.PUSH4.getCode(), (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xFF,  // PUSH1 255 (gas)
-                Opcode.PUSH4.getCode(), 0x00, 0x00, 0x00, 0x0C,  // PUSH1 12 (address)
+                Opcode.PUSH4.getCode(), 0x00, 0x00, 0x00, 0x0C,  // PUSH1 12 (bytecode address)
                 Opcode.ICALL.getCode(),         // ICALL
                 Opcode.STOP.getCode(),          // STOP
-                Opcode.JUMPDEST.getCode(),      // JUMPDEST (address 12)
+                Opcode.JUMPDEST.getCode(),      // JUMPDEST (bytecode address 12)
                 Opcode.PUSH1.getCode(), 0x2A,  // PUSH1 42
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0
                 Opcode.MSTORE.getCode(),        // MSTORE
@@ -81,7 +82,7 @@ public class CallReturnTest {
                 Opcode.PUSH1.getCode(), 0x08,  // PUSH1 1 (argsSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (value)
-                Opcode.PUSH4.getCode(), (byte) 0x1C, (byte) 0x3D, (byte) 0xA6, (byte) 0x18, // PUSH1 0x1C3DA618 (address)
+                Opcode.PUSH8.getCode(), 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, // PUSH2 0x2222 (address)
                 Opcode.PUSH1.getCode(), (byte) 0x64, // PUSH1 100 (gas)
                 Opcode.CALL.getCode(),          // CALL
                 Opcode.STOP.getCode()           // STOP
@@ -119,7 +120,7 @@ public class CallReturnTest {
                 Opcode.PUSH1.getCode(), 0x08,  // PUSH1 8 (retOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
-                Opcode.PUSH4.getCode(), 0x22, 0x22, 0x22, 0x22, // PUSH2 0x2222 (address)
+                Opcode.PUSH8.getCode(), 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, // PUSH2 0x2222 (address)
                 Opcode.PUSH2.getCode(), 0x01, 0x2C, // PUSH2 300 (gas)
                 Opcode.STATICCALL.getCode(),    // STATICCALL
                 Opcode.STOP.getCode()           // STOP
@@ -155,7 +156,7 @@ public class CallReturnTest {
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (retOffset)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsSize)
                 Opcode.PUSH1.getCode(), 0x00,  // PUSH1 0 (argsOffset)
-                Opcode.PUSH2.getCode(), 0x33, 0x33, // PUSH2 0x3333 (address)
+                Opcode.PUSH8.getCode(), 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, // PUSH2 0x3333 (address)
                 Opcode.PUSH2.getCode(), 0x01, (byte) 0x90, // PUSH2 400 (gas)
                 Opcode.DELEGATECALL.getCode(),  // DELEGATECALL
                 Opcode.STOP.getCode()           // STOP

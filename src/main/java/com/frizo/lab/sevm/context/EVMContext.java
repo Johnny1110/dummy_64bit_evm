@@ -2,11 +2,14 @@ package com.frizo.lab.sevm.context;
 
 import com.frizo.lab.sevm.blockchain.Blockchain;
 import com.frizo.lab.sevm.blockchain.impl.BlockChainFactory;
+import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.common.Constant;
+import com.frizo.lab.sevm.context.block.BlockContext;
 import com.frizo.lab.sevm.context.call.CallData;
 import com.frizo.lab.sevm.context.call.CallFrame;
 import com.frizo.lab.sevm.context.call.CallType;
 import com.frizo.lab.sevm.context.log.LogEntry;
+import com.frizo.lab.sevm.context.txn.TxnContext;
 import com.frizo.lab.sevm.memory.Memory;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
@@ -23,29 +26,32 @@ import java.util.Set;
 @Getter
 public class EVMContext {
 
+    private static final long DEFAULT_GAS_LIMIT = 1000000L;
+
     // Global context
-    protected final String txOrigin;
-    protected final long blockNumber;
-    protected final long timestamp;
+    private final BlockContext blockContext;
+    private final TxnContext txnContext;
+
     // call
     private final CallStack callStack;
     private final Set<Integer> validJumpDestIdx;
 
-    // Blockchain instance for state access
+    // Blockchain instance for state access (StageDB)
     @Getter
-    private final Blockchain blockchain = BlockChainFactory.getBlockchainInstance();
+    private final Blockchain blockchain = BlockChainFactory.getMockStateDB();
 
-    public EVMContext(byte[] bytecode, long initialGas, String txOrigin) {
+    public EVMContext(byte[] bytecode, long initialGas, Address txOrigin) {
         this.callStack = new CallStack(Constant.MAX_STACK_DEPTH);
         this.validJumpDestIdx = new HashSet<>();
 
-        this.txOrigin = txOrigin;
-        this.blockNumber = System.currentTimeMillis() / 1000; // Simulating block number as seconds since epoch
-        this.timestamp = System.currentTimeMillis();
+        Address contractAddress = Address.of("0x0000000000000000");// for test, use a dummy address
+
+        this.blockContext = new BlockContext(blockchain, DEFAULT_GAS_LIMIT);
+        this.txnContext = new TxnContext(blockchain, txOrigin);
 
         // Create the initial call frame
         CallData callData = CallData.builder()
-                .contractAddress("CONTRACT_MAIN")
+                .contractAddress(contractAddress)
                 .caller(txOrigin)
                 .origin(txOrigin)
                 .value(0)

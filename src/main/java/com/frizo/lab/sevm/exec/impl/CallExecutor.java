@@ -1,5 +1,6 @@
 package com.frizo.lab.sevm.exec.impl;
 
+import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.context.call.CallData;
 import com.frizo.lab.sevm.context.call.CallFrame;
@@ -61,14 +62,14 @@ public class CallExecutor implements InstructionExecutor {
             throw new EVMException.StackUnderflowException("Not enough items on stack for CALL");
         }
         long gas = stack.safePop();
-        long contractAddress = stack.safePop();
+        Address contractAddress = Address.of(stack.safePop());
         long value = stack.safePop();
         long argsOffset = stack.safePop();
         long argsSize = stack.safePop();
         long retOffset = stack.safePop();
         long retSize = stack.safePop();
 
-        log.info("[CallExecutor] CALL - gas: {}, contractAddress: {}, value: {}", gas, NumUtils.longToHex(contractAddress), value);
+        log.info("[CallExecutor] CALL - gas: {}, contractAddress: {}, value: {}", gas, contractAddress, value);
 
         // read the call data from memory.
         byte[] callData = MemoryUtils.read(context, argsOffset, argsSize);
@@ -89,7 +90,7 @@ public class CallExecutor implements InstructionExecutor {
         CallFrame newFrame = new CallFrame(
                 contractCode, gas,
                 CallData.builder()
-                        .contractAddress(NumUtils.longToHex(contractAddress))
+                        .contractAddress(contractAddress)
                         .caller(currentFrame.getContractAddress())
                         .origin(currentFrame.getOrigin())
                         .value(value)
@@ -164,7 +165,7 @@ public class CallExecutor implements InstructionExecutor {
 
         // STATICCALL: [gas, address, argsOffset, argsSize, retOffset, retSize]
         long gas = stack.safePop();
-        long contractAddress = stack.safePop();
+        Address contractAddress = Address.of(stack.safePop());
         long argsOffset = stack.safePop();
         long argsSize = stack.safePop();
         long retOffset = stack.safePop();
@@ -189,7 +190,7 @@ public class CallExecutor implements InstructionExecutor {
         CallFrame newFrame = new CallFrame(
                 contractCode, gas,
                 CallData.builder()
-                        .contractAddress(NumUtils.longToHex(contractAddress))
+                        .contractAddress(contractAddress)
                         .caller(currentFrame.getContractAddress())
                         .origin(currentFrame.getOrigin())
                         .value(0) // STATICCALL does not transfer value
@@ -231,7 +232,7 @@ public class CallExecutor implements InstructionExecutor {
 
         // DELEGATECALL:[gas, address, argsOffset, argsSize, retOffset, retSize]
         long gas = stack.safePop();
-        long contractAddress = stack.safePop();
+        Address contractAddress = Address.of(stack.safePop());
         long argsOffset = stack.safePop();
         long argsSize = stack.safePop();
         long retOffset = stack.safePop();
@@ -297,7 +298,7 @@ public class CallExecutor implements InstructionExecutor {
         }
         // CALLCODE same as CALL
         long gas = stack.safePop();
-        long contractAddress = stack.safePop();
+        Address contractAddress = Address.of(stack.safePop());
         long value = stack.safePop();
         long argsOffset = stack.safePop();
         long argsSize = stack.safePop();
@@ -361,13 +362,13 @@ public class CallExecutor implements InstructionExecutor {
      * @param contractAddress contract address
      * @return the contract code as a byte array
      */
-    private byte[] loadContractCode(EVMContext context, long contractAddress) {
-        log.info("[CallExecutor] Loading contract code for contractAddress: {}", NumUtils.longToHex(contractAddress));
+    private byte[] loadContractCode(EVMContext context, Address contractAddress) {
+        log.info("[CallExecutor] Loading contract code for contractAddress: {}", contractAddress);
         try {
-            return context.getBlockchain().loadCode(NumUtils.longToHex(contractAddress));
+            return context.getBlockchain().loadCode(contractAddress);
         } catch (Exception e) {
-            log.error("[CallExecutor] Failed to load contract code for address {}: {}", NumUtils.longToHex(contractAddress), e.getMessage());
-            throw new EVMException.ContractNotFoundException("Contract not found at address: " + NumUtils.longToHex(contractAddress));
+            log.error("[CallExecutor] Failed to load contract code for address {}: {}", contractAddress, e.getMessage());
+            throw new EVMException.ContractNotFoundException("Contract not found at address: " + contractAddress);
         }
     }
 

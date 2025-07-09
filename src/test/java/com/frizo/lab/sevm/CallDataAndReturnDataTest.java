@@ -1,16 +1,16 @@
 package com.frizo.lab.sevm;
 
 
+import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.vm.SimpleEVM;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static com.frizo.lab.sevm.TestConstant.TEST_ORIGIN;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CallDataAndReturnDataTest {
-
-    private static final String TEST_ORIGIN = "0x123456789A";
 
 
     @Test
@@ -150,7 +150,7 @@ public class CallDataAndReturnDataTest {
         var evm = new SimpleEVM(mainContractBytecode, 1000000L, TEST_ORIGIN);
 
         // 註冊目標合約
-        evm.registerContract(TARGET_CONTRACT_ADDRESS, targetContractBytecode);
+        evm.registerContract(Address.of(TARGET_CONTRACT_ADDRESS), targetContractBytecode);
 
         evm.run();
 

@@ -1,5 +1,6 @@
 package com.frizo.lab.sevm.vm;
 
+import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.context.log.LogEntry;
 import com.frizo.lab.sevm.exec.InstructionDispatcher;
@@ -18,7 +19,7 @@ public class SimpleEVM {
     private final EVMContext context;
     private final InstructionDispatcher dispatcher;
 
-    public SimpleEVM(byte[] bytecode, long initialGas, String originAddr) {
+    public SimpleEVM(byte[] bytecode, long initialGas, Address originAddr) {
         this.context = new EVMContext(bytecode, initialGas, originAddr);
         this.dispatcher = new InstructionDispatcher();
     }
@@ -104,8 +105,7 @@ public class SimpleEVM {
         return context.getAllLogs();
     }
 
-    public void registerContract(byte[] contractAddress, byte[] contractBytecode) {
-        String contractAddressHex = NumUtils.bytesToHex(contractAddress);
-        context.getBlockchain().registerContract(contractAddressHex, contractBytecode);
+    public void registerContract(Address contractAddress, byte[] contractBytecode) {
+        context.getBlockchain().registerContract(contractAddress, contractBytecode);
     }
 }
