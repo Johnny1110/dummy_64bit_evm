@@ -69,6 +69,35 @@ public class EVMContext {
         callStack.safePush(initialFrame);
     }
 
+    public EVMContext(byte[] bytecode, long value, long initialGas, Address txOrigin) {
+        this.callStack = new CallStack(Constant.MAX_STACK_DEPTH);
+        this.validJumpDestIdx = new HashSet<>();
+
+        Address contractAddress = Address.of("0x0000000000000000");// for test, use a dummy address
+
+        this.blockContext = new BlockContext(blockchain, DEFAULT_GAS_LIMIT);
+        this.txnContext = new TxnContext(blockchain, txOrigin);
+
+        // Create the initial call frame
+        CallData callData = CallData.builder()
+                .contractAddress(contractAddress)
+                .caller(txOrigin)
+                .origin(txOrigin)
+                .value(value)
+                .inputData(new byte[0])
+                .inputOffset(0)
+                .inputSize(0)
+                .callType(CallType.CALL)
+                .isStatic(false)
+                .build();
+        CallFrame initialFrame = new CallFrame(
+                bytecode,
+                initialGas,
+                callData
+        );
+        callStack.safePush(initialFrame);
+    }
+
 
     public CallFrame getCurrentFrame() {
         return callStack.peek();
@@ -172,5 +201,44 @@ public class EVMContext {
 
     public List<LogEntry> getAllLogs() {
         return getCurrentFrame().getLogs();
+    }
+
+    public void setByteCode(byte[] code) {
+        this.getCurrentFrame().setByteCode(code);
+    }
+
+    public void preExecHandle() {
+        log.info("[EVMContext] Pre-handling bytecode to find valid jump destinations...");
+        for (int i = 0; i < this.getCurrentCode().length; i++) {
+            if (this.getCurrentCode()[i] == Opcode.JUMPDEST.getCode()) {
+                this.getValidJumpDestIdx().add(i);
+            }
+        }
+    }
+
+    public void setValue(long value) {
+        getCurrentFrame().setValue(value);
+    }
+
+    public void setContractAddress(Address contractAddress) {
+        getCurrentFrame().setContractAddress(contractAddress);
+    }
+
+    public void setCallData(byte[] callData) {
+        getCurrentFrame().setInputData(callData);
+        getCurrentFrame().setInputOffset(0);
+        getCurrentFrame().setInputSize(callData.length);
+    }
+
+    public void setStaticCall(boolean is) {
+        getCurrentFrame().setStatic(is);
+    }
+
+    public void creationMode() {
+        getCurrentFrame().enableCreationMode();
+    }
+
+    public int getDepth() {
+        return getCurrentFrame().getStack().size();
     }
 }

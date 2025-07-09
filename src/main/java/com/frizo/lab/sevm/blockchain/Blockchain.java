@@ -25,4 +25,24 @@ public interface Blockchain {
     long getDiff();
 
     Address getCoinbase();
+
+    boolean canTransfer(Address from, long value);
+
+    Address calculateNewContractAddress(Address from);
+
+    boolean exist(Address creationAddress);
+
+    void createContract(Address creationAddress);
+
+    int getNonce(Address creationAddress);
+
+    Object getCodeHash(Address creationAddress);
+
+    void setNonce(Address from, int number);
+
+    long takeSnapshot();
+
+    void revertToSnapshot(long snapshot);
+
+    void setCode(Address creationAddress, byte[] deployedCode);
 }

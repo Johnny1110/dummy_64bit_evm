@@ -1,6 +1,5 @@
-package com.frizo.lab.sevm;
+package com.frizo.lab.sevm.sevm_v1;
 
-import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.context.call.CallFrame;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.utils.NumUtils;

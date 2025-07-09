@@ -1,16 +1,12 @@
 package com.frizo.lab.sevm.blockchain.impl;
 
 import com.frizo.lab.sevm.blockchain.Blockchain;
-import com.frizo.lab.sevm.blockchain.impl.mock.MockAccountBalance;
+import com.frizo.lab.sevm.blockchain.impl.mock.MockAccount;
 import com.frizo.lab.sevm.blockchain.impl.mock.MockContractStorage;
 import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.exception.EVMException;
-import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.utils.NumUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 public class MockBlockChain implements Blockchain {
@@ -30,9 +26,9 @@ public class MockBlockChain implements Blockchain {
     public void transfer(Address from, Address to, long value) {
         log.info("[MockBlockChain] Transfer ETH:[{}] from [{}] to [{}]", value, from, to);
         try {
-            MockAccountBalance.transfer(from, to, value);
+            MockAccount.transfer(from, to, value);
         } catch (Exception e) {
-            throw  new EVMException.ValueTransferException("Transfer failed from " + from + " to " + to + " with value: " + value, e.getMessage());
+            throw new EVMException.ValueTransferException("Transfer failed from " + from + " to " + to + " with value: " + value, e.getMessage());
         }
     }
 
@@ -49,7 +45,7 @@ public class MockBlockChain implements Blockchain {
 
     @Override
     public long balance(Address address) {
-        return MockAccountBalance.getBalance(address);
+        return MockAccount.getBalance(address);
     }
 
     @Override
@@ -87,5 +83,62 @@ public class MockBlockChain implements Blockchain {
     @Override
     public Address getCoinbase() {
         return Address.of("0x123456789011223D");
+    }
+
+    @Override
+    public boolean canTransfer(Address from, long value) {
+        return true;
+    }
+
+    @Override
+    public Address calculateNewContractAddress(Address from) {
+        // random a long value as nonce
+        long nonce = System.currentTimeMillis(); // Simulating nonce
+        return Address.of(nonce);
+    }
+
+    @Override
+    public boolean exist(Address creationAddress) {
+        return MockContractStorage.exists(creationAddress);
+    }
+
+    @Override
+    public void createContract(Address creationAddress) {
+        MockAccount.create(creationAddress);
+    }
+
+    @Override
+    public int getNonce(Address creationAddress) {
+        return (int) MockAccount.getNonce(creationAddress);
+    }
+
+    @Override
+    public Object getCodeHash(Address creationAddress) {
+        return MockAccount.getCodeHash(creationAddress);
+    }
+
+    @Override
+    public void setNonce(Address from, int number) {
+        log.info("[MockBlockChain] Setting nonce for address {} to {}", from, number);
+        MockAccount.setNonce(from, number);
+    }
+
+    @Override
+    public long takeSnapshot() {
+        return 1; // Mock snapshot, always returns 1
+    }
+
+    @Override
+    public void revertToSnapshot(long snapshot) {
+        log.info("[MockBlockChain] Reverting to snapshot: {}", snapshot);
+        // In a real implementation, this would restore the state to the snapshot
+        // For mock, we do nothing as we don't maintain state history
+    }
+
+    @Override
+    public void setCode(Address creationAddress, byte[] deployedCode) {
+        log.info("[MockBlockChain] Setting code for contract at address: {}", creationAddress);
+        MockContractStorage.addContract(creationAddress, deployedCode);
+        log.info("[MockBlockChain] Code set successfully for contract at address: {}", creationAddress);
     }
 }

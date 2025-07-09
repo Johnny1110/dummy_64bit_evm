@@ -1,5 +1,6 @@
 package com.frizo.lab.sevm.exception;
 
+import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.op.Opcode;
 
 public class EVMException extends RuntimeException {
@@ -94,6 +95,36 @@ public class EVMException extends RuntimeException {
     public static class ValueTransferException extends EVMException {
         public ValueTransferException(String msg, String error) {
             super("Value transfer failed: " + msg + ", error: " + error);
+        }
+    }
+
+    public static class UnknownSystemException extends EVMException {
+        public UnknownSystemException(Exception e) {
+            super(e.getMessage());
+        }
+    }
+
+    public static class ErrInsufficientBalance extends EVMException {
+        public ErrInsufficientBalance(Address from) {
+            super("Insufficient balance for address: " + from);
+        }
+    }
+
+    public static class ErrMaxCodeSizeExceeded extends EVMException {
+        public ErrMaxCodeSizeExceeded(int length) {
+            super("Maximum code size exceeded: " + length + " bytes");
+        }
+    }
+
+    public static class ErrCodeStoreOutOfGas extends EVMException {
+        public ErrCodeStoreOutOfGas() {
+            super("Out of gas while storing code");
+        }
+    }
+
+    public static class ErrExecutionReverted extends EVMException {
+        public ErrExecutionReverted(String reason) {
+            super("Execution reverted: " + reason);
         }
     }
 }

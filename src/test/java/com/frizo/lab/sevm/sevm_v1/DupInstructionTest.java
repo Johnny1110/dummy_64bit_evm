@@ -1,4 +1,4 @@
-package com.frizo.lab.sevm;
+package com.frizo.lab.sevm.sevm_v1;
 
 import com.frizo.lab.sevm.vm.SimpleEVM;
 import org.junit.jupiter.api.BeforeEach;
