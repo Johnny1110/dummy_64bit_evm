@@ -6,13 +6,13 @@ import com.frizo.lab.sevm.context.log.LogEntry;
 import com.frizo.lab.sevm.exec.InstructionDispatcher;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.stack.Stack;
-import com.frizo.lab.sevm.utils.NumUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @Slf4j
+@Deprecated(since = "Use SEVM instead")
 public class SimpleEVM {
 
     @Getter

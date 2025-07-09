@@ -69,6 +69,35 @@ public class EVMContext {
         callStack.safePush(initialFrame);
     }
 
+    public EVMContext(byte[] bytecode, long value, long initialGas, Address txOrigin) {
+        this.callStack = new CallStack(Constant.MAX_STACK_DEPTH);
+        this.validJumpDestIdx = new HashSet<>();
+
+        Address contractAddress = Address.of("0x0000000000000000");// for test, use a dummy address
+
+        this.blockContext = new BlockContext(blockchain, DEFAULT_GAS_LIMIT);
+        this.txnContext = new TxnContext(blockchain, txOrigin);
+
+        // Create the initial call frame
+        CallData callData = CallData.builder()
+                .contractAddress(contractAddress)
+                .caller(txOrigin)
+                .origin(txOrigin)
+                .value(value)
+                .inputData(new byte[0])
+                .inputOffset(0)
+                .inputSize(0)
+                .callType(CallType.CALL)
+                .isStatic(false)
+                .build();
+        CallFrame initialFrame = new CallFrame(
+                bytecode,
+                initialGas,
+                callData
+        );
+        callStack.safePush(initialFrame);
+    }
+
 
     public CallFrame getCurrentFrame() {
         return callStack.peek();

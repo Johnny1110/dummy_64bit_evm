@@ -27,6 +27,7 @@ public class CallFrame {
     // 64-bit Stack
     private final Stack<Long> stack;
     private final byte[] code;
+    private boolean creationMode; // Indicates if this frame is for contract creation
 
     // Call Data
     private final Address contractAddress;    // contract Address
@@ -200,5 +201,9 @@ public class CallFrame {
 
     public void cacheReverted(String revertReason) {
         this.callReturnBuffer.setReverted(revertReason);
+    }
+
+    public void enableCreationMode() {
+        this.creationMode = true;
     }
 }
