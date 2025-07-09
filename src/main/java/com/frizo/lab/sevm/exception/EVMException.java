@@ -90,4 +90,10 @@ public class EVMException extends RuntimeException {
             super("Contract already exists: " + s);
         }
     }
+
+    public static class ValueTransferException extends EVMException {
+        public ValueTransferException(String msg, String error) {
+            super("Value transfer failed: " + msg + ", error: " + error);
+        }
+    }
 }

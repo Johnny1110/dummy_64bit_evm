@@ -8,4 +8,6 @@ public interface Blockchain {
     void transfer(String from, String to, long value);
 
     void registerContract(String contractAddress, byte[] contractBytecode);
+
+    long balance(String hexAddress);
 }

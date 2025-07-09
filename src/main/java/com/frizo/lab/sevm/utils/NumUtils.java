@@ -109,32 +109,8 @@ public class NumUtils {
     }
 
     public static void main(String[] args) {
-//        List<Integer> stackInts = List.of(120, 86, 52, 18);
-//        int stackIntValue = stackIntArrayToInt(stackInts);
-//        System.out.println("Stack int array to int: " + stackIntValue);
-//
-//        int val = 0x61626364; // 'a', 'b', 'c', 'd'
-//        System.out.println(intToString(val)); // Output: abcd
-//
-//        val = 0x00000061;
-//        System.out.println(intToString(val)); // Output: ���a (前三個是 0x00)
-//
-//        val = 0x61626364; // 'a', 'b', 'c', 'd'
-//        System.out.println(intToTrimmedString(val)); // Output: abcd
-//
-//        val = 0x00000061;
-//        System.out.println(intToTrimmedString(val)); // Output: a
-
-        var bytes = longToBytesWithPadding(99999999L, 8);
-        for (byte aByte : bytes) {
-            System.out.println("Byte: " + String.format("%02X", aByte));
-        }
-
-        var recoveredLong = paddingBytesToLong(bytes, 8);
-        System.out.println("Recovered long: " + recoveredLong); // Should print 99999999
-
-        long val = 0x61626364; // 'a', 'b', 'c', 'd'
-        System.out.println(longToTrimmedString(val)); // Output: abcd
+        String hex = longToPaddingLeftHex(100L, 8);
+        System.out.println("Hex representation of 100: " + hex);
     }
 
 
@@ -326,6 +302,19 @@ public class NumUtils {
         return "0x" + hex;
     }
 
+    public static String longToPaddingLeftHex(long value, int maxPadding) {
+        if (maxPadding <= 0 || maxPadding > 16) {
+            throw new IllegalArgumentException("maxPadding must be between 1 and 16");
+        }
+
+        String hex = Long.toHexString(value);
+        // Ensure the hex string is padded to the left with zeros
+        while (hex.length() < maxPadding * 2) {
+            hex = "0" + hex; // Each byte is represented by 2 hex characters
+        }
+        return "0x" + hex;
+    }
+
     /**
      * Convert a byte array to a string representation, grouping bytes into specified sizes.
      * ex: input: rawdata = 000000000000004500000000000000720000000000000072000000000000006F0000000000000072 and  groupSize = 8
@@ -370,6 +359,10 @@ public class NumUtils {
 
     // 輔助方法：將十六進制字符串轉換為字節數組（用於測試）
     public static byte[] hexStringToBytes(String hex) {
+        if (hex != null && hex.startsWith("0x")) {
+            hex = hex.substring(2); // remove "0x" prefix
+        }
+
         if (hex == null || hex.length() % 2 != 0) {
             throw new IllegalArgumentException("Invalid hex string");
         }

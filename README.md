@@ -56,12 +56,11 @@ https://ethervm.io/#1C
 2. 環境資訊存取
 
     ```
-   ADDRESS (0x30) - 當前合約地址
-   BALANCE (0x31) - 帳戶餘額
-   CALLER (0x33) - 呼叫者地址
-   CALLVALUE (0x34) - 呼叫時的 ETH 值
-   CALLDATALOAD (0x35) - 載入呼叫資料
-   CALLDATASIZE (0x36) - 呼叫資料大小
+   ADDRESS (0x30) - 當前合約地址 ✅
+   BALANCE (0x31) - 帳戶餘額 ✅
+   CALLER (0x33) - 呼叫者地址 ✅
+   CALLVALUE (0x34) - 呼叫時的 ETH 值 ✅
+
    GASPRICE (0x3A) - Gas 價格
    COINBASE (0x41) - 礦工地址
    TIMESTAMP (0x42) - 區塊時間戳

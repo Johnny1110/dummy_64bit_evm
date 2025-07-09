@@ -27,15 +27,30 @@ public enum Opcode {
     SHL((byte) 0x1B, 3, NumLogicInstruction.class), // Shift right
     SHR((byte) 0x1C, 3, NumLogicInstruction.class), // Shift right
 
+    // Environmental information (0x30 ~ 0x34)
+    ADDRESS((byte) 0x30, 100, EnvironmentalExecutor.class), // current contract address
+    BALANCE((byte) 0x31, 2, EnvironmentalExecutor.class), //- account balance
+    CALLER((byte) 0x33, 2, EnvironmentalExecutor.class), //- caller address
+    CALLVALUE((byte) 0x34, 2, EnvironmentalExecutor.class), //- ETH value sent with the call
+
 
     // 0x35 and 0x36 CallData operations
     CALLDATALOAD((byte) 0x35, 3, CallDataExecutor.class), // Load data from calldata
     CALLDATASIZE((byte) 0x36, 2, CallDataExecutor.class), // Get the size of calldata
     CALLDATACOPY((byte) 0x37, 3, CallDataExecutor.class), // Copy data from calldata
 
+    //GASPRICE(0x3A, 3, null), //- Gas price
+
     // 0x3D and 0x3E are related to return data
     RETURNDATASIZE((byte) 0x3D, 2, ReturnDataExecutor.class), // Return data size
     RETURNDATACOPY((byte) 0x3E, 3, ReturnDataExecutor.class), // Copy return data
+
+
+//    COINBASE(0x41, 3, null), //- coinbase address (mining address)
+//    TIMESTAMP(0x42, 3, null), //- block timestamp
+//    NUMBER(0x43, 3, null), //- block number
+//    DIFFICULTY(0x44, 3, null), //- block difficulty (deprecated)
+//    GASLIMIT(0x45, 3, null), //- Gas limit
 
     POP((byte) 0x50, 2, PopExecutor.class), // Pop the top value from the stack
     // 0x51 0x52 memory
