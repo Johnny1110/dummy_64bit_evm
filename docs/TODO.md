@@ -35,11 +35,11 @@ public class SimpleEVM {
      * @param gasLimit gas limit for execution
      * @return execution result
      */
-    public EVMResult executeTransaction(Address from, Address to, byte[] data, 
-                                      BigInteger value, long gasLimit) {
+    public EVMResult executeTransaction(Address from, Address to, byte[] data,
+                                        BigInteger value, long gasLimit) {
         // Initialize context for this transaction
         this.context = new EVMContext(data, gasLimit, from);
-        
+
         if (to == null) {
             // Contract creation
             return executeContractCreation(from, data, value, gasLimit);
@@ -52,35 +52,35 @@ public class SimpleEVM {
     /**
      * Execute contract creation
      */
-    private EVMResult executeContractCreation(Address from, byte[] initCode, 
-                                            BigInteger value, long gasLimit) {
+    private EVMResult executeContractCreation(Address from, byte[] initCode,
+                                              BigInteger value, long gasLimit) {
         log.info("[SimpleEVM] Executing contract creation from: {}", from);
-        
+
         // Set up context for contract creation
         context.getCurrentFrame().setCreationMode(true);
         context.getCurrentFrame().setValue(value);
-        
+
         return executeInternal(initCode);
     }
 
     /**
      * Execute contract call
      */
-    private EVMResult executeContractCall(Address from, Address to, byte[] calldata, 
-                                        BigInteger value, long gasLimit) {
+    private EVMResult executeContractCall(Address from, Address to, byte[] calldata,
+                                          BigInteger value, long gasLimit) {
         log.info("[SimpleEVM] Executing contract call from: {} to: {}", from, to);
-        
+
         // Load contract bytecode from blockchain state
         byte[] contractCode = context.getBlockchain().getContractCode(to);
         if (contractCode == null || contractCode.length == 0) {
             return new EVMResult(false, "Contract not found", null, context.getGasUsed(), getAllLogs());
         }
-        
+
         // Set up context for contract call
         context.getCurrentFrame().setCalldata(calldata);
         context.getCurrentFrame().setValue(value);
         context.getCurrentFrame().setCodeAddress(to);
-        
+
         return executeInternal(contractCode);
     }
 
@@ -90,11 +90,11 @@ public class SimpleEVM {
     private EVMResult executeInternal(byte[] bytecode) {
         try {
             // Set the bytecode to execute
-            context.setCurrentCode(bytecode);
-            
+            context.setByteCode(bytecode);
+
             // Pre-process bytecode
             preHandle();
-            
+
             // Execute
             while (context.isRunning() && context.hasMoreCode()) {
                 Opcode opcode = context.getCurrentOpcode();
@@ -110,13 +110,13 @@ public class SimpleEVM {
                     return new EVMResult(false, e.getMessage(), null, context.getGasUsed(), getAllLogs());
                 }
             }
-            
+
             // Handle return data
             byte[] returnData = context.getCurrentFrame().getReturnData();
             boolean success = !context.getCurrentFrame().isReverted();
-            
+
             return new EVMResult(success, null, returnData, context.getGasUsed(), getAllLogs());
-            
+
         } catch (Exception e) {
             log.error("[SimpleEVM] Execution failed", e);
             return new EVMResult(false, e.getMessage(), null, context.getGasUsed(), getAllLogs());
@@ -128,21 +128,21 @@ public class SimpleEVM {
      */
     public EVMResult staticCall(Address from, Address to, byte[] calldata, long gasLimit) {
         log.info("[SimpleEVM] Executing static call from: {} to: {}", from, to);
-        
+
         // Initialize context for static call
         this.context = new EVMContext(new byte[0], gasLimit, from);
         context.getCurrentFrame().setStaticCall(true);
-        
+
         // Load contract bytecode
         byte[] contractCode = context.getBlockchain().getContractCode(to);
         if (contractCode == null || contractCode.length == 0) {
             return new EVMResult(false, "Contract not found", null, 0, getAllLogs());
         }
-        
+
         // Set up context
         context.getCurrentFrame().setCalldata(calldata);
         context.getCurrentFrame().setCodeAddress(to);
-        
+
         return executeInternal(contractCode);
     }
 
@@ -154,11 +154,11 @@ public class SimpleEVM {
             return null;
         }
         return new EVMState(
-            context.getCurrentStack().copy(),
-            context.getCurrentMemory().copy(),
-            context.getStorage().copy(),
-            context.getGasRemaining(),
-            context.getCurrentFrame().getProgramCounter()
+                context.getCurrentStack().copy(),
+                context.getCurrentMemory().copy(),
+                context.getStorage().copy(),
+                context.getGasRemaining(),
+                context.getCurrentFrame().getProgramCounter()
         );
     }
 
@@ -176,7 +176,7 @@ public class SimpleEVM {
 
     private void consumeGas(Opcode opcode) {
         context.consumeGas(opcode.getGasCost());
-        log.info("[SimpleEVM] consumeGas: {} ({} gas), gasRemaining: {}", 
+        log.info("[SimpleEVM] consumeGas: {} ({} gas), gasRemaining: {}",
                 opcode, opcode.getGasCost(), context.getGasRemaining());
     }
 
@@ -236,8 +236,8 @@ class EVMResult {
     @Getter
     private final List<LogEntry> logs;
 
-    public EVMResult(boolean success, String error, byte[] returnData, 
-                    long gasUsed, List<LogEntry> logs) {
+    public EVMResult(boolean success, String error, byte[] returnData,
+                     long gasUsed, List<LogEntry> logs) {
         this.success = success;
         this.error = error;
         this.returnData = returnData;
@@ -259,8 +259,8 @@ class EVMState {
     @Getter
     private final int programCounter;
 
-    public EVMState(Stack<Long> stack, Object memory, Object storage, 
-                   long gasRemaining, int programCounter) {
+    public EVMState(Stack<Long> stack, Object memory, Object storage,
+                    long gasRemaining, int programCounter) {
         this.stack = stack;
         this.memory = memory;
         this.storage = storage;

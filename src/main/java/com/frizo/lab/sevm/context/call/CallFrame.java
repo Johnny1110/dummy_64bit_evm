@@ -26,21 +26,29 @@ public class CallFrame {
 
     // 64-bit Stack
     private final Stack<Long> stack;
-    private final byte[] code;
+    private byte[] code;
     private boolean creationMode; // Indicates if this frame is for contract creation
 
     // Call Data
-    private final Address contractAddress;    // contract Address
-    private final Address caller;            // caller Address
-    private final Address origin;            // Txn Origin Address
-    private final long value;               // transfer value
-    private final byte[] inputData;        // input data
-    private final long inputOffset;         // input data offset in memory
-    private final long inputSize;           // input data size
-    // Call Type
-    private final CallType callType;
+    @Setter
+    private Address contractAddress;    // contract Address
+    @Setter
+    private Address caller;            // caller Address
+    @Setter
+    private Address origin;            // Txn Origin Address
+    @Setter
+    private long value;               // transfer value
+    @Setter
+    private byte[] inputData;        // input data
+    @Setter
+    private long inputOffset;         // input data offset in memory
+    @Setter
+    private long inputSize;           // input data size
+    @Setter
+    private CallType callType;
     // Static Call (read-only)
-    private final boolean isStatic;
+    @Setter
+    private boolean isStatic;
     @Setter
     private Memory<Long, Long> memory;
     @Setter
@@ -205,5 +213,9 @@ public class CallFrame {
 
     public void enableCreationMode() {
         this.creationMode = true;
+    }
+
+    public void setByteCode(byte[] code) {
+        this.code = code;
     }
 }

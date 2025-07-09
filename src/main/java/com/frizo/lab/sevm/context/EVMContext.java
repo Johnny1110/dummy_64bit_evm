@@ -202,4 +202,43 @@ public class EVMContext {
     public List<LogEntry> getAllLogs() {
         return getCurrentFrame().getLogs();
     }
+
+    public void setByteCode(byte[] code) {
+        this.getCurrentFrame().setByteCode(code);
+    }
+
+    public void preExecHandle() {
+        log.info("[EVMContext] Pre-handling bytecode to find valid jump destinations...");
+        for (int i = 0; i < this.getCurrentCode().length; i++) {
+            if (this.getCurrentCode()[i] == Opcode.JUMPDEST.getCode()) {
+                this.getValidJumpDestIdx().add(i);
+            }
+        }
+    }
+
+    public void setValue(long value) {
+        getCurrentFrame().setValue(value);
+    }
+
+    public void setContractAddress(Address contractAddress) {
+        getCurrentFrame().setContractAddress(contractAddress);
+    }
+
+    public void setCallData(byte[] callData) {
+        getCurrentFrame().setInputData(callData);
+        getCurrentFrame().setInputOffset(0);
+        getCurrentFrame().setInputSize(callData.length);
+    }
+
+    public void setStaticCall(boolean is) {
+        getCurrentFrame().setStatic(is);
+    }
+
+    public void creationMode() {
+        getCurrentFrame().enableCreationMode();
+    }
+
+    public int getDepth() {
+        return getCurrentFrame().getStack().size();
+    }
 }
