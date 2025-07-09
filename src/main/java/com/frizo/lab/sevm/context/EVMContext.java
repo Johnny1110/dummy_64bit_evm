@@ -40,16 +40,18 @@ public class EVMContext {
     @Getter
     private final Blockchain blockchain = BlockChainFactory.getMockStateDB();
 
-    public EVMContext(byte[] bytecode, long initialGas, String txOrigin) {
+    public EVMContext(byte[] bytecode, long initialGas, Address txOrigin) {
         this.callStack = new CallStack(Constant.MAX_STACK_DEPTH);
         this.validJumpDestIdx = new HashSet<>();
 
+        Address contractAddress = Address.of("0x0000000000000000");// for test, use a dummy address
+
         this.blockContext = new BlockContext(blockchain, DEFAULT_GAS_LIMIT);
-        this.txnContext = new TxnContext(blockchain, Address.of(txOrigin));
+        this.txnContext = new TxnContext(blockchain, txOrigin);
 
         // Create the initial call frame
         CallData callData = CallData.builder()
-                .contractAddress("CONTRACT_MAIN")
+                .contractAddress(contractAddress)
                 .caller(txOrigin)
                 .origin(txOrigin)
                 .value(0)

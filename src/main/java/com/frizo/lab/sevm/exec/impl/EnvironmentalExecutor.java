@@ -1,5 +1,6 @@
 package com.frizo.lab.sevm.exec.impl;
 
+import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.exception.EVMException;
 import com.frizo.lab.sevm.exec.InstructionExecutor;
@@ -33,11 +34,9 @@ public class EnvironmentalExecutor implements InstructionExecutor {
     }
 
     private void processAddress(EVMContext context) {
-        String contractAddress = context.getCurrentFrame().getContractAddress();
-        byte[] addressBytes = NumUtils.hexStringToBytes(contractAddress);
-        long addressValue = NumUtils.bytesToLong(addressBytes);
-        context.getCurrentStack().safePush(addressValue);
-        log.info("[EnvironmentalExecutor] ADDRESS: convert address[{}] to value[{}] and push into stack.", contractAddress, addressValue);
+        Address contractAddress = context.getCurrentFrame().getContractAddress();
+        context.getCurrentStack().safePush(contractAddress.getAddressLong());
+        log.info("[EnvironmentalExecutor] ADDRESS: convert address[{}] to value[{}] and push into stack.", contractAddress, contractAddress.getAddressLong());
     }
 
     private void processBalance(EVMContext context) {
@@ -45,20 +44,18 @@ public class EnvironmentalExecutor implements InstructionExecutor {
         if (context.getCurrentStack().isEmpty()) {
             throw new EVMException.StackUnderflowException("Not enough values on stack to process BALANCE");
         }
-        long addressValue = context.getCurrentStack().safePop();
-        String hexAddress = NumUtils.longToPaddingLeftHex(addressValue, 8);
+        Address address = Address.of(context.getCurrentStack().safePop());
+
         // get balance(ETH) of the address (unit wei)
-        long balance = context.getBlockchain().balance(hexAddress);
+        long balance = context.getBlockchain().balance(address);
         // push the balance value into stack
         context.getCurrentStack().safePush(balance);
     }
 
     private void processCaller(EVMContext context) {
-        String callerAddress = context.getCurrentFrame().getCaller();
-        byte[] addressBytes = NumUtils.hexStringToBytes(callerAddress);
-        long addressValue = NumUtils.bytesToLong(addressBytes);
-        context.getCurrentStack().safePush(addressValue);
-        log.info("[EnvironmentalExecutor] CALLER: convert caller address[{}] to value[{}] and push into stack.", callerAddress, addressValue);
+        Address callerAddress = context.getCurrentFrame().getCaller();
+        context.getCurrentStack().safePush(callerAddress.getAddressLong());
+        log.info("[EnvironmentalExecutor] CALLER: convert caller address[{}] to value[{}] and push into stack.", callerAddress, callerAddress.getAddressLong());
 
     }
 

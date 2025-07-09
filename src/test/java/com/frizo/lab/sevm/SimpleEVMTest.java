@@ -4,6 +4,7 @@ import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.vm.SimpleEVM;
 import org.junit.jupiter.api.Test;
 
+import static com.frizo.lab.sevm.TestConstant.TEST_ORIGIN;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SimpleEVMTest {
@@ -14,7 +15,7 @@ class SimpleEVMTest {
         // Example bytecode: PUSH1 0x05, PUSH1 0x03, ADD, STOP
         byte[] bytecode = new byte[]{0x60, 0x05, 0x60, 0x03, 0x01, 0x00};
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 10000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 10000, TEST_ORIGIN);
         evm.run();
 
         // The result of ADD (5 + 3) should be on the stack
@@ -30,7 +31,7 @@ class SimpleEVMTest {
         // Example bytecode: PUSH2 0x1234 (4660), STOP
         byte[] bytecode = new byte[]{0x61, 0x12, 0x34, 0x00};
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 10000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 10000, TEST_ORIGIN);
         evm.run();
 
         // The result of PUSH2 should be on the stack
@@ -45,7 +46,7 @@ class SimpleEVMTest {
         // Example bytecode: PUSH3 0x123456 (1193046), STOP
         byte[] bytecode = new byte[]{0x62, 0x12, 0x34, 0x56, 0x00};
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 10000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 10000, TEST_ORIGIN);
         evm.run();
 
         // The result of PUSH2 should be on the stack
@@ -60,7 +61,7 @@ class SimpleEVMTest {
         // Example bytecode: PUSH4 0x12345678 (305419896), STOP
         byte[] bytecode = new byte[]{0x63, 0x12, 0x34, 0x56, 0x78, 0x00};
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 10000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 10000, TEST_ORIGIN);
         evm.run();
 
         // The result of PUSH2 should be on the stack
@@ -82,7 +83,7 @@ class SimpleEVMTest {
                 0x00              // STOP
         };
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 10000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 10000, TEST_ORIGIN);
         evm.run();
         evm.getStack();
         assertEquals(42, evm.peek()); // The value 42 should be loaded onto the stack
@@ -103,7 +104,7 @@ class SimpleEVMTest {
                 0x00              // STOP
         };
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 10000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 10000, TEST_ORIGIN);
         evm.run();
         evm.printStack(); // Expected: [43]
     }
@@ -120,7 +121,7 @@ class SimpleEVMTest {
                 0x00              // STOP
         };
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 20000000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 20000000, TEST_ORIGIN);
         evm.run();
         evm.printStack();   // Expected: [42]
         evm.printStorage(); // Expected: {1=42}
@@ -137,7 +138,7 @@ class SimpleEVMTest {
                 0x00              // STOP
         };
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 1, "OriginAddress"); // Set gas limit too low
+        SimpleEVM evm = new SimpleEVM(bytecode, 1, TEST_ORIGIN); // Set gas limit too low
         Exception exception = assertThrows(RuntimeException.class, evm::run);
         assertTrue(exception.getMessage().contains("Out of gas"));
     }
@@ -152,7 +153,7 @@ class SimpleEVMTest {
                 Opcode.STOP.getCode()              // STOP
         };
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 10000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 10000, TEST_ORIGIN);
         evm.run();
         evm.printStack(); // Expected: [1, 2, 3, 3]
     }
@@ -166,7 +167,7 @@ class SimpleEVMTest {
                 0x00                    // STOP
         };
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 1000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
         evm.run();
 
         evm.printStack();
@@ -187,7 +188,7 @@ class SimpleEVMTest {
                 0x00              // STOP
         };
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 1000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
         evm.run();
 
         assertEquals(2, evm.getStack().size());
@@ -205,7 +206,7 @@ class SimpleEVMTest {
                 0x00
         };
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 1000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
         evm.run();
 
         assertEquals(3, evm.getStack().size());
@@ -225,7 +226,7 @@ class SimpleEVMTest {
                 0x00
         };
 
-        SimpleEVM evm = new SimpleEVM(bytecode, 1000, "OriginAddress");
+        SimpleEVM evm = new SimpleEVM(bytecode, 1000, TEST_ORIGIN);
         evm.run();
 
         evm.printStack();

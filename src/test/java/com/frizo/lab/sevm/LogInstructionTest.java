@@ -9,12 +9,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.frizo.lab.sevm.TestConstant.TEST_ORIGIN;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LogInstructionTest {
-
-    private static final String TEST_ORIGIN = "0x12345678";
 
     @Test
     @DisplayName("測試 LOG0：單一資料無 topic")

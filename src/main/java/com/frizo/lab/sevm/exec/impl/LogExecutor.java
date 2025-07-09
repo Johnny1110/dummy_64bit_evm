@@ -56,8 +56,8 @@ public class LogExecutor implements InstructionExecutor {
                 .contractAddress(callFrame.getContractAddress())
                 .topics(topics)
                 .data(data)
-                .blockNumber(context.getBlockNumber())
-                .txOrigin(context.getTxOrigin())
+                .blockNumber(context.getBlockContext().getBlockNumber())
+                .txOrigin(context.getTxnContext().getTxOrigin())
                 .build();
 
         // 5. Append to current frame logs

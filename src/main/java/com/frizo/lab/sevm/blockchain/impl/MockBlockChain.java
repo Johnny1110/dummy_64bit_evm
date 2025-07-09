@@ -16,7 +16,7 @@ import java.util.Map;
 public class MockBlockChain implements Blockchain {
 
     @Override
-    public byte[] loadCode(String contractAddress) throws EVMException.ContractNotFoundException {
+    public byte[] loadCode(Address contractAddress) throws EVMException.ContractNotFoundException {
         log.info("[MockBlockChain] Loading contract code for address: {}", contractAddress);
         byte[] code = MockContractStorage.get(contractAddress);
         if (code == null) {
@@ -27,7 +27,7 @@ public class MockBlockChain implements Blockchain {
     }
 
     @Override
-    public void transfer(String from, String to, long value) {
+    public void transfer(Address from, Address to, long value) {
         log.info("[MockBlockChain] Transfer ETH:[{}] from [{}] to [{}]", value, from, to);
         try {
             MockAccountBalance.transfer(from, to, value);
@@ -37,7 +37,7 @@ public class MockBlockChain implements Blockchain {
     }
 
     @Override
-    public void registerContract(String contractAddress, byte[] contractBytecode) {
+    public void registerContract(Address contractAddress, byte[] contractBytecode) {
         if (MockContractStorage.exists(contractAddress)) {
             log.warn("[MockBlockChain] Contract already registered at address: {}", contractAddress);
             throw new EVMException.ContractAlreadyExistsException("Contract already exists at address: " + contractAddress);
@@ -48,8 +48,8 @@ public class MockBlockChain implements Blockchain {
     }
 
     @Override
-    public long balance(String hexAddress) {
-        return MockAccountBalance.getBalance(hexAddress);
+    public long balance(Address address) {
+        return MockAccountBalance.getBalance(address);
     }
 
     @Override

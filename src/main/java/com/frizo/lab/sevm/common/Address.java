@@ -10,7 +10,8 @@ public class Address {
     private byte[] addressBytes;
     private long addressLong;
 
-    private Address() {}
+    private Address() {
+    }
 
     public static Address of(String address) {
         validateAddress(address);
@@ -58,5 +59,22 @@ public class Address {
     @Override
     public String toString() {
         return addressString;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Address)) {
+            return false;
+        }
+        Address other = (Address) obj;
+        return this.addressLong == other.addressLong;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(addressLong);
     }
 }

@@ -5,12 +5,12 @@ import com.frizo.lab.sevm.exception.EVMException;
 
 public interface Blockchain {
 
-    byte[] loadCode(String contractAddress) throws EVMException.ContractNotFoundException;
-    void transfer(String from, String to, long value);
+    byte[] loadCode(Address contractAddress) throws EVMException.ContractNotFoundException;
+    void transfer(Address from, Address to, long value);
 
-    void registerContract(String contractAddress, byte[] contractBytecode);
+    void registerContract(Address contractAddress, byte[] contractBytecode);
 
-    long balance(String hexAddress);
+    long balance(Address hexAddress);
 
     double getGasPrice();
 
