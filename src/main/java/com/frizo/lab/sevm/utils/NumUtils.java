@@ -442,4 +442,15 @@ public class NumUtils {
         System.arraycopy(inputData, (int) offset, result, paddingBytes, availableBytes);
         return result;
     }
+
+    public static byte[] randomBytes(int count) {
+        if (count <= 0) {
+            throw new IllegalArgumentException("Count must be greater than 0");
+        }
+        byte[] bytes = new byte[count];
+        for (int i = 0; i < count; i++) {
+            bytes[i] = (byte) (Math.random() * 256); // 隨機生成 0-255 的字節
+        }
+        return bytes;
+    }
 }

@@ -1,5 +1,6 @@
 package com.frizo.lab.sevm.blockchain;
 
+import com.frizo.lab.sevm.common.Address;
 import com.frizo.lab.sevm.exception.EVMException;
 
 public interface Blockchain {
@@ -10,4 +11,18 @@ public interface Blockchain {
     void registerContract(String contractAddress, byte[] contractBytecode);
 
     long balance(String hexAddress);
+
+    double getGasPrice();
+
+    byte[] getBlockHash();
+
+    double getBlobFeeCap();
+
+    long getBlockNumber();
+
+    long getTime();
+
+    long getDiff();
+
+    Address getCoinbase();
 }
