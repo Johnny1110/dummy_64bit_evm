@@ -127,4 +127,10 @@ public class EVMException extends RuntimeException {
             super("Execution reverted: " + reason);
         }
     }
+
+    public static class CallStackOverflowException extends EVMException {
+        public CallStackOverflowException() {
+            super("Call stack overflow: too many nested calls");
+        }
+    }
 }

@@ -40,6 +40,36 @@ public class EVMContext {
     @Getter
     private final Blockchain blockchain = BlockChainFactory.getMockStateDB();
 
+    public EVMContext(long initialGas, Address txOrigin) {
+        this.callStack = new CallStack(Constant.MAX_STACK_DEPTH);
+        this.validJumpDestIdx = new HashSet<>();
+
+        Address contractAddress = Address.of("0x0000000000000000");// for test, use a dummy address
+
+        this.blockContext = new BlockContext(blockchain, DEFAULT_GAS_LIMIT);
+        this.txnContext = new TxnContext(blockchain, txOrigin);
+
+        // Create the initial call frame
+        CallData callData = CallData.builder()
+                .contractAddress(contractAddress)
+                .caller(txOrigin)
+                .origin(txOrigin)
+                .value(0)
+                .inputData(new byte[0])
+                .inputOffset(0)
+                .inputSize(0)
+                .callType(CallType.CALL)
+                .isStatic(false)
+                .build();
+        CallFrame initialFrame = new CallFrame(
+                new byte[]{},
+                initialGas,
+                callData
+        );
+        callStack.safePush(initialFrame);
+    }
+
+    @Deprecated
     public EVMContext(byte[] bytecode, long initialGas, Address txOrigin) {
         this.callStack = new CallStack(Constant.MAX_STACK_DEPTH);
         this.validJumpDestIdx = new HashSet<>();
@@ -69,6 +99,7 @@ public class EVMContext {
         callStack.safePush(initialFrame);
     }
 
+    @Deprecated
     public EVMContext(byte[] bytecode, long value, long initialGas, Address txOrigin) {
         this.callStack = new CallStack(Constant.MAX_STACK_DEPTH);
         this.validJumpDestIdx = new HashSet<>();
@@ -205,6 +236,7 @@ public class EVMContext {
 
     public void setByteCode(byte[] code) {
         this.getCurrentFrame().setByteCode(code);
+        preExecHandle();
     }
 
     public void preExecHandle() {
@@ -238,7 +270,19 @@ public class EVMContext {
         getCurrentFrame().enableCreationMode();
     }
 
-    public int getDepth() {
-        return getCurrentFrame().getStack().size();
+    public int getCallDepth() {
+        return callStack.size();
+    }
+
+    public void setCaller(Address caller) {
+        this.getCurrentFrame().setCaller(caller);
+    }
+
+    public void setOriginCaller(Address origin) {
+        this.getCurrentFrame().setOrigin(origin);
+    }
+
+    public void setGasLimit(long gasLimit) {
+        this.getCurrentFrame().setGasLimit(gasLimit);
     }
 }

@@ -218,4 +218,9 @@ public class CallFrame {
     public void setByteCode(byte[] code) {
         this.code = code;
     }
+
+    public void setGasLimit(long gasLimit) {
+        this.gasRemaining = gasLimit;
+        this.gasUsed = 0;
+    }
 }

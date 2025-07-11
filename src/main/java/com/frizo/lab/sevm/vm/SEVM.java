@@ -20,78 +20,25 @@ public class SEVM {
     private EVMContext context;
     private final InstructionDispatcher dispatcher;
 
-    public SEVM() {
+    public SEVM(EVMContext context) {
+        if (context == null) {
+            throw new IllegalArgumentException("EVMContext cannot be null");
+        }
+        this.context = context;
         this.dispatcher = new InstructionDispatcher();
     }
 
     // ------------------------------------------------------------------------------------>
 
-    public EVMResult create(Address caller, Address contractAddress, byte[] code, long value, long gasLimit) {
-        log.info("[SEVM] Creating contract from: {}", caller);
-        this.context = new EVMContext(new byte[]{}, value, gasLimit, caller);
-        // Initialize context for contract creation
-        return executeContractCreation(caller, contractAddress, code, value);
-    }
-
-    /**
-     * Execute a transaction (similar to eth_call or contract creation)
-     * @param from sender address
-     * @param to recipient address (null for contract creation)
-     * @param data transaction data (bytecode for creation, calldata for calls)
-     * @param value ether value to transfer
-     * @param gasLimit gas limit for execution
-     * @return execution result
-     */
-    public EVMResult executeTransaction(Address from, Address to, byte[] data,
-                                        long value, long gasLimit) {
-        if (from == null || data == null || gasLimit <= 0) {
-            throw new IllegalArgumentException("Invalid transaction parameters");
-        }
-        this.context = new EVMContext(data, value, gasLimit, from);
-        return executeContractCall(from, to, data, value);
-    }
-
-    /**
-     * Execute a static call (read-only)
-     */
-    public EVMResult staticCall(Address from, Address to, byte[] callData, long gasLimit) {
-        log.info("[SEVM] Executing static call from: {} to: {}", from, to);
-
-        // Initialize context for static call
-        this.context = new EVMContext(new byte[0], gasLimit, from);
-        context.setStaticCall(true);
-
-        // Load contract bytecode
-        byte[] contractCode;
-        try {
-            contractCode = context.getBlockchain().loadCode(to);
-        } catch (EVMException.ContractNotFoundException e) {
-            log.error("[SEVM] Contract not found: {}", to, e);
-            return EVMResult.failed(e, context);
-        }
-
-        // Set up context
-        context.setContractAddress(to);
-        context.setCallData(callData);
-        context.setByteCode(contractCode);
-
-        return executeInternal(contractCode);
-    }
-
-    // ------------------------------------------------------------------------------------>
-
-    /**
-     * Execute contract creation
-     */
-    private EVMResult executeContractCreation(Address from, Address creationAddress, byte[] initCode, long value) {
-        log.info("[SEVM] Executing contract creation from: {}", from);
-        if (context.getDepth() > Constant.MAX_STACK_DEPTH) {
-            return EVMResult.failed(new EVMException.StackOverflowException(), context);
+    public EVMResult create(Address caller, Address creationAddress, byte[] initCode, long value, long gasLimit) {
+        log.info("[SEVM] Executing contract creation from: {}", caller);
+        if (context.getCallDepth() > Constant.MAX_CALL_DEPTH) {
+            return EVMResult.failed(new EVMException.CallStackOverflowException(), context);
         }
 
         // check balance
-        if (!context.getBlockchain().canTransfer(from, value)) {
-            throw new EVMException.ErrInsufficientBalance(from);
+        if (!context.getBlockchain().canTransfer(caller, value)) {
+            throw new EVMException.ErrInsufficientBalance(caller);
         }
 
         // 3. check exist
@@ -108,7 +55,7 @@ public class SEVM {
 
         try {
             // 5. update caller's nonce
-            context.getBlockchain().setNonce(from, context.getBlockchain().getNonce(from) + 1);
+            context.getBlockchain().setNonce(caller, context.getBlockchain().getNonce(caller) + 1);
 
             // 6. create contract address
             context.getBlockchain().createContract(creationAddress);
@@ -117,16 +64,17 @@ public class SEVM {
             context.getBlockchain().setNonce(creationAddress, 1);
 
             // 8. transfer value from caller to contract address
-            context.getBlockchain().transfer(from, creationAddress, value);
+            context.getBlockchain().transfer(caller, creationAddress, value);
 
             // 9. set up context for contract creation
             context.creationMode();
             context.setValue(value);
             context.setContractAddress(creationAddress);
             context.setByteCode(initCode);
+            context.setGasLimit(gasLimit);
 
             // 10. init contract (constructor)
-            EVMResult result = executeInternal(initCode);
+            EVMResult result = executeInternal();
 
             // 11. process result
             if (result.isSuccess() && result.getReturnData() != null) {
@@ -168,43 +116,205 @@ public class SEVM {
         }
     }
 
-    /**
-     * Execute contract call
-     */
-    private EVMResult executeContractCall(Address from, Address to, byte[] callData, long value) {
-        log.info("[SEVM] Executing contract call from: {} to: {}", from, to);
+    // Call executes the contract associated with the addr with the given input as
+    // parameters. It also handles any necessary value transfer required and takse
+    // the necessary steps to create accounts and reverses the state in case of an
+    // execution error or failed value transfer.
+    public EVMResult call(Address caller, Address addr, byte[] input, long gasLimit, long value) {
+        // Fail if we're trying to execute above the call depth limit
+        if (context.getCallDepth() > Constant.MAX_CALL_DEPTH) {
+            log.error("[SEVM] Call depth exceeded: {}", Constant.MAX_CALL_DEPTH);
+            return EVMResult.failed(new EVMException.CallStackOverflowException(), context);
+        }
+        log.info("[SEVM] Executing call from: {} to: {}", caller, addr);
+        // Fail if we're trying to transfer more than the available balance
+        if (value > 0 && !context.getBlockchain().canTransfer(caller, value)) {
+            log.error("[SEVM] Insufficient balance for transfer from: {} to: {}", caller, addr);
+            return EVMResult.failed(new EVMException.ErrInsufficientBalance(caller), context);
+        }
 
-        // Load contract bytecode from blockchain state
+        // snapshot the current state
+        long snapshot = context.getBlockchain().takeSnapshot();
+
+        // do transfer if value > 0
+        if (value > 0) {
+            try {
+                context.getBlockchain().transfer(caller, addr, value);
+            } catch (EVMException.ValueTransferException e) {
+                log.error("[SEVM] Value transfer failed from: {} to: {}", caller, addr, e);
+                context.getBlockchain().revertToSnapshot(snapshot);
+                return EVMResult.failed(e, context);
+            }
+        }
+
+        // get contract bytecode
         byte[] contractCode;
-        try{
-            contractCode = context.getBlockchain().loadCode(to);
+        try {
+            contractCode = context.getBlockchain().loadCode(addr);
             if (contractCode == null || contractCode.length == 0) {
-                throw new EVMException.ContractNotFoundException("Contract not found: " + to);
+                throw new EVMException.ContractNotFoundException("Contract not found: " + addr);
             }
         } catch (EVMException.ContractNotFoundException e) {
-            log.error("[SEVM] Contract not found: {}", to, e);
+            log.error("[SEVM] Contract not found: {}", addr, e);
+            context.getBlockchain().revertToSnapshot(snapshot);
             return EVMResult.failed(e, context);
         }
 
         // Set up context for contract call
         context.setByteCode(contractCode);
-        context.setCallData(callData);
-        context.setContractAddress(to);
+        context.setCallData(input);
+        context.setContractAddress(addr);
         context.setValue(value);
+        context.setGasLimit(gasLimit);
 
-        return executeInternal(contractCode);
+        EVMResult result = executeInternal();
+
+        if (result.isSuccess()) {
+            log.info("[SEVM] Call executed successfully from: {} to: {}", caller, addr);
+            return result;
+        } else {
+            // If execution failed, revert to the snapshot
+            context.getBlockchain().revertToSnapshot(snapshot);
+            log.error("[SEVM] Call execution failed from: {} to: {}, reason: {}", caller, addr, result.getMsg());
+            return result;
+        }
     }
+
+    public EVMResult callCode(Address caller, Address addr, byte[] input, long gasLimit, long value) {
+        // check call depth
+        if (context.getCallDepth() > Constant.MAX_CALL_DEPTH) {
+            log.error("[SEVM] Call depth exceeded: {}", Constant.MAX_CALL_DEPTH);
+            return EVMResult.failed(new EVMException.CallStackOverflowException(), context);
+        }
+
+        if (value > 0 && !context.getBlockchain().canTransfer(caller, value)) {
+            log.error("[SEVM] Insufficient balance for transfer from: {} to: {}", caller, addr);
+            return EVMResult.failed(new EVMException.ErrInsufficientBalance(caller), context);
+        }
+
+        //get contract bytecode
+        byte[] contractCode;
+        try {
+            contractCode = context.getBlockchain().loadCode(addr);
+            if (contractCode == null || contractCode.length == 0) {
+                throw new EVMException.ContractNotFoundException("Contract not found: " + addr);
+            }
+        } catch (EVMException.ContractNotFoundException e) {
+            log.error("[SEVM] Contract not found: {}", addr, e);
+            return EVMResult.failed(e, context);
+        }
+
+        // do snapshot
+        long snapshot = context.getBlockchain().takeSnapshot();
+
+        // Set up context for call code
+        context.setByteCode(contractCode);
+        context.setCallData(input);
+        context.setContractAddress(addr);
+        context.setValue(value);
+        context.setCaller(caller);
+        context.setGasLimit(gasLimit);
+
+        EVMResult result = executeInternal();
+
+        if (result.isSuccess()) {
+            log.info("[SEVM] Call code executed successfully from: {} to: {}", caller, addr);
+            return result;
+        } else {
+            // If execution failed, revert to the snapshot
+            context.getBlockchain().revertToSnapshot(snapshot);
+            log.error("[SEVM] Call code execution failed from: {} to: {}, reason: {}", caller, addr, result.getMsg());
+            return result;
+        }
+    }
+
+    public EVMResult delegateCall(Address originCaller, Address caller, Address addr, byte[] input, long gasLimit, long value) {
+        // check call depth
+        if (context.getCallDepth() > Constant.MAX_CALL_DEPTH) {
+            log.error("[SEVM] Call depth exceeded: {}", Constant.MAX_CALL_DEPTH);
+            return EVMResult.failed(new EVMException.CallStackOverflowException(), context);
+        }
+
+        //get contract bytecode
+        byte[] contractCode;
+        try {
+            contractCode = context.getBlockchain().loadCode(addr);
+            if (contractCode == null || contractCode.length == 0) {
+                throw new EVMException.ContractNotFoundException("Contract not found: " + addr);
+            }
+        } catch (EVMException.ContractNotFoundException e) {
+            log.error("[SEVM] Contract not found: {}", addr, e);
+            return EVMResult.failed(e, context);
+        }
+
+        // do snapshot
+        long snapshot = context.getBlockchain().takeSnapshot();
+
+        log.info("[SEVM] Executing delegate call from: {} to: {}", originCaller, addr);
+
+        // Set up context for delegate call
+        context.setByteCode(contractCode);
+        context.setCallData(input);
+        context.setContractAddress(addr);
+        context.setValue(value);
+        context.setCaller(caller);
+        context.setOriginCaller(originCaller);
+        context.setGasLimit(gasLimit);
+
+        EVMResult result = executeInternal();
+
+        if (result.isSuccess()) {
+            log.info("[SEVM] Delegate call executed successfully from: {} to: {}", originCaller, addr);
+            return result;
+        } else {
+            // If execution failed, revert to the snapshot
+            context.getBlockchain().revertToSnapshot(snapshot);
+            log.error("[SEVM] Delegate call execution failed from: {} to: {}, reason: {}", originCaller, addr, result.getMsg());
+            return result;
+        }
+    }
+
+    /**
+     * Execute a static call (read-only)
+     */
+    public EVMResult staticCall(Address from, Address to, byte[] callData, long gasLimit) {
+        log.info("[SEVM] Executing static call from: {} to: {}", from, to);
+
+        // Fail if we're trying to execute above the call depth limit
+        if (context.getCallDepth() > Constant.MAX_CALL_DEPTH) {
+            log.error("[SEVM] Call depth exceeded: {}", Constant.MAX_CALL_DEPTH);
+            return EVMResult.failed(new EVMException.CallStackOverflowException(), context);
+        }
+
+        // Initialize context for static call
+        this.context = new EVMContext(new byte[0], gasLimit, from);
+        context.setStaticCall(true);
+
+        // Load contract bytecode
+        byte[] contractCode;
+        try {
+            contractCode = context.getBlockchain().loadCode(to);
+        } catch (EVMException.ContractNotFoundException e) {
+            log.error("[SEVM] Contract not found: {}", to, e);
+            return EVMResult.failed(e, context);
+        }
+
+        // Set up context
+        context.setContractAddress(to);
+        context.setCallData(callData);
+        context.setByteCode(contractCode);
+        context.setGasLimit(gasLimit);
+
+        return executeInternal();
+    }
+
+    // ------------------------------------------------------------------------------------>
 
     /**
      * Internal execution method
      */
-    private EVMResult executeInternal(byte[] bytecode) {
+    private EVMResult executeInternal() {
         try {
-            // Set the bytecode to execute
-            context.setByteCode(bytecode);
-            // Pre-process bytecode
-            context.preExecHandle();
-
             // Execute
             while (context.isRunning() && context.hasMoreCode()) {
                 Opcode opcode = context.getCurrentOpcode();

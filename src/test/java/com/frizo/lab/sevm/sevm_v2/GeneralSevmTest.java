@@ -1,6 +1,7 @@
 package com.frizo.lab.sevm.sevm_v2;
 
 import com.frizo.lab.sevm.common.Address;
+import com.frizo.lab.sevm.context.EVMContext;
 import com.frizo.lab.sevm.op.Opcode;
 import com.frizo.lab.sevm.utils.NumUtils;
 import com.frizo.lab.sevm.vm.EVMResult;
@@ -12,20 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GeneralSevmTest {
-
-    @Test
-    public void testGeneralSevm() {
-        SEVM sevm = new SEVM();
-        Address origin = Address.of("0x1234567890abcdef");
-        Address contractAddress = Address.of("0x0101010101010102");
-        byte[] bytecode = new byte[0];
-
-        EVMResult result = sevm.executeTransaction(origin, contractAddress, bytecode, 0, 1000000);
-        System.out.println("EVM Result: " + result);
-        assertTrue(result.isSuccess());
-        assertEquals(999976, result.getGasRemaining());
-        assertEquals(NumUtils.bytesToHex(new byte[]{0, 0, 0, 0, 0, 0, 0, 58}), NumUtils.bytesToHex(result.getReturnData()));
-    }
 
     // 簡單的合約初始化代碼（返回 "Hello World" 的字節碼）
     private static final byte[] SIMPLE_INIT_CODE = new byte[]{
@@ -49,7 +36,8 @@ public class GeneralSevmTest {
     @Test
     @DisplayName("成功創建合約並轉入 0.1 ETH")
     public void testCreateContract() {
-        SEVM sevm = new SEVM();
+        EVMContext context = new EVMContext(1000000L, Address.of("0x1234567890abcdef"));
+        SEVM sevm = new SEVM(context);
         Address caller = Address.of("0x1234567890abcdef");
         Address contractAddress = Address.of("0x1234567890123456");
 
